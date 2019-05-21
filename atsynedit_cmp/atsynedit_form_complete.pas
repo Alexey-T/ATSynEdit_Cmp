@@ -584,22 +584,22 @@ initialization
   begin
     ColorFontPrefix:= clPurple;
     ColorFontParams:= clGray;
-    CommitChars := ' .,;/\''"';
-    CloseChars := '<>()[]{}=';
-    IndexOfText := 1;
-    IndexOfDesc := 2;
-    SepChar := '|';
-    HintChar := #9;
-    SuffixChar := #1;
+    CommitChars:= ' .,;/\''"';
+    CloseChars:= '<>()[]{}=';
+    IndexOfText:= 1;
+    IndexOfDesc:= 2;
+    SepChar:= '|';
+    HintChar:= #9;
+    SuffixChar:= #1;
     AppendOpeningBracket:= true;
-    ListSort := false;
-    UpDownAtEdge := cudWrap;
-    BorderSize := 4;
-    FormSizeX := 500;
-    FormSizeY := 200;
-    HintSizeX := 400;
-    TextIndent0 := 4;
-    TextIndent := 8;
+    ListSort:= false;
+    UpDownAtEdge:= cudWrap;
+    BorderSize:= 4;
+    FormSizeX:= 500;
+    FormSizeY:= 200;
+    HintSizeX:= 400;
+    TextIndent0:= 4;
+    TextIndent:= 8;
   end;
 
 finalization
