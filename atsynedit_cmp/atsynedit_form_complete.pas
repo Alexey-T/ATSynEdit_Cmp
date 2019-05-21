@@ -98,8 +98,8 @@ type
     );
 
   TATCompletionOptions = record
-    ColorFont: array[0..cCompletionColumnCount-1] of TColor;
-    FontStyles: array[0..cCompletionColumnCount-1] of TFontStyles;
+    ColorFontPrefix: TColor;
+    ColorFontParams: TColor;
     CommitChars: string;
     CloseChars: string;
     IndexOfText: integer;
@@ -419,13 +419,11 @@ begin
     SHint:= SGetItem(Str, #9);
 
     //prefix
-    C.Font.Style:= CompletionOps.FontStyles[0];
-    C.Font.Color:= CompletionOps.ColorFont[0];
+    C.Font.Color:= CompletionOps.ColorFontPrefix;
     C.TextOut(ARect.Left+List.ClientWidth-List.Canvas.TextWidth(SHint)-CompletionOps.TextIndent0, ARect.Top, SHint);
 
     //text
-    C.Font.Style:= CompletionOps.FontStyles[1];
-    C.Font.Color:= CompletionOps.ColorFont[1];
+    C.Font.Color:= ATFlatTheme.ColorFontListbox;
     C.TextOut(ARect.Left+CompletionOps.TextIndent0, ARect.Top, SItem);
 
     exit;
@@ -446,11 +444,18 @@ begin
   for i:= 0 to cCompletionColumnCount-1 do
   begin
     SItem:= SGetItem(Str, CompletionOps.SepChar);
+
     if i=CompletionOps.IndexOfText then
       SItem:= SGetItem(SItem, CompletionOps.SuffixChar);
 
-    C.Font.Style:= CompletionOps.FontStyles[i];
-    C.Font.Color:= CompletionOps.ColorFont[i];
+    if i=CompletionOps.IndexOfText then
+      C.Font.Color:= ATFlatTheme.ColorFontListbox
+    else
+    if i=CompletionOps.IndexOfDesc then
+      C.Font.Color:= CompletionOps.ColorFontParams
+    else
+      C.Font.Color:= CompletionOps.ColorFontPrefix;
+
     C.TextOut(ARect.Left+NSize, ARect.Top, SItem);
     Inc(NSize, C.TextWidth(SItem)+CompletionOps.TextIndent);
   end;
@@ -577,12 +582,8 @@ initialization
   FillChar(CompletionOps, SizeOf(CompletionOps), 0);
   with CompletionOps do
   begin
-    ColorFont[0] := clPurple;
-    ColorFont[1] := clBlack;
-    ColorFont[2] := clNavy;
-    ColorFont[3] := clBlack;
-    ColorFont[4] := clBlack;
-    FontStyles[0] := [fsBold];
+    ColorFontPrefix:= clPurple;
+    ColorFontParams:= clGray;
     CommitChars := ' .,;/\''"';
     CloseChars := '<>()[]{}=';
     IndexOfText := 1;

@@ -307,10 +307,6 @@ end;
 initialization
   Acp:= TAcp.Create;
 
-  CompletionOps.FontStyles[0]:= [];
-  CompletionOps.ColorFont[0]:= clPurple;
-  CompletionOps.ColorFont[1]:= clBlack;
-
 finalization
   FreeAndNil(Acp);
 
