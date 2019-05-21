@@ -99,11 +99,7 @@ type
 
   TATCompletionOptions = record
     ColorFont: array[0..cCompletionColumnCount-1] of TColor;
-    ColorBg: TColor;
-    ColorSelBg: TColor;
     FontStyles: array[0..cCompletionColumnCount-1] of TFontStyles;
-    FontName: string;
-    FontSize: integer;
     CommitChars: string;
     CloseChars: string;
     IndexOfText: integer;
@@ -406,9 +402,9 @@ begin
   Str:= SList[AIndex];
 
   if AIndex=List.ItemIndex then
-    C.Brush.Color:= CompletionOps.ColorSelBg
+    C.Brush.Color:= ATFlatTheme.ColorBgListboxSel
   else
-    C.Brush.Color:= CompletionOps.ColorBg;
+    C.Brush.Color:= ATFlatTheme.ColorBgListbox;
   C.FillRect(ARect);
 
   C.Font.Name:= ATFlatTheme.FontName;
@@ -496,7 +492,7 @@ begin
   List.VirtualItemCount:= SList.Count;
   List.ItemIndex:= 0;
 
-  Color:= CompletionOps.ColorBg;
+  Color:= ATFlatTheme.ColorBgListbox;
   List.BorderSpacing.Around:= CompletionOps.BorderSize;
   List.Invalidate;
 
@@ -586,11 +582,7 @@ initialization
     ColorFont[2] := clNavy;
     ColorFont[3] := clBlack;
     ColorFont[4] := clBlack;
-    ColorBg := $e0e0e0;
-    ColorSelBg := clMedGray;
     FontStyles[0] := [fsBold];
-    FontName := 'default';
-    FontSize := 10;
     CommitChars := ' .,;/\''"';
     CloseChars := '<>()[]{}=';
     IndexOfText := 1;
