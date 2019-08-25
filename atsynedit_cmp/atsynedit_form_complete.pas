@@ -501,8 +501,10 @@ begin
   List.BorderSpacing.Around:= CompletionOps.BorderSize;
   List.Invalidate;
 
-  P.X:= Editor.Carets[0].CoordX-Editor.TextCharSize.X*FCharsLeft;
-  P.Y:= Editor.Carets[0].CoordY+Editor.TextCharSize.Y;
+  P.X:= Max(0, Editor.Carets[0].PosX-FCharsLeft);
+  P.Y:= Editor.Carets[0].PosY;
+  P:= Editor.CaretPosToClientPos(P);
+  Inc(P.Y, Editor.TextCharSize.Y);
   P:= Editor.ClientToScreen(P);
 
   //check that form fits on the bottom
