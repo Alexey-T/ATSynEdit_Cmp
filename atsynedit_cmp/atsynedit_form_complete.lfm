@@ -7,7 +7,6 @@ object FormATSynEditComplete: TFormATSynEditComplete
   Caption = 'Auto-completion'
   ClientHeight = 240
   ClientWidth = 320
-  FormStyle = fsNormal
   KeyPreview = True
   OnClose = FormClose
   OnCreate = FormCreate
@@ -16,7 +15,7 @@ object FormATSynEditComplete: TFormATSynEditComplete
   OnKeyDown = FormKeyDown
   OnShow = FormShow
   OnUTF8KeyPress = FormUTF8KeyPress
-  LCLVersion = '1.9.0.0'
+  LCLVersion = '2.1.0.0'
   object List: TATListbox
     Left = 4
     Height = 232

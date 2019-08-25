@@ -516,6 +516,9 @@ begin
       P.Y:= NewY;
   end;
 
+  //check that form fits on the right
+  P.X:= Max(RectMon.Left, Min(P.X, RectMon.Right-CompletionOps.FormSizeX));
+
   if Application.MainForm.FormStyle in [fsStayOnTop, fsSystemStayOnTop] then
     FormStyle:= Application.MainForm.FormStyle;
 
