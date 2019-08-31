@@ -507,8 +507,9 @@ begin
   Inc(P.Y, Editor.TextCharSize.Y);
   P:= Editor.ClientToScreen(P);
 
+  RectMon:= Screen.MonitorFromPoint(P).WorkareaRect;
+
   //check that form fits on the bottom
-  RectMon:= Monitor.WorkareaRect;
   if P.Y+CompletionOps.FormSizeY>= RectMon.Bottom then
   begin
     NewY:= P.Y-Editor.TextCharSize.y-CompletionOps.FormSizeY;
