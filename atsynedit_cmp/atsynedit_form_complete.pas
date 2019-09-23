@@ -42,7 +42,7 @@ procedure DoEditorCompletionListbox(AEd: TATSynEdit;
 
 procedure EditorGetCurrentWord(Ed: TATSynEdit;
   APosX, APosY: integer;
-  const AWordChars: atString;
+  const ANonWordChars: atString;
   out AWord: atString; out ACharsLeft, ACharsRight: integer);
 
 type
@@ -530,7 +530,7 @@ end;
 
 procedure EditorGetCurrentWord(Ed: TATSynEdit;
   APosX, APosY: integer;
-  const AWordChars: atString;
+  const ANonWordChars: atString;
   out AWord: atString; out ACharsLeft, ACharsRight: integer);
 var
   str: atString;
@@ -546,7 +546,7 @@ begin
   n:= APosX;
   if (n>Length(str)) then exit;
 
-  while (n>0) and (IsCharWord(str[n], AWordChars)) do
+  while (n>0) and (IsCharWord(str[n], ANonWordChars)) do
   begin
     AWord:= str[n]+AWord;
     Dec(n);
@@ -554,7 +554,7 @@ begin
   end;
 
   n:= APosX;
-  while (n<Length(str)) and (IsCharWord(str[n+1], AWordChars)) do
+  while (n<Length(str)) and (IsCharWord(str[n+1], ANonWordChars)) do
   begin
     Inc(n);
     Inc(ACharsRight);
