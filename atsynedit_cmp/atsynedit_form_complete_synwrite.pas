@@ -32,11 +32,12 @@ type
     ListAcpType: TStringlist;
     ListAcpText: TStringlist;
     ListAcpDesc: TStringlist;
-    FWordChars: string;
+    FLexerWordChars: string;
     procedure DoLoadAcpFile(const fn: string; IsPascal: boolean);
     procedure DoOnGetCompleteProp(Sender: TObject;
       out AText: string;
       out ACharsLeft, ACharsRight: integer);
+    function GetActualNonWordChars: UnicodeString;
   public
     Ed: TATSynEdit;
     CaseSens: boolean;
@@ -124,7 +125,7 @@ begin
   ListAcpText.Clear;
   ListAcpDesc.Clear;
 
-  FWordChars:= '';
+  FLexerWordChars:= '';
   IsBracketSep:= true;
 
   List:= TStringList.Create;
@@ -138,7 +139,7 @@ begin
 
       if s[1]='#' then
       begin
-        SParseString_AcpControlLine(s, FWordChars, IsBracketSep);
+        SParseString_AcpControlLine(s, FLexerWordChars, IsBracketSep);
         Continue;
       end;
 
@@ -166,6 +167,19 @@ begin
 end;
 
 
+function TAcp.GetActualNonWordChars: UnicodeString;
+var
+  i, nPos: integer;
+begin
+  Result:= Ed.OptNonWordChars;
+  for i:= 1 to Length(FLexerWordChars) do
+  begin
+    nPos:= Pos(FLexerWordChars[i], Result);
+    if nPos>0 then
+      Delete(Result, nPos, 1);
+  end;
+end;
+
 procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
   ACharsLeft, ACharsRight: integer);
 var
@@ -179,10 +193,11 @@ begin
   ACharsLeft:= 0;
   ACharsRight:= 0;
 
+
   Caret:= Ed.Carets[0];
   EditorGetCurrentWord(Ed,
     Caret.PosX, Caret.PosY,
-    FWordChars,
+    GetActualNonWordChars,
     s_word_w,
     ACharsLeft,
     ACharsRight);
