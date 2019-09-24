@@ -166,18 +166,22 @@ begin
   end;
 end;
 
+procedure SDeleteOneChar(var S: UnicodeString; ch: WideChar);
+var
+  N: integer;
+begin
+  N:= Pos(ch, S);
+  if N>0 then
+    Delete(S, N, 1);
+end;
 
 function TAcp.GetActualNonWordChars: UnicodeString;
 var
-  i, nPos: integer;
+  i: integer;
 begin
   Result:= Ed.OptNonWordChars;
   for i:= 1 to Length(FLexerWordChars) do
-  begin
-    nPos:= Pos(FLexerWordChars[i], Result);
-    if nPos>0 then
-      Delete(Result, nPos, 1);
-  end;
+    SDeleteOneChar(Result, FLexerWordChars[i]);
 end;
 
 procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
