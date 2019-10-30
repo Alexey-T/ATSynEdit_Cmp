@@ -90,6 +90,7 @@ var
   Caret: TATCaretItem;
   s_word: atString;
   s_tag, s_item, s_val: string;
+  Sep: TATStringSeparator;
   n: integer;
   ok: boolean;
 begin
@@ -112,9 +113,9 @@ begin
       ACharsLeft,
       ACharsRight);
 
+    Sep.Init(s_item);
     repeat
-      s_val:= SGetItem(s_item);
-      if s_val='' then Break;
+      if not Sep.GetItemStr(s_val) then Break;
 
       //filter values by cur word (not case sens)
       if s_word<>'' then
