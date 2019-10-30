@@ -73,10 +73,10 @@ type
     FSelectedIndex: integer;
     procedure DoHintHide;
     procedure DoHintShow(const AHint: string);
-    procedure DoReplaceTo(AStr: string; AWithBracket: boolean);
+    procedure DoReplaceTo(const AStr: string; AWithBracket: boolean);
     procedure DoResult;
     procedure DoUpdate;
-    function GetItemText(S: string; AIndex: integer): string;
+    function GetItemText(const AText: string; AIndex: integer): string;
     procedure GetResultText(out AText: string; out AWithBracket: boolean);
   public
     { public declarations }
@@ -150,17 +150,19 @@ begin
   FormComplete.DoUpdate;
 end;
 
-procedure TFormATSynEditComplete.DoReplaceTo(AStr: string; AWithBracket: boolean);
+procedure TFormATSynEditComplete.DoReplaceTo(const AStr: string; AWithBracket: boolean);
 var
   Caret: TATCaretItem;
   Pos, Shift, PosAfter: TPoint;
   StrText, Str1, Str2, StrToInsert: atString;
+  Sep: TATStringSeparator;
   i: integer;
 begin
   if AStr='' then exit;
-  StrText:= Utf8Decode(SGetItem(AStr, CompletionOps.SuffixChar));
-  Str1:= Utf8Decode(SGetItem(AStr, CompletionOps.SuffixChar));
-  Str2:= Utf8Decode(SGetItem(AStr, CompletionOps.SuffixChar));
+  Sep.Init(AStr, CompletionOps.SuffixChar);
+  Sep.GetItemStr(StrText);
+  Sep.GetItemStr(Str1);
+  Sep.GetItemStr(Str2);
 
   //must support carets, for HTML
   Editor.Strings.BeginUndoGroup;
@@ -369,12 +371,14 @@ begin
   DoResult;
 end;
 
-function TFormATSynEditComplete.GetItemText(S: string; AIndex: integer): string;
+function TFormATSynEditComplete.GetItemText(const AText: string; AIndex: integer): string;
 var
+  Sep: TATStringSeparator;
   i: integer;
 begin
+  Sep.Init(AText, CompletionOps.SepChar);
   for i:= 0 to AIndex do
-    Result:= SGetItem(S, CompletionOps.SepChar);
+    Sep.GetItemStr(Result);
 end;
 
 procedure TFormATSynEditComplete.GetResultText(out AText: string; out AWithBracket: boolean);
@@ -396,10 +400,11 @@ end;
 procedure TFormATSynEditComplete.ListDrawItem(Sender: TObject; C: TCanvas;
   AIndex: integer; const ARect: TRect);
 var
-  Str, SItem, SHint: string;
+  Sep: TATStringSeparator;
+  SLongItem, SItem, SHint: string;
   NSize, i: integer;
 begin
-  Str:= SList[AIndex];
+  SLongItem:= SList[AIndex];
 
   if AIndex=List.ItemIndex then
     C.Brush.Color:= ATFlatTheme.ColorBgListboxSel
@@ -415,8 +420,9 @@ begin
   //paint column2 at right
   if Assigned(FOnResult) then
   begin
-    SItem:= SGetItem(Str, #9);
-    SHint:= SGetItem(Str, #9);
+    Sep.Init(SLongItem, #9);
+    Sep.GetItemStr(SItem);
+    Sep.GetItemStr(SHint);
 
     //prefix
     C.Font.Color:= CompletionOps.ColorFontPrefix;
@@ -430,20 +436,19 @@ begin
   end;
 
   //usual case, n columns, tab-char separates hint (in hint window)
-  i:= Pos(CompletionOps.HintChar, Str);
-  if i>0 then
+  if Pos(CompletionOps.HintChar, SLongItem)>0 then
   begin
-    SHint:= Copy(Str, i+1, MaxInt);
-    SetLength(Str, i-1);
+    SSplitByChar(SLongItem, CompletionOps.HintChar, SItem, SHint);
     if AIndex=List.ItemIndex then
       DoHintShow(SHint);
   end;
 
   NSize:= CompletionOps.TextIndent0;
 
+  Sep.Init(SLongItem, CompletionOps.SepChar);
   for i:= 0 to cCompletionColumnCount-1 do
   begin
-    SItem:= SGetItem(Str, CompletionOps.SepChar);
+    Sep.GetItemStr(SItem);
 
     if i=CompletionOps.IndexOfText then
       SItem:= SGetItem(SItem, CompletionOps.SuffixChar);
