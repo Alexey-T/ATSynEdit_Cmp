@@ -85,7 +85,7 @@ end;
 procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
   ACharsLeft, ACharsRight: integer);
 const
-  cWordChars = '-#!@.'; //don't include ':'
+  cNonWordChars = '#!@.'; //don't include ':'
 var
   Caret: TATCaretItem;
   s_word: atString;
@@ -108,7 +108,7 @@ begin
 
     EditorGetCurrentWord(Ed,
       Caret.PosX, Caret.PosY,
-      cWordChars,
+      cNonWordChars,
       s_word,
       ACharsLeft,
       ACharsRight);
@@ -132,7 +132,7 @@ begin
   begin
     EditorGetCurrentWord(Ed,
       Caret.PosX, Caret.PosY,
-      cWordChars,
+      cNonWordChars,
       s_word,
       ACharsLeft,
       ACharsRight);
