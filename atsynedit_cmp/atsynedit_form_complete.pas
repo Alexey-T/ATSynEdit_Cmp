@@ -186,7 +186,7 @@ begin
       Editor.Strings.TextInsert(Pos.X, Pos.Y, StrToInsert, false, Shift, PosAfter);
 
       //adjust markers/attrs
-      Editor.DoCaretsShift(Pos.X, Pos.Y,
+      Editor.DoCaretsShift(i, Pos.X, Pos.Y,
         Length(StrToInsert) - FCharsLeft-FCharsRight, 0,
         PosAfter
         );
