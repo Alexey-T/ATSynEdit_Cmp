@@ -190,6 +190,7 @@ const
 var
   Caret: TATCaretItem;
   mode: TCompleteHtmlMode;
+  Sep, Sep2: TATStringSeparator;
   s_word: atString;
   s_tag, s_attr, s_item, s_subitem, s_value: string;
   i: integer;
@@ -241,10 +242,11 @@ begin
       begin
         s_item:= List.Values[s_tag];
         if s_item='' then exit;
+        Sep.Init(s_item, '|');
         repeat
-          s_subitem:= SGetItem(s_item, '|');
-          if s_subitem='' then Break;
+          if not Sep.GetItemStr(s_subitem) then Break;
           s_subitem:= SGetItem(s_subitem, '<');
+          if s_subitem='' then Break;
 
           //filter items
           if s_word<>'' then
@@ -260,13 +262,13 @@ begin
       begin
         s_item:= List.Values[s_tag];
         if s_item='' then exit;
+        Sep.Init(s_item, '|');
         repeat
-          s_subitem:= SGetItem(s_item, '|');
-          if s_subitem='' then Break;
+          if not Sep.GetItemStr(s_subitem) then Break;
           if SGetItem(s_subitem, '<')<>s_attr then Continue;
+          Sep2.Init(s_subitem, '?');
           repeat
-            s_value:= SGetItem(s_subitem, '?');
-            if s_value='' then Break;
+            if not Sep2.GetItemStr(s_value) then Break;
             AText:= AText+s_attr+' value|"'+s_value+'"'+#1' '#13;
           until false;
         until false;
