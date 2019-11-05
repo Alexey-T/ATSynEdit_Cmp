@@ -35,6 +35,11 @@ function EditorGetHtmlTag(Ed: TATSynedit;
   out STag, SAttr: string): TCompleteHtmlMode;
 function EditorHasCssAtCaret(Ed: TATSynEdit): boolean;
 
+const
+  cAutocompleteStringTag: string = 'tag';
+  cAutocompleteStringAttrib: string = 'attrib';
+  cAutocompleteStringValue: string = 'value';
+
 
 implementation
 
@@ -234,7 +239,7 @@ begin
             ok:= SBeginsWith(UpperCase(s_item), UpperCase(s_word));
             if not ok then Continue;
           end;
-          AText:= AText+'tag|'+s_item+#13;
+          AText:= AText+cAutocompleteStringTag+'|'+s_item+#13;
         end;
       end;
 
@@ -254,7 +259,7 @@ begin
             ok:= SBeginsWith(UpperCase(s_subitem), UpperCase(s_word));
             if not ok then Continue;
           end;
-          AText:= AText+s_tag+' attrib|'+s_subitem+#1'='#13;
+          AText:= AText+s_tag+' '+cAutocompleteStringAttrib+'|'+s_subitem+#1'='#13;
         until false;
       end;
 
@@ -269,7 +274,7 @@ begin
           Sep2.Init(s_subitem, '?');
           repeat
             if not Sep2.GetItemStr(s_value) then Break;
-            AText:= AText+s_attr+' value|"'+s_value+'"'+#1' '#13;
+            AText:= AText+s_attr+' '+cAutocompleteStringValue+'|"'+s_value+'"'+#1' '#13;
           until false;
         until false;
       end;
