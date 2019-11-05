@@ -186,7 +186,7 @@ end;
 procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
   ACharsLeft, ACharsRight: integer);
 const
-  cWordChars = '-';
+  cNonWordChars = '+*=/\()[]{}<>"''.,:;~?!@#$%^&|`…'; // '-' is word char
 var
   Caret: TATCaretItem;
   mode: TCompleteHtmlMode;
@@ -209,7 +209,7 @@ begin
   EditorGetCurrentWord(Ed,
     Caret.PosX,
     Caret.PosY,
-    cWordChars,
+    cNonWordChars,
     s_word,
     ACharsLeft,
     ACharsRight);
