@@ -142,6 +142,8 @@ begin
   if FormComplete=nil then
     FormComplete:= TFormATSynEditComplete.Create(nil);
 
+  FormComplete.List.ItemIndex:= 0;
+  FormComplete.List.ItemTop:= 0;
   FormComplete.Editor:= AEd;
   FormComplete.SelectedIndex:= ASelectedIndex;
   FormComplete.SnippetId:= ASnippetId;
