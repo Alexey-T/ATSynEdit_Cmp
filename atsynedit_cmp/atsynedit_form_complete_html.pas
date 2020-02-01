@@ -18,8 +18,7 @@ uses
   Math;
 
 //it needs file html_list.ini from SynWrite distro
-procedure DoEditorCompletionHtml(AEdit: TATSynEdit;
-  const AFilenameHtmlList: string);
+procedure DoEditorCompletionHtml(Ed: TATSynEdit; const AFilenameHtmlList: string);
 
 type
   TCompleteHtmlMode = (
@@ -293,10 +292,14 @@ begin
   inherited;
 end;
 
-procedure DoEditorCompletionHtml(AEdit: TATSynEdit;
-  const AFilenameHtmlList: string);
+procedure DoEditorCompletionHtml(Ed: TATSynEdit; const AFilenameHtmlList: string);
+var
+  Caret: TATCaretItem;
+  S: atString;
+  bAddBracket: boolean;
+  ch: WideChar;
 begin
-  Acp.Ed:= AEdit;
+  Acp.Ed:= Ed;
 
   //load file only once
   if Acp.List.Count=0 then
@@ -305,7 +308,34 @@ begin
     Acp.List.LoadFromFile(AFilenameHtmlList);
   end;
 
-  DoEditorCompletionListbox(AEdit, @Acp.DoOnGetCompleteProp,
+  if Ed.Carets.Count=0 then exit;
+  Caret:= Ed.Carets[0];
+
+  if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
+  S:= Ed.Strings.Lines[Caret.PosY];
+
+  //insert missing '<' if completion was called without it
+  bAddBracket:= false;
+  if Caret.PosX>Length(S) then exit;
+  if Caret.PosX=0 then
+    bAddBracket:= true
+  else
+  begin
+    ch:= S[Caret.PosX];
+    if (ch<>'<') and not IsCharWord(ch, cDefaultNonWordChars) then
+      bAddBracket:= true;
+  end;
+
+  if bAddBracket then
+  begin
+    Insert('<', S, Caret.PosX+1);
+    Ed.Strings.Lines[Caret.PosY]:= S;
+    Caret.PosX:= Caret.PosX+1;
+    Ed.Update(true);
+    Ed.DoEventChange;
+  end;
+
+  DoEditorCompletionListbox(Ed, @Acp.DoOnGetCompleteProp,
     nil, '', 0,
     true //allow carets in HTML like Sublime does
     );
