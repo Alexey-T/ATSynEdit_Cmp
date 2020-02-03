@@ -15,7 +15,7 @@ uses
   ATSynEdit_Carets;
 
 procedure DoEditorCompletionAcp(AEdit: TATSynEdit;
-  const AFilenameAcp: string; ACaseSens, AIsPascal: boolean);
+  const AFilenameAcp: string; ACaseSens: boolean);
 
 
 implementation
@@ -243,10 +243,13 @@ begin
 end;
 
 procedure DoEditorCompletionAcp(AEdit: TATSynEdit;
-  const AFilenameAcp: string; ACaseSens, AIsPascal: boolean);
+  const AFilenameAcp: string; ACaseSens: boolean);
+var
+  bPascal: boolean;
 begin
   if not FileExists(AFilenameAcp) then exit;
-  Acp.DoLoadAcpFile(AFilenameAcp, AIsPascal);
+  bPascal:= Pos('Pascal', ExtractFileName(AFilenameAcp))>0;
+  Acp.DoLoadAcpFile(AFilenameAcp, bPascal);
   Acp.Ed:= AEdit;
   Acp.CaseSens:= ACaseSens;
   DoEditorCompletionListbox(AEdit, @Acp.DoOnGetCompleteProp);
