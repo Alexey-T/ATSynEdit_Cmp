@@ -360,7 +360,9 @@ begin
       ch:= S[i];
       if (Pos(ch, '<="''')=0) and not IsCharWord(ch, cDefaultNonWordChars) then
         bAddBracket:= true;
-    end;
+    end
+    else
+      bAddBracket:= true;
   end;
 
   if bAddBracket then
