@@ -133,6 +133,7 @@ const
   //character class for all chars inside quotes
   cRegexChars = '[\s\w,\.:;\-\+\*\?=\(\)\[\]\{\}/\\\|~`\^\$&%\#@!\n]';
   //regex to catch attrib name, followed by "=" and not-closed quote, only at line end
+  //this regex has $ at end so it's found just before the caret
   cRegexAttr = '\b([\w\-]+)\s*\=\s*([''"]' + cRegexChars + '*)?$';
   //regex group
   cGroupTagPart = 0;
