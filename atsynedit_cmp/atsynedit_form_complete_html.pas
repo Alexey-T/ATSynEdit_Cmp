@@ -47,31 +47,28 @@ uses
   ATStringProc,
   ATSynEdit_form_complete;
 
-function IsTagNeedsClosingTag(const s: string): boolean;
-const
-  cList: array[0..14] of string = (
-  'area',
-  'base',
-  'basefont',
-  'br',
-  'embed',
-  'frame',
-  'hr',
-  'img',
-  'input',
-  'keygen',
-  'link',
-  'meta',
-  'param',
-  'source',
-  'track'
-  );
-var
-  i: integer;
+function IsTagNeedsClosingTag(const S: string): boolean;
 begin
-  Result:= true;
-  for i:= Low(cList) to High(cList) do
-    if cList[i]=s then exit(false);
+  case S of
+    'area',
+    'base',
+    'basefont',
+    'br',
+    'embed',
+    'frame',
+    'hr',
+    'img',
+    'input',
+    'keygen',
+    'link',
+    'meta',
+    'param',
+    'source',
+    'track':
+      Result:= false;
+    else
+      Result:= true;
+  end;
 end;
 
 type
