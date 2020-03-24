@@ -26,7 +26,7 @@ type
     acpModeTags,
     acpModeAttrs,
     acpModeValues,
-    acpModeValuesInQuote
+    acpModeValuesQuoted
     );
 
 //detect tag and its attribute at caret pos
@@ -182,7 +182,7 @@ begin
     if SAttr<>'' then
     begin
       if _StringEndsWithUnclosedQuote(S) then
-        Result:= acpModeValuesInQuote
+        Result:= acpModeValuesQuoted
       else
         Result:= acpModeValues;
     end
@@ -201,7 +201,7 @@ var
 begin
   Caret:= Ed.Carets[0];
   Mode:= EditorGetHtmlTag(Ed, Caret.PosX, Caret.PosY, STag, SAttr);
-  Result:= (Mode in [acpModeValues, acpModeValuesInQuote]) and (LowerCase(SAttr)='style');
+  Result:= (Mode in [acpModeValues, acpModeValuesQuoted]) and (LowerCase(SAttr)='style');
 end;
 
 
@@ -282,9 +282,9 @@ begin
       end;
 
     acpModeValues,
-    acpModeValuesInQuote:
+    acpModeValuesQuoted:
       begin
-        if mode=acpModeValuesInQuote then
+        if mode=acpModeValuesQuoted then
         begin
           s_quote:= '';
           s_space:= '';
