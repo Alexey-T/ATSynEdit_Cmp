@@ -322,7 +322,7 @@ begin
   else
   begin
     ch:= S[Caret.PosX];
-    if (ch<>'<') and not IsCharWord(ch, cDefaultNonWordChars) then
+    if (ch<>'<') and (ch<>'=') and not IsCharWord(ch, cDefaultNonWordChars) then
       bAddBracket:= true;
   end;
 
