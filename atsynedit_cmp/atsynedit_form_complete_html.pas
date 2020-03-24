@@ -328,6 +328,7 @@ var
   S: atString;
   bAddBracket: boolean;
   ch: WideChar;
+  i: integer;
 begin
   Acp.Ed:= Ed;
 
@@ -344,16 +345,22 @@ begin
   if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
   S:= Ed.Strings.Lines[Caret.PosY];
 
-  //insert missing '<' if completion was called without it
+  //bAddBracket: insert missing '<' if completion was called without it
   bAddBracket:= false;
   if Caret.PosX>Length(S) then exit;
   if Caret.PosX=0 then
     bAddBracket:= true
   else
   begin
-    ch:= S[Caret.PosX];
-    if (ch<>'<') and (ch<>'=') and (ch<>'"') and (ch<>'''') and not IsCharWord(ch, cDefaultNonWordChars) then
-      bAddBracket:= true;
+    //check nearest non-space char lefter than caret
+    i:= Caret.PosX;
+    while (i>0) and (S[i]=' ') do Dec(i);
+    if i>0 then
+    begin
+      ch:= S[i];
+      if (Pos(ch, '<="''')=0) and not IsCharWord(ch, cDefaultNonWordChars) then
+        bAddBracket:= true;
+    end;
   end;
 
   if bAddBracket then
