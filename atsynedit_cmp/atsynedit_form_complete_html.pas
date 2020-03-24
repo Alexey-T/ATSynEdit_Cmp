@@ -25,7 +25,8 @@ type
     acpModeNone,
     acpModeTags,
     acpModeAttrs,
-    acpModeValues
+    acpModeValues,
+    acpModeValuesInQuote
     );
 
 //detect tag and its attribute at caret pos
@@ -111,6 +112,18 @@ begin
   end;
 end;
 
+function _StringEndsWithUnclosedQuote(const S: string): boolean;
+var
+  i: integer;
+begin
+  Result:= false;
+  for i:= Length(S) downto 1 do
+    case S[i] of
+       '=': exit;
+       '"', '''': exit(true);
+    end;
+end;
+
 function EditorGetHtmlTag(Ed: TATSynedit;
   APosX, APosY: integer;
   out STag, SAttr: string): TCompleteHtmlMode;
@@ -167,7 +180,12 @@ begin
   begin
     SAttr:= SFindRegex(S, cRegexAttr, cGroupAttr);
     if SAttr<>'' then
-      Result:= acpModeValues
+    begin
+      if _StringEndsWithUnclosedQuote(S) then
+        Result:= acpModeValuesInQuote
+      else
+        Result:= acpModeValues;
+    end
     else
       Result:= acpModeAttrs;
   end
@@ -183,7 +201,7 @@ var
 begin
   Caret:= Ed.Carets[0];
   Mode:= EditorGetHtmlTag(Ed, Caret.PosX, Caret.PosY, STag, SAttr);
-  Result:= (Mode=acpModeValues) and (LowerCase(SAttr)='style');
+  Result:= (Mode in [acpModeValues, acpModeValuesInQuote]) and (LowerCase(SAttr)='style');
 end;
 
 
@@ -197,6 +215,7 @@ var
   Sep, Sep2: TATStringSeparator;
   s_word: atString;
   s_tag, s_attr, s_item, s_subitem, s_value: string;
+  s_quote, s_space: string;
   i: integer;
   ok: boolean;
 begin
@@ -262,8 +281,19 @@ begin
         until false;
       end;
 
-    acpModeValues:
+    acpModeValues,
+    acpModeValuesInQuote:
       begin
+        if mode=acpModeValuesInQuote then
+        begin
+          s_quote:= '';
+          s_space:= '';
+        end
+        else
+        begin
+          s_quote:= '"';
+          s_space:= ' ';
+        end;
         s_item:= List.Values[s_tag];
         if s_item='' then exit;
         Sep.Init(s_item, '|');
@@ -273,7 +303,7 @@ begin
           Sep2.Init(s_subitem, '?');
           repeat
             if not Sep2.GetItemStr(s_value) then Break;
-            AText:= AText+s_attr+' '+cHtmlAutocompleteValue+'|"'+s_value+'"'+#1' '#13;
+            AText:= AText+s_attr+' '+cHtmlAutocompleteValue+'|'+s_quote+s_value+s_quote+#1+s_space+#13;
           until false;
         until false;
       end;
