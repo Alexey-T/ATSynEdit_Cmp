@@ -372,6 +372,17 @@ begin
     bAddBracket:= true
   else
   begin
+    //check that before caret it's not bad position:
+    //- someword after line start
+    //- someword after ">"
+    i:= Caret.PosX;
+    if (i>0) and (i<=Length(S)) and IsCharWordA(S[i]) then
+    begin
+      while (i>0) and IsCharWordA(S[i]) do Dec(i);
+      if i=0 then exit;
+      if S[i]='>' then exit;
+    end;
+
     //check nearest non-space char lefter than caret
     i:= Caret.PosX;
     while (i>0) and (S[i]=' ') do Dec(i);
