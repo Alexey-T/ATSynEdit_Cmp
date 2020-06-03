@@ -32,7 +32,7 @@ type
 //detect tag and its attribute at caret pos
 function EditorGetHtmlTag(Ed: TATSynedit;
   APosX, APosY: integer;
-  out STag, SAttr: string;
+  out ATagName, AAttrName: string;
   out AWithEqualChar: boolean): TCompleteHtmlMode;
 function EditorHasCssAtCaret(Ed: TATSynEdit): boolean;
 
@@ -124,7 +124,7 @@ end;
 
 function EditorGetHtmlTag(Ed: TATSynedit;
   APosX, APosY: integer;
-  out STag, SAttr: string;
+  out ATagName, AAttrName: string;
   out AWithEqualChar: boolean): TCompleteHtmlMode;
 const
   cMaxLinesPerTag = 40;
@@ -147,8 +147,8 @@ var
   NPrev, N: integer;
   ch: WideChar;
 begin
-  STag:= '';
-  SAttr:= '';
+  ATagName:= '';
+  AAttrName:= '';
   AWithEqualChar:= false;
   Result:= acpModeNone;
 
@@ -179,19 +179,19 @@ begin
   if N=0 then Exit;
   Delete(S, 1, N);
 
-  STag:= SFindRegex(S, cRegexTagClose, cGroupTagClose);
-  if STag<>'' then
+  ATagName:= SFindRegex(S, cRegexTagClose, cGroupTagClose);
+  if ATagName<>'' then
     exit(acpModeTags);
 
-  STag:= SFindRegex(S, cRegexTagOnly, cGroupTagOnly);
-  if STag<>'' then
+  ATagName:= SFindRegex(S, cRegexTagOnly, cGroupTagOnly);
+  if ATagName<>'' then
     exit(acpModeTags);
 
-  STag:= SFindRegex(S, cRegexTagPart, cGroupTagPart);
-  if STag<>'' then
+  ATagName:= SFindRegex(S, cRegexTagPart, cGroupTagPart);
+  if ATagName<>'' then
   begin
-    SAttr:= SFindRegex(S, cRegexAttr, cGroupAttr);
-    if SAttr<>'' then
+    AAttrName:= SFindRegex(S, cRegexAttr, cGroupAttr);
+    if AAttrName<>'' then
     begin
       if _StringEndsWithUnclosedQuote(S) then
         Result:= acpModeValuesQuoted
