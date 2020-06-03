@@ -33,6 +33,7 @@ type
 function EditorGetHtmlTag(Ed: TATSynedit;
   APosX, APosY: integer;
   out ATagName, AAttrName: string;
+  out ATagClosing: boolean;
   out AWithEqualChar: boolean): TCompleteHtmlMode;
 function EditorHasCssAtCaret(Ed: TATSynEdit): boolean;
 
@@ -125,6 +126,7 @@ end;
 function EditorGetHtmlTag(Ed: TATSynedit;
   APosX, APosY: integer;
   out ATagName, AAttrName: string;
+  out ATagClosing: boolean;
   out AWithEqualChar: boolean): TCompleteHtmlMode;
 const
   cMaxLinesPerTag = 40;
@@ -149,6 +151,7 @@ var
 begin
   ATagName:= '';
   AAttrName:= '';
+  ATagClosing:= false;
   AWithEqualChar:= false;
   Result:= acpModeNone;
 
@@ -181,7 +184,10 @@ begin
 
   ATagName:= SFindRegex(S, cRegexTagClose, cGroupTagClose);
   if ATagName<>'' then
+  begin
+    ATagClosing:= true;
     exit(acpModeTags);
+  end;
 
   ATagName:= SFindRegex(S, cRegexTagOnly, cGroupTagOnly);
   if ATagName<>'' then
@@ -210,10 +216,10 @@ var
   Caret: TATCaretItem;
   STag, SAttr: string;
   Mode: TCompleteHtmlMode;
-  bWithEq: boolean;
+  bClosing, bWithEq: boolean;
 begin
   Caret:= Ed.Carets[0];
-  Mode:= EditorGetHtmlTag(Ed, Caret.PosX, Caret.PosY, STag, SAttr, bWithEq);
+  Mode:= EditorGetHtmlTag(Ed, Caret.PosX, Caret.PosY, STag, SAttr, bClosing, bWithEq);
   Result:= (Mode in [acpModeValues, acpModeValuesQuoted]) and (LowerCase(SAttr)='style');
 end;
 
@@ -227,10 +233,10 @@ var
   mode: TCompleteHtmlMode;
   Sep, Sep2: TATStringSeparator;
   s_word: atString;
-  s_tag, s_attr, s_item, s_subitem, s_value: string;
+  s_tag, s_attr, s_item, s_subitem, s_value, s_tag_close: string;
   s_quote, s_space, s_equalchar: string;
   i: integer;
-  ok, bWithEq: boolean;
+  ok, bClosing, bWithEq: boolean;
 begin
   AText:= '';
   ACharsLeft:= 0;
@@ -242,6 +248,7 @@ begin
     Caret.PosY,
     s_tag,
     s_attr,
+    bClosing,
     bWithEq);
   EditorGetCurrentWord(Ed,
     Caret.PosX,
@@ -263,7 +270,12 @@ begin
           if s_item='img' then s_item:= 'img'#1' src="'#1'">' else
           if s_item='link' then s_item:= 'link'#1' rel="stylesheet" type="text/css" href="'#1'">' else
           //usual handle of all tags
-          s_item:= s_item+ #1'>'+ IfThen(IsTagNeedsClosingTag(s_item), #1'</'+s_item+'>');
+          begin
+            s_tag_close:= '';
+            if not bClosing and IsTagNeedsClosingTag(s_item) then
+              s_tag_close:= #1'</'+s_item+'>';
+            s_item:= s_item+ #1'>'+ s_tag_close;
+          end;
 
           //filter items
           if s_word<>'' then
