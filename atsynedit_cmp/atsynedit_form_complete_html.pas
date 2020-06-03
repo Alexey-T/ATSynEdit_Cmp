@@ -34,7 +34,7 @@ function EditorGetHtmlTag(Ed: TATSynedit;
   APosX, APosY: integer;
   out ATagName, AAttrName: string;
   out ATagClosing: boolean;
-  out AWithEqualChar: boolean): TCompleteHtmlMode;
+  out ACharAfter: char): TCompleteHtmlMode;
 function EditorHasCssAtCaret(Ed: TATSynEdit): boolean;
 
 const
@@ -127,7 +127,7 @@ function EditorGetHtmlTag(Ed: TATSynedit;
   APosX, APosY: integer;
   out ATagName, AAttrName: string;
   out ATagClosing: boolean;
-  out AWithEqualChar: boolean): TCompleteHtmlMode;
+  out ACharAfter: char): TCompleteHtmlMode;
 const
   cMaxLinesPerTag = 40;
   //regex to catch tag name at line start
@@ -152,19 +152,21 @@ begin
   ATagName:= '';
   AAttrName:= '';
   ATagClosing:= false;
-  AWithEqualChar:= false;
+  ACharAfter:= ' ';
   Result:= acpModeNone;
 
   //get str before caret
   S:= Ed.Strings.LineSub(APosY, 1, APosX);
 
-  //detect presence of '=' after HTML attrib
+  //detect char after caret and next wordchars
   N:= APosX;
   repeat
     ch:= Ed.Strings.LineCharAt(APosY, N);
-    if ch='=' then
-      AWithEqualChar:= true;
-    if not IsCharWordA(ch) then Break;
+    if not IsCharWordA(ch) then
+    begin
+      ACharAfter:= ch;
+      Break;
+    end;
     Inc(N);
   until false;
 
@@ -216,10 +218,11 @@ var
   Caret: TATCaretItem;
   STag, SAttr: string;
   Mode: TCompleteHtmlMode;
-  bClosing, bWithEq: boolean;
+  bClosing: boolean;
+  NextChar: char;
 begin
   Caret:= Ed.Carets[0];
-  Mode:= EditorGetHtmlTag(Ed, Caret.PosX, Caret.PosY, STag, SAttr, bClosing, bWithEq);
+  Mode:= EditorGetHtmlTag(Ed, Caret.PosX, Caret.PosY, STag, SAttr, bClosing, NextChar);
   Result:= (Mode in [acpModeValues, acpModeValuesQuoted]) and (LowerCase(SAttr)='style');
 end;
 
@@ -233,10 +236,12 @@ var
   mode: TCompleteHtmlMode;
   Sep, Sep2: TATStringSeparator;
   s_word: atString;
-  s_tag, s_attr, s_item, s_subitem, s_value, s_tag_close: string;
+  s_tag, s_attr, s_item, s_subitem, s_value,
+  s_tag_bracket, s_tag_close: string;
   s_quote, s_space, s_equalchar: string;
+  ok, bClosing: boolean;
+  NextChar: char;
   i: integer;
-  ok, bClosing, bWithEq: boolean;
 begin
   AText:= '';
   ACharsLeft:= 0;
@@ -249,7 +254,8 @@ begin
     s_tag,
     s_attr,
     bClosing,
-    bWithEq);
+    NextChar);
+
   EditorGetCurrentWord(Ed,
     Caret.PosX,
     Caret.PosY,
@@ -271,10 +277,15 @@ begin
           if s_item='link' then s_item:= 'link'#1' rel="stylesheet" type="text/css" href="'#1'">' else
           //usual handle of all tags
           begin
+            s_tag_bracket:= '';
             s_tag_close:= '';
-            if not bClosing and IsTagNeedsClosingTag(s_item) then
-              s_tag_close:= #1'</'+s_item+'>';
-            s_item:= s_item+ #1'>'+ s_tag_close;
+            if NextChar<>'>' then
+            begin
+              s_tag_bracket:= '>';
+              if not bClosing and IsTagNeedsClosingTag(s_item) then
+                s_tag_close:= #1'</'+s_item+'>';
+            end;
+            s_item:= s_item+#1+s_tag_bracket+s_tag_close;
           end;
 
           //filter items
@@ -292,7 +303,7 @@ begin
         s_item:= List.Values[s_tag];
         if s_item='' then exit;
 
-        if bWithEq then
+        if NextChar='=' then
           s_equalchar:= ''
         else
           s_equalchar:= '=';
