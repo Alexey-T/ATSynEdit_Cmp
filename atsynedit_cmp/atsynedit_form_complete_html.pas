@@ -32,7 +32,8 @@ type
 //detect tag and its attribute at caret pos
 function EditorGetHtmlTag(Ed: TATSynedit;
   APosX, APosY: integer;
-  out STag, SAttr: string): TCompleteHtmlMode;
+  out STag, SAttr: string;
+  out AWithEqualChar: boolean): TCompleteHtmlMode;
 function EditorHasCssAtCaret(Ed: TATSynEdit): boolean;
 
 const
@@ -123,7 +124,8 @@ end;
 
 function EditorGetHtmlTag(Ed: TATSynedit;
   APosX, APosY: integer;
-  out STag, SAttr: string): TCompleteHtmlMode;
+  out STag, SAttr: string;
+  out AWithEqualChar: boolean): TCompleteHtmlMode;
 const
   cMaxLinesPerTag = 40;
   //regex to catch tag name at line start
@@ -143,13 +145,25 @@ const
 var
   S: atString;
   NPrev, N: integer;
+  ch: WideChar;
 begin
   STag:= '';
   SAttr:= '';
+  AWithEqualChar:= false;
   Result:= acpModeNone;
 
-  //cal str before caret
+  //get str before caret
   S:= Ed.Strings.LineSub(APosY, 1, APosX);
+
+  //detect presence of '=' after HTML attrib
+  N:= APosX;
+  repeat
+    ch:= Ed.Strings.LineCharAt(APosY, N);
+    if ch='=' then
+      AWithEqualChar:= true;
+    if not IsCharWordA(ch) then Break;
+    Inc(N);
+  until false;
 
   //add few previous lines to support multiline tags
   if APosY>0 then
@@ -196,9 +210,10 @@ var
   Caret: TATCaretItem;
   STag, SAttr: string;
   Mode: TCompleteHtmlMode;
+  bWithEq: boolean;
 begin
   Caret:= Ed.Carets[0];
-  Mode:= EditorGetHtmlTag(Ed, Caret.PosX, Caret.PosY, STag, SAttr);
+  Mode:= EditorGetHtmlTag(Ed, Caret.PosX, Caret.PosY, STag, SAttr, bWithEq);
   Result:= (Mode in [acpModeValues, acpModeValuesQuoted]) and (LowerCase(SAttr)='style');
 end;
 
@@ -213,9 +228,9 @@ var
   Sep, Sep2: TATStringSeparator;
   s_word: atString;
   s_tag, s_attr, s_item, s_subitem, s_value: string;
-  s_quote, s_space: string;
+  s_quote, s_space, s_equalchar: string;
   i: integer;
-  ok: boolean;
+  ok, bWithEq: boolean;
 begin
   AText:= '';
   ACharsLeft:= 0;
@@ -226,7 +241,8 @@ begin
     Caret.PosX,
     Caret.PosY,
     s_tag,
-    s_attr);
+    s_attr,
+    bWithEq);
   EditorGetCurrentWord(Ed,
     Caret.PosX,
     Caret.PosY,
@@ -263,19 +279,25 @@ begin
       begin
         s_item:= List.Values[s_tag];
         if s_item='' then exit;
+
+        if bWithEq then
+          s_equalchar:= ''
+        else
+          s_equalchar:= '=';
+
         Sep.Init(s_item, '|');
         repeat
           if not Sep.GetItemStr(s_subitem) then Break;
           s_subitem:= SGetItem(s_subitem, '<');
           if s_subitem='' then Break;
 
-          //filter items
+          //keep only items which begin with s_word
           if s_word<>'' then
           begin
             ok:= SBeginsWith(UpperCase(s_subitem), UpperCase(s_word));
             if not ok then Continue;
           end;
-          AText:= AText+s_tag+' '+cHtmlAutocompleteAttrib+'|'+s_subitem+#1'='#13;
+          AText:= AText+s_tag+' '+cHtmlAutocompleteAttrib+'|'+s_subitem+#1+s_equalchar+#13;
         until false;
       end;
 
