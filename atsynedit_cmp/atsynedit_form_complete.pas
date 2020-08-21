@@ -106,6 +106,8 @@ type
     IndexOfDesc: integer;
     SepChar: char;
     HintChar: char;
+    HintMultiLineSep: char;
+    HintOnlyInTooltip: boolean;
     SuffixChar: char;
     AppendOpeningBracket: boolean;
     ListSort: boolean;
@@ -441,6 +443,9 @@ begin
   if Pos(CompletionOps.HintChar, SLongItem)>0 then
   begin
     SSplitByChar(SLongItem, CompletionOps.HintChar, SItem, SHint);
+    if CompletionOps.HintOnlyInTooltip then
+      SLongItem:= SItem;
+    SHint:= StringReplace(SHint, CompletionOps.HintMultiLineSep, #10, [rfReplaceAll]);
     if AIndex=List.ItemIndex then
       DoHintShow(SHint);
   end;
@@ -603,6 +608,8 @@ initialization
     IndexOfDesc:= 2;
     SepChar:= '|';
     HintChar:= #9;
+    HintMultiLineSep:= #2;
+    HintOnlyInTooltip:= true;
     SuffixChar:= #1;
     AppendOpeningBracket:= true;
     ListSort:= false;
