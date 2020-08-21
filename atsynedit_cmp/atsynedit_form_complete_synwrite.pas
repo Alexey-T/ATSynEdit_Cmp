@@ -158,7 +158,7 @@ begin
 
         ListAcpType.Add(SType);
         ListAcpText.Add(SText);
-        ListAcpDesc.Add(SPar+CompletionOps.HintChar+SHint);
+        ListAcpDesc.Add(SPar+CompletionOps.HintSep+SHint);
       end;
     end;
   finally

@@ -25,6 +25,7 @@ object FormATSynEditComplete: TFormATSynEditComplete
     BorderSpacing.Around = 4
     OwnerDrawn = True
     ParentColor = False
+    ParentFont = False
     OnClick = ListClick
     OnDrawItem = ListDrawItem
   end

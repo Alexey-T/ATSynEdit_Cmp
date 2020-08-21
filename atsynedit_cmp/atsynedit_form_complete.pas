@@ -104,11 +104,11 @@ type
     CloseChars: string;
     IndexOfText: integer;
     IndexOfDesc: integer;
-    SepChar: char;
-    HintChar: char;
+    ColumnsSep: char;
+    HintSep: char;
     HintMultiLineSep: char;
     HintOnlyInTooltip: boolean;
-    SuffixChar: char;
+    SuffixSep: char;
     AppendOpeningBracket: boolean;
     ListSort: boolean;
     UpDownAtEdge: TATCompletionUpDownAtEdge;
@@ -163,7 +163,7 @@ var
   i: integer;
 begin
   if AStr='' then exit;
-  Sep.Init(AStr, CompletionOps.SuffixChar);
+  Sep.Init(AStr, CompletionOps.SuffixSep);
   Sep.GetItemStr(StrText);
   Sep.GetItemStr(Str1);
   Sep.GetItemStr(Str2);
@@ -380,7 +380,7 @@ var
   Sep: TATStringSeparator;
   i: integer;
 begin
-  Sep.Init(AText, CompletionOps.SepChar);
+  Sep.Init(AText, CompletionOps.ColumnsSep);
   for i:= 0 to AIndex do
     Sep.GetItemStr(Result);
 end;
@@ -440,9 +440,9 @@ begin
   end;
 
   //usual case, n columns, tab-char separates hint (in hint window)
-  if Pos(CompletionOps.HintChar, SLongItem)>0 then
+  if Pos(CompletionOps.HintSep, SLongItem)>0 then
   begin
-    SSplitByChar(SLongItem, CompletionOps.HintChar, SItem, SHint);
+    SSplitByChar(SLongItem, CompletionOps.HintSep, SItem, SHint);
     if CompletionOps.HintOnlyInTooltip then
       SLongItem:= SItem;
     SHint:= StringReplace(SHint, CompletionOps.HintMultiLineSep, #10, [rfReplaceAll]);
@@ -452,13 +452,13 @@ begin
 
   NSize:= CompletionOps.TextIndent0;
 
-  Sep.Init(SLongItem, CompletionOps.SepChar);
+  Sep.Init(SLongItem, CompletionOps.ColumnsSep);
   for i:= 0 to cCompletionColumnCount-1 do
   begin
     Sep.GetItemStr(SItem);
 
     if i=CompletionOps.IndexOfText then
-      SItem:= SGetItem(SItem, CompletionOps.SuffixChar);
+      SItem:= SGetItem(SItem, CompletionOps.SuffixSep);
 
     if i=CompletionOps.IndexOfText then
       C.Font.Color:= ATFlatTheme.ColorFontListbox
@@ -606,11 +606,11 @@ initialization
     CloseChars:= '<>()[]{}=';
     IndexOfText:= 1;
     IndexOfDesc:= 2;
-    SepChar:= '|';
-    HintChar:= #9;
+    ColumnsSep:= '|';
+    HintSep:= #9;
     HintMultiLineSep:= #2;
     HintOnlyInTooltip:= true;
-    SuffixChar:= #1;
+    SuffixSep:= #1;
     AppendOpeningBracket:= true;
     ListSort:= false;
     UpDownAtEdge:= cudWrap;
