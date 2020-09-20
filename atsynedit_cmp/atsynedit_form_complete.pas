@@ -16,6 +16,7 @@ uses
   ATSynEdit_Carets,
   ATSynEdit_Commands,
   ATStringProc,
+  ATStringProc_Separator,
   ATListbox,
   ATFlatThemes,
   Math;

@@ -47,6 +47,7 @@ implementation
 
 uses
   ATStringProc,
+  ATStringProc_Separator,
   ATSynEdit_form_complete;
 
 function IsTagNeedsClosingTag(const S: string): boolean;

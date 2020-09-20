@@ -24,6 +24,7 @@ implementation
 
 uses
   ATStringProc,
+  ATStringProc_Separator,
   ATSynEdit_form_complete;
 
 type
