@@ -194,25 +194,26 @@ begin
     Acp.List.LoadFromFile(AFilenameCssList);
   end;
 
-  Acp.ListAt.Clear;
-  Acp.ListColon.Clear;
+  //optional lists, load only once
+  if Acp.ListAt.Count=0 then
+  begin
+    if FileExists(AFilenameCssSelectors) then
+    try
+      ListTemp:= TStringList.Create;
+      ListTemp.LoadFromFile(AFilenameCssSelectors);
 
-  if FileExists(AFilenameCssSelectors) then
-  try
-    ListTemp:= TStringList.Create;
-    ListTemp.LoadFromFile(AFilenameCssSelectors);
-
-    for S in ListTemp do
-    begin
-      if S='' then Continue;
-      if S[1]='@' then
-        Acp.ListAt.Add(Copy(S, 2, MaxInt))
-      else
-      if S[1]=':' then
-        Acp.ListColon.Add(Copy(S, 2, MaxInt));
+      for S in ListTemp do
+      begin
+        if S='' then Continue;
+        if S[1]='@' then
+          Acp.ListAt.Add(Copy(S, 2, MaxInt))
+        else
+        if S[1]=':' then
+          Acp.ListColon.Add(Copy(S, 2, MaxInt));
+      end;
+    finally
+      FreeAndNil(ListTemp);
     end;
-  finally
-    FreeAndNil(ListTemp);
   end;
 
   DoEditorCompletionListbox(AEdit, @Acp.DoOnGetCompleteProp);
