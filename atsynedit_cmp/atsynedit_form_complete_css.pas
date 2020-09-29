@@ -18,6 +18,11 @@ uses
 procedure DoEditorCompletionCss(AEdit: TATSynEdit;
   const AFilenameCssList, AFilenameCssSelectors: string);
 
+var
+  cCssPrefixProps: string = 'css';
+  cCssPrefixAtRule: string = 'at-rule';
+  cCssPrefixPseudo: string = 'pseudo';
+  cCssLinesToLookUp: integer = 30; //how many lines to see up, to find nearest {} bracket
 
 implementation
 
@@ -30,7 +35,6 @@ uses
 
 const
   cNonWordChars = '#!@.{};'; //don't include ':'
-  cMaxLinesToLookUp = 30; //how many lines to see up, to find nearest {} bracket
 
 type
   { TAcp }
@@ -85,7 +89,7 @@ var
   X, Y: integer;
 begin
   Result:= false;
-  for Y:= APosY downto Max(0, APosY-cMaxLinesToLookUp) do
+  for Y:= APosY downto Max(0, APosY-cCssLinesToLookUp) do
   begin
     S:= Ed.Strings.Lines[Y];
     if Y=APosY then
@@ -185,7 +189,7 @@ begin
             if not ok then Continue;
           end;
 
-          AText:= AText+'css '+s_tag+'|'+s_val+#1' '#13;
+          AText:= AText+cCssPrefixProps+' '+s_tag+'|'+s_val+#1' '#13;
         until false;
       end;
 
@@ -216,7 +220,7 @@ begin
             if not ok then Continue;
           end;
 
-          AText:= AText+'css'+'|'+s_item+#1': '#13;
+          AText:= AText+cCssPrefixProps+'|'+s_item+#1': '#13;
         end;
       end;
 
@@ -225,10 +229,10 @@ begin
         ACharsLeft:= Length(s_tag);
 
         if s_tag[1]='@' then
-          s_word:= 'at-rule'
+          s_word:= cCssPrefixAtRule
         else
         if s_tag[1]=':' then
-          s_word:= 'pseudo'
+          s_word:= cCssPrefixPseudo
         else
           exit;
 
