@@ -19,7 +19,7 @@ procedure DoEditorCompletionCss(AEdit: TATSynEdit;
   const AFilenameCssList, AFilenameCssSelectors: string);
 
 var
-  cCssPrefixProps: string = 'css';
+  cCssPrefixProps: string = 'prop';
   cCssPrefixAtRule: string = 'at-rule';
   cCssPrefixPseudo: string = 'pseudo';
   cCssLinesToLookUp: integer = 30; //how many lines to see up, to find nearest {} bracket
@@ -189,7 +189,7 @@ begin
             if not ok then Continue;
           end;
 
-          AText:= AText+cCssPrefixProps+' '+s_tag+'|'+s_val+#1' '#13;
+          AText:= AText+cCssPrefixProps+' "'+s_tag+'"|'+s_val+#1' '#13;
         until false;
       end;
 
