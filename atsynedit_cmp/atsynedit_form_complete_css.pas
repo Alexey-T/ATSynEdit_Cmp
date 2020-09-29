@@ -24,6 +24,7 @@ type
     PrefixAtRule: string;
     PrefixPseudo: string;
     LinesToLookup: integer;
+    NonWordChars: UnicodeString;
   end;
 
 var
@@ -37,9 +38,6 @@ uses
   ATStringProc,
   ATStringProc_Separator,
   ATSynEdit_form_complete;
-
-const
-  cNonWordChars = '#!@.{};'; //don't include ':'
 
 type
   { TAcp }
@@ -178,7 +176,7 @@ begin
 
         EditorGetCurrentWord(Ed,
           Caret.PosX, Caret.PosY,
-          cNonWordChars,
+          CompletionOpsCss.NonWordChars,
           s_word,
           ACharsLeft,
           ACharsRight);
@@ -202,7 +200,7 @@ begin
       begin
         EditorGetCurrentWord(Ed,
           Caret.PosX, Caret.PosY,
-          cNonWordChars,
+          CompletionOpsCss.NonWordChars,
           s_word,
           ACharsLeft,
           ACharsRight);
@@ -295,6 +293,7 @@ initialization
     PrefixAtRule:= 'at-rule';
     PrefixPseudo:= 'pseudo';
     LinesToLookup:= 50;
+    NonWordChars:= '#!@.{};'; //don't include ':'
   end;
 
 finalization

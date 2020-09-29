@@ -42,6 +42,8 @@ type
     PrefixTag: string;
     PrefixAttrib: string;
     PrefixValue: string;
+    MaxLinesPerTag: integer;
+    NonWordChars: UnicodeString;
   end;
 
 var
@@ -134,7 +136,6 @@ function EditorGetHtmlTag(Ed: TATSynedit;
   out ATagClosing: boolean;
   out ACharAfter: char): TCompleteHtmlMode;
 const
-  cMaxLinesPerTag = 40;
   //regex to catch tag name at line start
   cRegexTagPart = '^\w+\b';
   cRegexTagOnly = '^\w*$';
@@ -178,7 +179,7 @@ begin
   //add few previous lines to support multiline tags
   if APosY>0 then
   begin
-    NPrev:= Max(0, APosY-cMaxLinesPerTag);
+    NPrev:= Max(0, APosY-CompletionOpsHtml.MaxLinesPerTag);
     for N:= APosY-1 downto NPrev do
       S:= Ed.Strings.Lines[N]+' '+S;
   end;
@@ -234,8 +235,6 @@ end;
 
 procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
   ACharsLeft, ACharsRight: integer);
-const
-  cNonWordChars = '+*=/\()[]{}<>"''.,:;~?!@#$%^&|`…'; // '-' is word char
 var
   Caret: TATCaretItem;
   mode: TCompleteHtmlMode;
@@ -264,7 +263,7 @@ begin
   EditorGetCurrentWord(Ed,
     Caret.PosX,
     Caret.PosY,
-    cNonWordChars,
+    CompletionOpsHtml.NonWordChars,
     s_word,
     ACharsLeft,
     ACharsRight);
@@ -447,6 +446,8 @@ initialization
     PrefixTag:= 'tag';
     PrefixAttrib:= 'attrib';
     PrefixValue:= 'value';
+    MaxLinesPerTag:= 40;
+    NonWordChars:= '+*=/\()[]{}<>"''.,:;~?!@#$%^&|`…'; // '-' is word char
   end;
 
 finalization
