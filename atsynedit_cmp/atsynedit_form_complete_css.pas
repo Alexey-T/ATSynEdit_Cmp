@@ -55,7 +55,7 @@ type
     CtxColonElement
     );
 
-function SFindRegex(const SText, SRegex: string; NGroup: integer): string;
+function SFindRegex(const SText, SRegex: UnicodeString; NGroup: integer): string;
 var
   R: TRegExpr;
 begin
@@ -85,7 +85,7 @@ const
   cRegexProp = '([\w\-]+):\s*' + cRegexChars + '*$';
   cRegexGroup = 1; //group 1 in (..)
 var
-  S: atString;
+  S: UnicodeString;
 begin
   AContext:= CtxNone;
   ATag:= '';
