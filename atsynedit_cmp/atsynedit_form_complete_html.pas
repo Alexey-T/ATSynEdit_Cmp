@@ -37,11 +37,15 @@ function EditorGetHtmlTag(Ed: TATSynedit;
   out ACharAfter: char): TCompleteHtmlMode;
 function EditorHasCssAtCaret(Ed: TATSynEdit): boolean;
 
-const
-  cHtmlAutocompleteTag: string = 'tag';
-  cHtmlAutocompleteAttrib: string = 'attrib';
-  cHtmlAutocompleteValue: string = 'value';
+type
+  TATCompletionOptionsHtml = record
+    PrefixTag: string;
+    PrefixAttrib: string;
+    PrefixValue: string;
+  end;
 
+var
+  CompletionOpsHtml: TATCompletionOptionsHtml;
 
 implementation
 
@@ -295,7 +299,7 @@ begin
             ok:= SBeginsWith(UpperCase(s_item), UpperCase(s_word));
             if not ok then Continue;
           end;
-          AText:= AText+cHtmlAutocompleteTag+'|'+s_item+#13;
+          AText:= AText+CompletionOpsHtml.PrefixTag+'|'+s_item+#13;
         end;
       end;
 
@@ -321,7 +325,7 @@ begin
             ok:= SBeginsWith(UpperCase(s_subitem), UpperCase(s_word));
             if not ok then Continue;
           end;
-          AText:= AText+s_tag+' '+cHtmlAutocompleteAttrib+'|'+s_subitem+#1+s_equalchar+#13;
+          AText:= AText+s_tag+' '+CompletionOpsHtml.PrefixAttrib+'|'+s_subitem+#1+s_equalchar+#13;
         until false;
       end;
 
@@ -347,7 +351,7 @@ begin
           Sep2.Init(s_subitem, '?');
           repeat
             if not Sep2.GetItemStr(s_value) then Break;
-            AText:= AText+s_attr+' '+cHtmlAutocompleteValue+'|'+s_quote+s_value+s_quote+#1+s_space+#13;
+            AText:= AText+s_attr+' '+CompletionOpsHtml.PrefixValue+'|'+s_quote+s_value+s_quote+#1+s_space+#13;
           until false;
         until false;
       end;
@@ -437,6 +441,13 @@ end;
 
 initialization
   Acp:= TAcp.Create;
+
+  with CompletionOpsHtml do
+  begin
+    PrefixTag:= 'tag';
+    PrefixAttrib:= 'attrib';
+    PrefixValue:= 'value';
+  end;
 
 finalization
   FreeAndNil(Acp);
