@@ -18,11 +18,16 @@ uses
 procedure DoEditorCompletionCss(AEdit: TATSynEdit;
   const AFilenameCssList, AFilenameCssSelectors: string);
 
+type
+  TATCompletionOptionsCss = record
+    PrefixProp: string;
+    PrefixAtRule: string;
+    PrefixPseudo: string;
+    LinesToLookup: integer;
+  end;
+
 var
-  cCssPrefixProps: string = 'prop';
-  cCssPrefixAtRule: string = 'at-rule';
-  cCssPrefixPseudo: string = 'pseudo';
-  cCssLinesToLookUp: integer = 30; //how many lines to see up, to find nearest {} bracket
+  CompletionOpsCss: TATCompletionOptionsCss;
 
 implementation
 
@@ -89,7 +94,7 @@ var
   X, Y: integer;
 begin
   Result:= false;
-  for Y:= APosY downto Max(0, APosY-cCssLinesToLookUp) do
+  for Y:= APosY downto Max(0, APosY-CompletionOpsCss.LinesToLookup) do
   begin
     S:= Ed.Strings.Lines[Y];
     if Y=APosY then
@@ -189,7 +194,7 @@ begin
             if not ok then Continue;
           end;
 
-          AText:= AText+cCssPrefixProps+' "'+s_tag+'"|'+s_val+#1' '#13;
+          AText:= AText+CompletionOpsCss.PrefixProp+' "'+s_tag+'"|'+s_val+#1' '#13;
         until false;
       end;
 
@@ -220,7 +225,7 @@ begin
             if not ok then Continue;
           end;
 
-          AText:= AText+cCssPrefixProps+'|'+s_item+#1': '#13;
+          AText:= AText+CompletionOpsCss.PrefixProp+'|'+s_item+#1': '#13;
         end;
       end;
 
@@ -229,10 +234,10 @@ begin
         ACharsLeft:= Length(s_tag);
 
         if s_tag[1]='@' then
-          s_val:= cCssPrefixAtRule
+          s_val:= CompletionOpsCss.PrefixAtRule
         else
         if s_tag[1]=':' then
-          s_val:= cCssPrefixPseudo
+          s_val:= CompletionOpsCss.PrefixPseudo
         else
           exit;
 
@@ -283,6 +288,14 @@ end;
 
 initialization
   Acp:= TAcp.Create;
+
+  with CompletionOpsCss do
+  begin
+    PrefixProp:= 'css';
+    PrefixAtRule:= 'at-rule';
+    PrefixPseudo:= 'pseudo';
+    LinesToLookup:= 50;
+  end;
 
 finalization
   FreeAndNil(Acp);
