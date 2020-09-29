@@ -81,7 +81,8 @@ const
   cRegexChars = '[''"\w\s\.,:/~&%@!=\#\$\^\-\+\(\)\?]';
   //regex to catch css property name, before css attribs and before ":", at line end
   cRegexProp = '([\w\-]+):\s*' + cRegexChars + '*$';
-  cRegexSelectors = '((@|:+)[a-z\-]*)$';
+  cRegexAtRule = '(@[a-z\-]*)$';
+  cRegexSelectors = '\w+(:+[a-z\-]*)$';
   cRegexGroup = 1; //group 1 in (..)
 var
   S: UnicodeString;
@@ -93,17 +94,24 @@ begin
   if S='' then
     exit;
 
-  ATag:= SFindRegex(S, cRegexProp, cRegexGroup);
-  if ATag<>'' then
-  begin
-    AContext:= CtxPropertyValue;
-    exit;
-  end;
-
   ATag:= SFindRegex(S, cRegexSelectors, cRegexGroup);
   if ATag<>'' then
   begin
     AContext:= CtxSelectors;
+    exit;
+  end;
+
+  ATag:= SFindRegex(S, cRegexAtRule, cRegexGroup);
+  if ATag<>'' then
+  begin
+    AContext:= CtxSelectors;
+    exit;
+  end;
+
+  ATag:= SFindRegex(S, cRegexProp, cRegexGroup);
+  if ATag<>'' then
+  begin
+    AContext:= CtxPropertyValue;
     exit;
   end;
 end;
