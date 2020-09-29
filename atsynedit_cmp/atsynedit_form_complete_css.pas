@@ -32,9 +32,8 @@ type
 
   TAcp = class
   private
-    List: TStringlist;
-    ListAt: TStringList;
-    ListColon: TStringList;
+    List: TStringlist; //CSS props and values of props
+    ListSel: TStringList; //CSS at-rules (@) and pseudo elements (:)
     procedure DoOnGetCompleteProp(Sender: TObject; out AText: string;
       out ACharsLeft, ACharsRight: integer);
   public
@@ -51,8 +50,7 @@ type
     CtxNone,
     CtxPropertyName,
     CtxPropertyValue,
-    CtxAtElement,
-    CtxColonElement
+    CtxSelectors
     );
 
 function SFindRegex(const SText, SRegex: UnicodeString; NGroup: integer): string;
@@ -83,21 +81,31 @@ const
   cRegexChars = '[''"\w\s\.,:/~&%@!=\#\$\^\-\+\(\)\?]';
   //regex to catch css property name, before css attribs and before ":", at line end
   cRegexProp = '([\w\-]+):\s*' + cRegexChars + '*$';
+  cRegexSelectors = '((@|:+)[a-z\-]*)$';
   cRegexGroup = 1; //group 1 in (..)
 var
   S: UnicodeString;
 begin
-  AContext:= CtxNone;
+  AContext:= CtxPropertyName;
   ATag:= '';
 
   S:= Ed.Strings.LineSub(APosY, 1, APosX);
-  if S<>'' then
-    ATag:= SFindRegex(S, cRegexProp, cRegexGroup);
+  if S='' then
+    exit;
 
+  ATag:= SFindRegex(S, cRegexProp, cRegexGroup);
   if ATag<>'' then
-    AContext:= CtxPropertyValue
-  else
-    AContext:= CtxPropertyName;
+  begin
+    AContext:= CtxPropertyValue;
+    exit;
+  end;
+
+  ATag:= SFindRegex(S, cRegexSelectors, cRegexGroup);
+  if ATag<>'' then
+  begin
+    AContext:= CtxSelectors;
+    exit;
+  end;
 end;
 
 
@@ -179,6 +187,25 @@ begin
           AText:= AText+'css'+'|'+s_item+#1': '#13;
         end;
       end;
+
+    CtxSelectors:
+      begin
+        ACharsLeft:= Length(s_tag);
+
+        if s_tag[1]='@' then
+          s_word:= 'at-rule'
+        else
+        if s_tag[1]=':' then
+          s_word:= 'pseudo'
+        else
+          exit;
+
+        for s_item in ListSel do
+        begin
+          if (s_tag='') or SBeginsWith(s_item, s_tag) then
+            AText+= s_word+'|'+s_item+#13;
+        end;
+      end;
   end;
 end;
 
@@ -186,23 +213,18 @@ constructor TAcp.Create;
 begin
   inherited;
   List:= TStringlist.create;
-  ListAt:= TStringlist.create;
-  ListColon:= TStringlist.create;
+  ListSel:= TStringlist.create;
 end;
 
 destructor TAcp.Destroy;
 begin
-  FreeAndNil(ListColon);
-  FreeAndNil(ListAt);
+  FreeAndNil(ListSel);
   FreeAndNil(List);
   inherited;
 end;
 
 procedure DoEditorCompletionCss(AEdit: TATSynEdit; const AFilenameCssList,
   AFilenameCssSelectors: string);
-var
-  ListTemp: TStringList;
-  S: string;
 begin
   Acp.Ed:= AEdit;
 
@@ -213,26 +235,11 @@ begin
     Acp.List.LoadFromFile(AFilenameCssList);
   end;
 
-  //optional lists, load only once
-  if Acp.ListAt.Count=0 then
+  //optional list, load only once
+  if Acp.ListSel.Count=0 then
   begin
     if FileExists(AFilenameCssSelectors) then
-    try
-      ListTemp:= TStringList.Create;
-      ListTemp.LoadFromFile(AFilenameCssSelectors);
-
-      for S in ListTemp do
-      begin
-        if S='' then Continue;
-        if S[1]='@' then
-          Acp.ListAt.Add(Copy(S, 2, MaxInt))
-        else
-        if S[1]=':' then
-          Acp.ListColon.Add(Copy(S, 2, MaxInt));
-      end;
-    finally
-      FreeAndNil(ListTemp);
-    end;
+      Acp.ListSel.LoadFromFile(AFilenameCssSelectors);
   end;
 
   DoEditorCompletionListbox(AEdit, @Acp.DoOnGetCompleteProp);
