@@ -46,6 +46,14 @@ type
 var
   Acp: TAcp = nil;
 
+type
+  TCompletionCssContext = (
+    CtxNone,
+    CtxPropertyName,
+    CtxPropertyValue,
+    CtxAtElement,
+    CtxColonElement
+    );
 
 function SFindRegex(const SText, SRegex: string; NGroup: integer): string;
 var
@@ -68,7 +76,8 @@ begin
   end;
 end;
 
-function EditorGetCssTag(Ed: TATSynEdit; APosX, APosY: integer): string;
+procedure EditorGetCssContext(Ed: TATSynEdit; APosX, APosY: integer;
+  out AContext: TCompletionCssContext; out ATag: string);
 const
   //char class for all chars in css values
   cRegexChars = '[''"\w\s\.,:/~&%@!=\#\$\^\-\+\(\)\?]';
@@ -78,10 +87,17 @@ const
 var
   S: atString;
 begin
-  Result:= '';
+  AContext:= CtxNone;
+  ATag:= '';
+
   S:= Ed.Strings.LineSub(APosY, 1, APosX);
   if S<>'' then
-    Result:= SFindRegex(S, cRegexProp, cRegexGroup);
+    ATag:= SFindRegex(S, cRegexProp, cRegexGroup);
+
+  if ATag<>'' then
+    AContext:= CtxPropertyValue
+  else
+    AContext:= CtxPropertyName;
 end;
 
 
@@ -93,6 +109,7 @@ var
   Caret: TATCaretItem;
   s_word: atString;
   s_tag, s_item, s_val: string;
+  context: TCompletionCssContext;
   Sep: TATStringSeparator;
   n: integer;
   ok: boolean;
@@ -102,64 +119,66 @@ begin
   ACharsRight:= 0;
   Caret:= Ed.Carets[0];
 
-  s_tag:= EditorGetCssTag(Ed, Caret.PosX, Caret.PosY);
-  if s_tag<>'' then
-  //show list of values for s_tag
-  begin
-    s_item:= List.Values[s_tag];
-    if s_item='' then exit;
+  EditorGetCssContext(Ed, Caret.PosX, Caret.PosY, context, s_tag);
 
-    EditorGetCurrentWord(Ed,
-      Caret.PosX, Caret.PosY,
-      cNonWordChars,
-      s_word,
-      ACharsLeft,
-      ACharsRight);
-
-    Sep.Init(s_item);
-    repeat
-      if not Sep.GetItemStr(s_val) then Break;
-
-      //filter values by cur word (not case sens)
-      if s_word<>'' then
+  case context of
+    CtxPropertyValue:
       begin
-        ok:= SBeginsWith(UpperCase(s_val), UpperCase(s_word));
-        if not ok then Continue;
+        s_item:= List.Values[s_tag];
+        if s_item='' then exit;
+
+        EditorGetCurrentWord(Ed,
+          Caret.PosX, Caret.PosY,
+          cNonWordChars,
+          s_word,
+          ACharsLeft,
+          ACharsRight);
+
+        Sep.Init(s_item);
+        repeat
+          if not Sep.GetItemStr(s_val) then Break;
+
+          //filter values by cur word (not case sens)
+          if s_word<>'' then
+          begin
+            ok:= SBeginsWith(UpperCase(s_val), UpperCase(s_word));
+            if not ok then Continue;
+          end;
+
+          AText:= AText+'css '+s_tag+'|'+s_val+#1' '#13;
+        until false;
       end;
 
-      AText:= AText+'css '+s_tag+'|'+s_val+#1' '#13;
-    until false;
-  end
-  else
-  //show list of all tags
-  begin
-    EditorGetCurrentWord(Ed,
-      Caret.PosX, Caret.PosY,
-      cNonWordChars,
-      s_word,
-      ACharsLeft,
-      ACharsRight);
-
-    //if caret is inside word
-    //  back|ground: left;
-    //then we must replace "background" with ": "
-    s_item:= Ed.Strings.LineSub(Caret.PosY, Caret.PosX+ACharsRight+1, 2);
-    if s_item=': ' then
-      Inc(ACharsRight, 2);
-
-    for n:= 0 to List.Count-1 do
-    begin
-      s_item:= List.Names[n];
-
-      //filter by cur word (not case sens)
-      if s_word<>'' then
+    CtxPropertyName:
       begin
-        ok:= SBeginsWith(UpperCase(s_item), UpperCase(s_word));
-        if not ok then Continue;
-      end;
+        EditorGetCurrentWord(Ed,
+          Caret.PosX, Caret.PosY,
+          cNonWordChars,
+          s_word,
+          ACharsLeft,
+          ACharsRight);
 
-      AText:= AText+'css'+'|'+s_item+#1': '#13;
-    end;
+        //if caret is inside word
+        //  back|ground: left;
+        //then we must replace "background" with ": "
+        s_item:= Ed.Strings.LineSub(Caret.PosY, Caret.PosX+ACharsRight+1, 2);
+        if s_item=': ' then
+          Inc(ACharsRight, 2);
+
+        for n:= 0 to List.Count-1 do
+        begin
+          s_item:= List.Names[n];
+
+          //filter by cur word (not case sens)
+          if s_word<>'' then
+          begin
+            ok:= SBeginsWith(UpperCase(s_item), UpperCase(s_word));
+            if not ok then Continue;
+          end;
+
+          AText:= AText+'css'+'|'+s_item+#1': '#13;
+        end;
+      end;
   end;
 end;
 
