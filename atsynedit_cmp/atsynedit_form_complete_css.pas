@@ -17,7 +17,7 @@ uses
 
 //it needs file css_list.ini from SynWrite distro
 procedure DoEditorCompletionCss(AEdit: TATSynEdit;
-  const AFilenameCssList: string);
+  const AFilenameCssList, AFilenameCssSelectors: string);
 
 
 implementation
@@ -33,6 +33,8 @@ type
   TAcp = class
   private
     List: TStringlist;
+    ListAt: TStringList;
+    ListColon: TStringList;
     procedure DoOnGetCompleteProp(Sender: TObject; out AText: string;
       out ACharsLeft, ACharsRight: integer);
   public
@@ -165,16 +167,23 @@ constructor TAcp.Create;
 begin
   inherited;
   List:= TStringlist.create;
+  ListAt:= TStringlist.create;
+  ListColon:= TStringlist.create;
 end;
 
 destructor TAcp.Destroy;
 begin
+  FreeAndNil(ListColon);
+  FreeAndNil(ListAt);
   FreeAndNil(List);
   inherited;
 end;
 
-procedure DoEditorCompletionCss(AEdit: TATSynEdit;
-  const AFilenameCssList: string);
+procedure DoEditorCompletionCss(AEdit: TATSynEdit; const AFilenameCssList,
+  AFilenameCssSelectors: string);
+var
+  ListTemp: TStringList;
+  S: string;
 begin
   Acp.Ed:= AEdit;
 
@@ -183,6 +192,27 @@ begin
   begin
     if not FileExists(AFilenameCssList) then exit;
     Acp.List.LoadFromFile(AFilenameCssList);
+  end;
+
+  Acp.ListAt.Clear;
+  Acp.ListColon.Clear;
+
+  if FileExists(AFilenameCssSelectors) then
+  try
+    ListTemp:= TStringList.Create;
+    ListTemp.LoadFromFile(AFilenameCssSelectors);
+
+    for S in ListTemp do
+    begin
+      if S='' then Continue;
+      if S[1]='@' then
+        Acp.ListAt.Add(Copy(S, 2, MaxInt))
+      else
+      if S[1]=':' then
+        Acp.ListColon.Add(Copy(S, 2, MaxInt));
+    end;
+  finally
+    FreeAndNil(ListTemp);
   end;
 
   DoEditorCompletionListbox(AEdit, @Acp.DoOnGetCompleteProp);
