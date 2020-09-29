@@ -12,8 +12,7 @@ uses
   Classes, SysUtils, Graphics,
   ATSynEdit,
   ATSynEdit_Carets,
-  ATSynEdit_RegExpr,
-  Dialogs;
+  ATSynEdit_RegExpr;
 
 //it needs file css_list.ini from SynWrite distro
 procedure DoEditorCompletionCss(AEdit: TATSynEdit;
@@ -23,6 +22,8 @@ procedure DoEditorCompletionCss(AEdit: TATSynEdit;
 implementation
 
 uses
+  Math,
+  Dialogs,
   ATStringProc,
   ATStringProc_Separator,
   ATSynEdit_form_complete;
@@ -74,6 +75,31 @@ begin
   end;
 end;
 
+function EditorGetCaretInCssBrackets(Ed: TATSynEdit; APosX, APosY: integer): boolean;
+const
+  cMaxLinesToLookUp = 30;
+var
+  S: string;
+  i: integer;
+begin
+  Result:= false;
+  S:= Ed.Strings.TextSubstring(
+    0,
+    Max(0, APosY-cMaxLinesToLookUp),
+    APosX,
+    APosY);
+  if S='' then
+    exit;
+
+  for i:= Length(S) downto 1 do
+  begin
+    if S[i]='{' then
+      exit(true);
+    if S[i]='}' then
+      exit(false);
+  end;
+end;
+
 procedure EditorGetCssContext(Ed: TATSynEdit; APosX, APosY: integer;
   out AContext: TCompletionCssContext; out ATag: string);
 const
@@ -87,19 +113,10 @@ const
 var
   S: UnicodeString;
 begin
-  AContext:= CtxPropertyName;
+  AContext:= CtxNone;
   ATag:= '';
 
   S:= Ed.Strings.LineSub(APosY, 1, APosX);
-  if S='' then
-    exit;
-
-  ATag:= SFindRegex(S, cRegexSelectors, cRegexGroup);
-  if ATag<>'' then
-  begin
-    AContext:= CtxSelectors;
-    exit;
-  end;
 
   ATag:= SFindRegex(S, cRegexAtRule, cRegexGroup);
   if ATag<>'' then
@@ -108,11 +125,20 @@ begin
     exit;
   end;
 
-  ATag:= SFindRegex(S, cRegexProp, cRegexGroup);
-  if ATag<>'' then
+  if EditorGetCaretInCssBrackets(Ed, APosX, APosY) then
   begin
-    AContext:= CtxPropertyValue;
-    exit;
+    AContext:= CtxPropertyName;
+    if S='' then
+      exit;
+    ATag:= SFindRegex(S, cRegexProp, cRegexGroup);
+    if ATag<>'' then
+      AContext:= CtxPropertyValue;
+  end
+  else
+  begin
+    ATag:= SFindRegex(S, cRegexSelectors, cRegexGroup);
+    if ATag<>'' then
+      AContext:= CtxSelectors;
   end;
 end;
 
