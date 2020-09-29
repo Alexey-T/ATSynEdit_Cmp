@@ -168,18 +168,18 @@ begin
 
   EditorGetCssContext(Ed, Caret.PosX, Caret.PosY, context, s_tag);
 
+  EditorGetCurrentWord(Ed,
+    Caret.PosX, Caret.PosY,
+    CompletionOpsCss.NonWordChars,
+    s_word,
+    ACharsLeft,
+    ACharsRight);
+
   case context of
     CtxPropertyValue:
       begin
         s_item:= List.Values[s_tag];
         if s_item='' then exit;
-
-        EditorGetCurrentWord(Ed,
-          Caret.PosX, Caret.PosY,
-          CompletionOpsCss.NonWordChars,
-          s_word,
-          ACharsLeft,
-          ACharsRight);
 
         Sep.Init(s_item);
         repeat
@@ -198,13 +198,6 @@ begin
 
     CtxPropertyName:
       begin
-        EditorGetCurrentWord(Ed,
-          Caret.PosX, Caret.PosY,
-          CompletionOpsCss.NonWordChars,
-          s_word,
-          ACharsLeft,
-          ACharsRight);
-
         //if caret is inside word
         //  back|ground: left;
         //then we must replace "background" with ": "
