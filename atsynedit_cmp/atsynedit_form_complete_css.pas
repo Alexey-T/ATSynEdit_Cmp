@@ -229,17 +229,17 @@ begin
         ACharsLeft:= Length(s_tag);
 
         if s_tag[1]='@' then
-          s_word:= cCssPrefixAtRule
+          s_val:= cCssPrefixAtRule
         else
         if s_tag[1]=':' then
-          s_word:= cCssPrefixPseudo
+          s_val:= cCssPrefixPseudo
         else
           exit;
 
         for s_item in ListSel do
         begin
           if (s_tag='') or SBeginsWith(s_item, s_tag) then
-            AText+= s_word+'|'+s_item+#13;
+            AText+= s_val+'|'+s_item+#13;
         end;
       end;
   end;
