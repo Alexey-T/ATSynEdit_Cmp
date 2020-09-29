@@ -28,6 +28,10 @@ uses
   ATStringProc_Separator,
   ATSynEdit_form_complete;
 
+const
+  cNonWordChars = '#!@.{};'; //don't include ':'
+  cMaxLinesToLookUp = 30; //how many lines to see up, to find nearest {} bracket
+
 type
   { TAcp }
 
@@ -76,8 +80,6 @@ begin
 end;
 
 function EditorGetCaretInCurlyBrackets(Ed: TATSynEdit; APosX, APosY: integer): boolean;
-const
-  cMaxLinesToLookUp = 30;
 var
   S: UnicodeString;
   X, Y: integer;
@@ -143,8 +145,6 @@ end;
 
 procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
   ACharsLeft, ACharsRight: integer);
-const
-  cNonWordChars = '#!@.{};'; //don't include ':'
 var
   Caret: TATCaretItem;
   s_word: atString;
