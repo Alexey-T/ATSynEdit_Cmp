@@ -75,28 +75,26 @@ begin
   end;
 end;
 
-function EditorGetCaretInCssBrackets(Ed: TATSynEdit; APosX, APosY: integer): boolean;
+function EditorGetCaretInCurlyBrackets(Ed: TATSynEdit; APosX, APosY: integer): boolean;
 const
   cMaxLinesToLookUp = 30;
 var
-  S: string;
-  i: integer;
+  S: UnicodeString;
+  X, Y: integer;
 begin
   Result:= false;
-  S:= Ed.Strings.TextSubstring(
-    0,
-    Max(0, APosY-cMaxLinesToLookUp),
-    APosX,
-    APosY);
-  if S='' then
-    exit;
-
-  for i:= Length(S) downto 1 do
+  for Y:= APosY downto Max(0, APosY-cMaxLinesToLookUp) do
   begin
-    if S[i]='{' then
-      exit(true);
-    if S[i]='}' then
-      exit(false);
+    S:= Ed.Strings.Lines[Y];
+    if Y=APosY then
+      Delete(S, APosX+1, MaxInt);
+    for X:= Length(S) downto 1 do
+    begin
+      if S[X]='{' then
+        exit(true);
+      if S[X]='}' then
+        exit(false);
+    end;
   end;
 end;
 
@@ -125,7 +123,7 @@ begin
     exit;
   end;
 
-  if EditorGetCaretInCssBrackets(Ed, APosX, APosY) then
+  if EditorGetCaretInCurlyBrackets(Ed, APosX, APosY) then
   begin
     AContext:= CtxPropertyName;
     if S='' then
@@ -146,7 +144,7 @@ end;
 procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
   ACharsLeft, ACharsRight: integer);
 const
-  cNonWordChars = '#!@.'; //don't include ':'
+  cNonWordChars = '#!@.{};'; //don't include ':'
 var
   Caret: TATCaretItem;
   s_word: atString;
