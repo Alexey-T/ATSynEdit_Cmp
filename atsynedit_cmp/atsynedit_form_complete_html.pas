@@ -17,7 +17,10 @@ uses
   Dialogs,
   Math;
 
-//it needs file html_list.ini from SynWrite distro
+{
+function needs file from CudaText distro:
+  data/autocompletespec/html_list.ini
+}
 procedure DoEditorCompletionHtml(Ed: TATSynEdit; const AFilenameHtmlList: string);
 
 type

@@ -14,7 +14,11 @@ uses
   ATSynEdit_Carets,
   ATSynEdit_RegExpr;
 
-//it needs file css_list.ini from SynWrite distro
+{
+function needs files from CudaText distro:
+ - data/autocompletespec/css_list.ini
+ - data/autocompletespec/css_sel.ini
+}
 procedure DoEditorCompletionCss(AEdit: TATSynEdit;
   const AFilenameCssList, AFilenameCssSelectors: string);
 
