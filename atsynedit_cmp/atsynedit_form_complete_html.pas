@@ -193,21 +193,21 @@ begin
   if N=0 then Exit;
   Delete(S, 1, N);
 
-  ATagName:= SFindRegex(S, cRegexTagClose, cGroupTagClose);
+  ATagName:= LowerCase(SFindRegex(S, cRegexTagClose, cGroupTagClose));
   if ATagName<>'' then
   begin
     ATagClosing:= true;
     exit(ctxTags);
   end;
 
-  ATagName:= SFindRegex(S, cRegexTagOnly, cGroupTagOnly);
+  ATagName:= LowerCase(SFindRegex(S, cRegexTagOnly, cGroupTagOnly));
   if ATagName<>'' then
     exit(ctxTags);
 
-  ATagName:= SFindRegex(S, cRegexTagPart, cGroupTagPart);
+  ATagName:= LowerCase(SFindRegex(S, cRegexTagPart, cGroupTagPart));
   if ATagName<>'' then
   begin
-    AAttrName:= SFindRegex(S, cRegexAttr, cGroupAttr);
+    AAttrName:= LowerCase(SFindRegex(S, cRegexAttr, cGroupAttr));
     if AAttrName<>'' then
     begin
       if _StringEndsWithUnclosedQuote(S, AValueStr) then
@@ -239,7 +239,7 @@ begin
     SValue,
     bClosing,
     NextChar);
-  Result:= (Context in [ctxValues, ctxValuesQuoted]) and (LowerCase(SAttr)='style');
+  Result:= (Context in [ctxValues, ctxValuesQuoted]) and (SAttr='style');
 end;
 
 
