@@ -10,9 +10,7 @@ interface
 
 uses
   Classes, SysUtils, StrUtils, Graphics,
-  Dialogs,
-  ATSynEdit,
-  ATSynEdit_Carets;
+  ATSynEdit;
 
 procedure DoEditorCompletionAcp(AEdit: TATSynEdit;
   const AFilenameAcp: string; ACaseSens: boolean);
@@ -22,7 +20,8 @@ implementation
 
 uses
   ATStringProc,
-  ATSynEdit_form_complete;
+  ATSynEdit_Carets,
+  ATSynEdit_Form_Complete;
 
 type
   { TAcp }
