@@ -114,21 +114,27 @@ begin
   end;
 end;
 
-function _StringEndsWithUnclosedQuote(const S: string): boolean;
+function _StringEndsWithUnclosedQuote(const S: string; out AValueStr: string): boolean;
 var
   i: integer;
 begin
   Result:= false;
+  AValueStr:= '';
   for i:= Length(S) downto 1 do
     case S[i] of
-       '=': exit;
-       '"', '''': exit(true);
+       '=':
+         exit;
+       '"', '''':
+         begin
+           AValueStr:= Copy(S, i+1, MaxInt);
+           exit(true);
+         end;
     end;
 end;
 
 function EditorGetHtmlContext(Ed: TATSynedit;
   APosX, APosY: integer;
-  out ATagName, AAttrName: string;
+  out ATagName, AAttrName, AValueStr: string;
   out ATagClosing: boolean;
   out ACharAfter: char): TCompletionHtmlContext;
 const
@@ -153,6 +159,7 @@ var
 begin
   ATagName:= '';
   AAttrName:= '';
+  AValueStr:= '';
   ATagClosing:= false;
   ACharAfter:= ' ';
   Result:= ctxNone;
@@ -203,7 +210,7 @@ begin
     AAttrName:= SFindRegex(S, cRegexAttr, cGroupAttr);
     if AAttrName<>'' then
     begin
-      if _StringEndsWithUnclosedQuote(S) then
+      if _StringEndsWithUnclosedQuote(S, AValueStr) then
         Result:= ctxValuesQuoted
       else
         Result:= ctxValues;
@@ -218,13 +225,20 @@ end;
 function EditorHasCssAtCaret(Ed: TATSynEdit): boolean;
 var
   Caret: TATCaretItem;
-  STag, SAttr: string;
+  STag, SAttr, SValue: string;
   Context: TCompletionHtmlContext;
   bClosing: boolean;
   NextChar: char;
 begin
   Caret:= Ed.Carets[0];
-  Context:= EditorGetHtmlContext(Ed, Caret.PosX, Caret.PosY, STag, SAttr, bClosing, NextChar);
+  Context:= EditorGetHtmlContext(Ed,
+    Caret.PosX,
+    Caret.PosY,
+    STag,
+    SAttr,
+    SValue,
+    bClosing,
+    NextChar);
   Result:= (Context in [ctxValues, ctxValuesQuoted]) and (LowerCase(SAttr)='style');
 end;
 
@@ -253,6 +267,7 @@ begin
     Caret.PosY,
     s_tag,
     s_attr,
+    s_value,
     bClosing,
     NextChar);
 
