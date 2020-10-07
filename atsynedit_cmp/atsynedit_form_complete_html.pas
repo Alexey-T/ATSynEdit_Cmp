@@ -12,16 +12,12 @@ uses
   Classes, SysUtils, Graphics, StrUtils,
   ATSynEdit;
 
-{
-function needs file from CudaText distro:
-  data/autocompletespec/html_list.ini
-}
-procedure DoEditorCompletionHtml(Ed: TATSynEdit; const AFilenameHtmlList: string);
-
+procedure DoEditorCompletionHtml(Ed: TATSynEdit);
 function EditorHasCssAtCaret(Ed: TATSynEdit): boolean;
 
 type
   TATCompletionOptionsHtml = record
+    FilenameHtmlList: string; //from CudaText: data/autocompletespec/html_list.ini
     PrefixTag: string;
     PrefixAttrib: string;
     PrefixValue: string;
@@ -401,7 +397,7 @@ begin
   inherited;
 end;
 
-procedure DoEditorCompletionHtml(Ed: TATSynEdit; const AFilenameHtmlList: string);
+procedure DoEditorCompletionHtml(Ed: TATSynEdit);
 var
   Caret: TATCaretItem;
   S: atString;
@@ -414,8 +410,8 @@ begin
   //load file only once
   if Acp.List.Count=0 then
   begin
-    if not FileExists(AFilenameHtmlList) then exit;
-    Acp.List.LoadFromFile(AFilenameHtmlList);
+    if not FileExists(CompletionOpsHtml.FilenameHtmlList) then exit;
+    Acp.List.LoadFromFile(CompletionOpsHtml.FilenameHtmlList);
   end;
 
   if Ed.Carets.Count=0 then exit;

@@ -14,16 +14,12 @@ uses
   ATSynEdit_Carets,
   ATSynEdit_RegExpr;
 
-{
-function needs files from CudaText distro:
- - data/autocompletespec/css_list.ini
- - data/autocompletespec/css_sel.ini
-}
-procedure DoEditorCompletionCss(AEdit: TATSynEdit;
-  const AFilenameCssList, AFilenameCssSelectors: string);
+procedure DoEditorCompletionCss(AEdit: TATSynEdit);
 
 type
   TATCompletionOptionsCss = record
+    FilenameCssList: string; //from CudaText: data/autocompletespec/css_list.ini
+    FilenameCssSelectors: string; //from CudaText: data/autocompletespec/css_sel.ini
     PrefixProp: string;
     PrefixAtRule: string;
     PrefixPseudo: string;
@@ -259,23 +255,22 @@ begin
   inherited;
 end;
 
-procedure DoEditorCompletionCss(AEdit: TATSynEdit; const AFilenameCssList,
-  AFilenameCssSelectors: string);
+procedure DoEditorCompletionCss(AEdit: TATSynEdit);
 begin
   Acp.Ed:= AEdit;
 
   //load file only once
   if Acp.List.Count=0 then
   begin
-    if not FileExists(AFilenameCssList) then exit;
-    Acp.List.LoadFromFile(AFilenameCssList);
+    if not FileExists(CompletionOpsCss.FilenameCssList) then exit;
+    Acp.List.LoadFromFile(CompletionOpsCss.FilenameCssList);
   end;
 
   //optional list, load only once
   if Acp.ListSel.Count=0 then
   begin
-    if FileExists(AFilenameCssSelectors) then
-      Acp.ListSel.LoadFromFile(AFilenameCssSelectors);
+    if FileExists(CompletionOpsCss.FilenameCssSelectors) then
+      Acp.ListSel.LoadFromFile(CompletionOpsCss.FilenameCssSelectors);
   end;
 
   DoEditorCompletionListbox(AEdit, @Acp.DoOnGetCompleteProp);
