@@ -49,7 +49,9 @@ type
     ctxTags,
     ctxAttrs,
     ctxValues,
-    ctxValuesQuoted
+    ctxValuesQuoted,
+    ctxValueHref,
+    ctxValueImageSrc
     );
 
 function IsTagNeedsClosingTag(const S: string): boolean;
@@ -211,7 +213,14 @@ begin
     if AAttrName<>'' then
     begin
       if _StringEndsWithUnclosedQuote(S, AValueStr) then
-        Result:= ctxValuesQuoted
+      begin
+        Result:= ctxValuesQuoted;
+        if (ATagName='a') and (AAttrName='href') then
+          Result:= ctxValueHref
+        else
+        if (ATagName='img') and (AAttrName='src') then
+          Result:= ctxValueImageSrc;
+      end
       else
         Result:= ctxValues;
     end
@@ -365,6 +374,18 @@ begin
           until false;
         until false;
       end;
+
+    ctxValueHref,
+    ctxValueImageSrc:
+      begin
+        if SBeginsWith(s_value, 'http:') then exit;
+        if SBeginsWith(s_value, 'https:') then exit;
+        if Pos('://', s_value)>0 then exit;
+        if Context=ctxValueHref then
+          AText:= 'href|?'
+        else
+          AText:= 'img_src|?';
+      end;
   end;
 end;
 
@@ -427,7 +448,7 @@ begin
     if i>0 then
     begin
       ch:= S[i];
-      if (Pos(ch, '<="''')=0) and not IsCharWord(ch, cDefaultNonWordChars) then
+      if (Pos(ch, '<="''/:.-,')=0) and not IsCharWord(ch, cDefaultNonWordChars) then
         bAddBracket:= true;
     end
     else
