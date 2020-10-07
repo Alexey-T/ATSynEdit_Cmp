@@ -9,11 +9,10 @@ unit ATSynEdit_Form_Complete_HTML;
 interface
 
 uses
-  Classes, SysUtils, Graphics, StrUtils,
+  Classes, SysUtils, Graphics,
   ATSynEdit;
 
 procedure DoEditorCompletionHtml(Ed: TATSynEdit);
-function EditorHasCssAtCaret(Ed: TATSynEdit): boolean;
 
 type
   TATCompletionOptionsHtml = record
@@ -31,11 +30,13 @@ var
 implementation
 
 uses
+  StrUtils,
   ATStringProc,
   ATStringProc_Separator,
   ATSynEdit_Carets,
   ATSynEdit_RegExpr,
-  ATSynEdit_form_complete,
+  ATSynEdit_Form_Complete,
+  ATSynEdit_Form_Complete_CSS,
   Dialogs,
   Math;
 
@@ -227,27 +228,6 @@ begin
     Result:= ctxTags;
 end;
 
-function EditorHasCssAtCaret(Ed: TATSynEdit): boolean;
-var
-  Caret: TATCaretItem;
-  STag, SAttr, SValue: string;
-  Context: TCompletionHtmlContext;
-  bClosing: boolean;
-  NextChar: char;
-begin
-  Caret:= Ed.Carets[0];
-  Context:= EditorGetHtmlContext(Ed,
-    Caret.PosX,
-    Caret.PosY,
-    STag,
-    SAttr,
-    SValue,
-    bClosing,
-    NextChar);
-  Result:= (Context in [ctxValues, ctxValuesQuoted]) and (SAttr='style');
-end;
-
-
 procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
   ACharsLeft, ACharsRight: integer);
 var
@@ -400,8 +380,11 @@ end;
 procedure DoEditorCompletionHtml(Ed: TATSynEdit);
 var
   Caret: TATCaretItem;
+  Context: TCompletionHtmlContext;
+  S_Tag, S_Attr, S_Value: string;
   S: atString;
-  bAddBracket: boolean;
+  bClosing, bAddBracket: boolean;
+  NextChar: char;
   ch: WideChar;
   i: integer;
 begin
@@ -419,6 +402,21 @@ begin
 
   if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
   S:= Ed.Strings.Lines[Caret.PosY];
+
+  //we are inside style="..." ? call CSS completions.
+  Context:= EditorGetHtmlContext(Ed,
+    Caret.PosX,
+    Caret.PosY,
+    S_Tag,
+    S_Attr,
+    S_Value,
+    bClosing,
+    NextChar);
+  if (Context in [ctxValues, ctxValuesQuoted]) and (S_Attr='style') then
+  begin
+    DoEditorCompletionCss(Ed);
+    exit;
+  end;
 
   //bAddBracket: insert missing '<' if completion was called without it
   bAddBracket:= false;
