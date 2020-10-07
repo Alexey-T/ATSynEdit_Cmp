@@ -45,11 +45,11 @@ uses
 
 type
   TCompletionHtmlContext = (
-    acpModeNone,
-    acpModeTags,
-    acpModeAttrs,
-    acpModeValues,
-    acpModeValuesQuoted
+    ctxNone,
+    ctxTags,
+    ctxAttrs,
+    ctxValues,
+    ctxValuesQuoted
     );
 
 function IsTagNeedsClosingTag(const S: string): boolean;
@@ -155,7 +155,7 @@ begin
   AAttrName:= '';
   ATagClosing:= false;
   ACharAfter:= ' ';
-  Result:= acpModeNone;
+  Result:= ctxNone;
 
   //get str before caret
   S:= Ed.Strings.LineSub(APosY, 1, APosX);
@@ -190,12 +190,12 @@ begin
   if ATagName<>'' then
   begin
     ATagClosing:= true;
-    exit(acpModeTags);
+    exit(ctxTags);
   end;
 
   ATagName:= SFindRegex(S, cRegexTagOnly, cGroupTagOnly);
   if ATagName<>'' then
-    exit(acpModeTags);
+    exit(ctxTags);
 
   ATagName:= SFindRegex(S, cRegexTagPart, cGroupTagPart);
   if ATagName<>'' then
@@ -204,28 +204,28 @@ begin
     if AAttrName<>'' then
     begin
       if _StringEndsWithUnclosedQuote(S) then
-        Result:= acpModeValuesQuoted
+        Result:= ctxValuesQuoted
       else
-        Result:= acpModeValues;
+        Result:= ctxValues;
     end
     else
-      Result:= acpModeAttrs;
+      Result:= ctxAttrs;
   end
   else
-    Result:= acpModeTags;
+    Result:= ctxTags;
 end;
 
 function EditorHasCssAtCaret(Ed: TATSynEdit): boolean;
 var
   Caret: TATCaretItem;
   STag, SAttr: string;
-  Mode: TCompletionHtmlContext;
+  Context: TCompletionHtmlContext;
   bClosing: boolean;
   NextChar: char;
 begin
   Caret:= Ed.Carets[0];
-  Mode:= EditorGetHtmlContext(Ed, Caret.PosX, Caret.PosY, STag, SAttr, bClosing, NextChar);
-  Result:= (Mode in [acpModeValues, acpModeValuesQuoted]) and (LowerCase(SAttr)='style');
+  Context:= EditorGetHtmlContext(Ed, Caret.PosX, Caret.PosY, STag, SAttr, bClosing, NextChar);
+  Result:= (Context in [ctxValues, ctxValuesQuoted]) and (LowerCase(SAttr)='style');
 end;
 
 
@@ -233,7 +233,7 @@ procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
   ACharsLeft, ACharsRight: integer);
 var
   Caret: TATCaretItem;
-  mode: TCompletionHtmlContext;
+  Context: TCompletionHtmlContext;
   Sep, Sep2: TATStringSeparator;
   s_word: atString;
   s_tag, s_attr, s_item, s_subitem, s_value,
@@ -248,7 +248,7 @@ begin
   ACharsRight:= 0;
 
   Caret:= Ed.Carets[0];
-  mode:= EditorGetHtmlContext(Ed,
+  Context:= EditorGetHtmlContext(Ed,
     Caret.PosX,
     Caret.PosY,
     s_tag,
@@ -264,8 +264,8 @@ begin
     ACharsLeft,
     ACharsRight);
 
-  case mode of
-    acpModeTags:
+  case Context of
+    ctxTags:
       begin
         for i:= 0 to List.Count-1 do
         begin
@@ -298,7 +298,7 @@ begin
         end;
       end;
 
-    acpModeAttrs:
+    ctxAttrs:
       begin
         s_item:= List.Values[s_tag];
         if s_item='' then exit;
@@ -324,10 +324,10 @@ begin
         until false;
       end;
 
-    acpModeValues,
-    acpModeValuesQuoted:
+    ctxValues,
+    ctxValuesQuoted:
       begin
-        if mode=acpModeValuesQuoted then
+        if Context=ctxValuesQuoted then
         begin
           s_quote:= '';
           s_space:= '';
