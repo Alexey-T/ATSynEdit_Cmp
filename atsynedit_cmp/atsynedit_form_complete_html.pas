@@ -9,13 +9,8 @@ unit ATSynEdit_Form_Complete_HTML;
 interface
 
 uses
-  Classes, SysUtils, Graphics,
-  StrUtils,
-  ATSynEdit,
-  ATSynEdit_Carets,
-  ATSynEdit_RegExpr,
-  Dialogs,
-  Math;
+  Classes, SysUtils, Graphics, StrUtils,
+  ATSynEdit;
 
 {
 function needs file from CudaText distro:
@@ -23,21 +18,6 @@ function needs file from CudaText distro:
 }
 procedure DoEditorCompletionHtml(Ed: TATSynEdit; const AFilenameHtmlList: string);
 
-type
-  TCompleteHtmlMode = (
-    acpModeNone,
-    acpModeTags,
-    acpModeAttrs,
-    acpModeValues,
-    acpModeValuesQuoted
-    );
-
-//detect tag and its attribute at caret pos
-function EditorGetHtmlTag(Ed: TATSynedit;
-  APosX, APosY: integer;
-  out ATagName, AAttrName: string;
-  out ATagClosing: boolean;
-  out ACharAfter: char): TCompleteHtmlMode;
 function EditorHasCssAtCaret(Ed: TATSynEdit): boolean;
 
 type
@@ -57,7 +37,20 @@ implementation
 uses
   ATStringProc,
   ATStringProc_Separator,
-  ATSynEdit_form_complete;
+  ATSynEdit_Carets,
+  ATSynEdit_RegExpr,
+  ATSynEdit_form_complete,
+  Dialogs,
+  Math;
+
+type
+  TCompletionHtmlContext = (
+    acpModeNone,
+    acpModeTags,
+    acpModeAttrs,
+    acpModeValues,
+    acpModeValuesQuoted
+    );
 
 function IsTagNeedsClosingTag(const S: string): boolean;
 begin
@@ -133,11 +126,11 @@ begin
     end;
 end;
 
-function EditorGetHtmlTag(Ed: TATSynedit;
+function EditorGetHtmlContext(Ed: TATSynedit;
   APosX, APosY: integer;
   out ATagName, AAttrName: string;
   out ATagClosing: boolean;
-  out ACharAfter: char): TCompleteHtmlMode;
+  out ACharAfter: char): TCompletionHtmlContext;
 const
   //regex to catch tag name at line start
   cRegexTagPart = '^\w+\b';
@@ -226,12 +219,12 @@ function EditorHasCssAtCaret(Ed: TATSynEdit): boolean;
 var
   Caret: TATCaretItem;
   STag, SAttr: string;
-  Mode: TCompleteHtmlMode;
+  Mode: TCompletionHtmlContext;
   bClosing: boolean;
   NextChar: char;
 begin
   Caret:= Ed.Carets[0];
-  Mode:= EditorGetHtmlTag(Ed, Caret.PosX, Caret.PosY, STag, SAttr, bClosing, NextChar);
+  Mode:= EditorGetHtmlContext(Ed, Caret.PosX, Caret.PosY, STag, SAttr, bClosing, NextChar);
   Result:= (Mode in [acpModeValues, acpModeValuesQuoted]) and (LowerCase(SAttr)='style');
 end;
 
@@ -240,7 +233,7 @@ procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
   ACharsLeft, ACharsRight: integer);
 var
   Caret: TATCaretItem;
-  mode: TCompleteHtmlMode;
+  mode: TCompletionHtmlContext;
   Sep, Sep2: TATStringSeparator;
   s_word: atString;
   s_tag, s_attr, s_item, s_subitem, s_value,
@@ -255,7 +248,7 @@ begin
   ACharsRight:= 0;
 
   Caret:= Ed.Carets[0];
-  mode:= EditorGetHtmlTag(Ed,
+  mode:= EditorGetHtmlContext(Ed,
     Caret.PosX,
     Caret.PosY,
     s_tag,
