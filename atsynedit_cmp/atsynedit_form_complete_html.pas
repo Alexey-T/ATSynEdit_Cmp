@@ -469,6 +469,7 @@ initialization
 
   with CompletionOpsHtml do
   begin
+    FilenameHtmlList:= '';
     PrefixTag:= 'tag';
     PrefixAttrib:= 'attrib';
     PrefixValue:= 'value';

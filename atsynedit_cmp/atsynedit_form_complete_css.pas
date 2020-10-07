@@ -281,6 +281,8 @@ initialization
 
   with CompletionOpsCss do
   begin
+    FilenameCssList:= '';
+    FilenameCssSelectors:= '';
     PrefixProp:= 'css';
     PrefixAtRule:= 'at-rule';
     PrefixPseudo:= 'pseudo';
