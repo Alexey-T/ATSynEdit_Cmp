@@ -58,12 +58,12 @@ type
     ctxValueImageSrc
     );
 
-function _IsFilenameOk(const fn: string): boolean;
+function _IsValueFilename(const S: string): boolean;
 begin
   Result:= false;
-  if SBeginsWith(fn, 'http:') then exit;
-  if SBeginsWith(fn, 'https:') then exit;
-  if Pos('://', fn)>0 then exit;
+  if SBeginsWith(S, 'http:') then exit;
+  if SBeginsWith(S, 'https:') then exit;
+  if Pos('://', S)>0 then exit;
   Result:= true;
 end;
 
@@ -407,7 +407,7 @@ begin
 
     ctxValueHref:
       begin
-        if not _IsFilenameOk(s_value) then exit;
+        if not _IsValueFilename(s_value) then exit;
         AText:= CalculateCompletionFilenames(
           ExtractFileDir(Ed.FileName),
           s_value,
@@ -420,7 +420,7 @@ begin
 
     ctxValueLinkHref:
       begin
-        if not _IsFilenameOk(s_value) then exit;
+        if not _IsValueFilename(s_value) then exit;
         AText:= CalculateCompletionFilenames(
           ExtractFileDir(Ed.FileName),
           s_value,
@@ -433,7 +433,7 @@ begin
 
     ctxValueImageSrc:
       begin
-        if not _IsFilenameOk(s_value) then exit;
+        if not _IsValueFilename(s_value) then exit;
         AText:= CalculateCompletionFilenames(
           ExtractFileDir(Ed.FileName),
           s_value,
