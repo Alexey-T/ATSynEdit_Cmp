@@ -68,7 +68,7 @@ begin
         Result+= APrefixDir+'|'+SItemShort;
         if AddDirSlash then
           Result+= '/';
-        Result+= #13;
+        Result+= #10;
       end;
     end;
 
@@ -81,7 +81,7 @@ begin
     begin
       SItemShort:= ExtractFileName(SItem);
       if (SFileName='') or SBeginsWith(SItemShort, SFileName) then
-        Result+= APrefixFile+'|'+SItemShort+#13;
+        Result+= APrefixFile+'|'+SItemShort+#10;
     end;
   finally
     FreeAndNil(L);
