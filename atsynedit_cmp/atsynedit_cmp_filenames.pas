@@ -24,6 +24,7 @@ begin
   Result:= true;
 end;
 
+(*
 function IsHiddenFilename(const fn: string): boolean; inline;
 begin
   {$ifdef windows}
@@ -32,10 +33,13 @@ begin
   Result:= SBeginsWith(ExtractFileName(fn), '.');
   {$endif}
 end;
+*)
 
 function CalculateCompletionFilenames(const ACurDir, AText, AFileMask,
   APrefixDir, APrefixFile: string; AddDirSlash: boolean): string;
 var
+  FinderDirs: TFileSearcher;
+  FinderFiles: TFileSearcher;
   L: TStringList;
   SDirName, SFileName, SItem, SItemShort: string;
 begin
@@ -47,14 +51,17 @@ begin
   SFileName:= ExtractFileName(AText);
 
   L:= TStringList.Create;
+  FinderDirs:= TListDirectoriesSearcher.Create(L);
+  FinderFiles:= TListFileSearcher.Create(L);
+
   try
     L.Clear;
-    FindAllDirectories(L, SDirName, false{SubDirs});
+    FinderDirs.FileAttribute:= faAnyFile and not (faHidden or faSysFile);
+    FinderDirs.Search(SDirName, AllFilesMask, false{SubDirs});
     L.Sort;
 
     for SItem in L do
     begin
-      if IsHiddenFilename(SItem) then Continue;
       SItemShort:= ExtractFileName(SItem);
       if (SFileName='') or SBeginsWith(SItemShort, SFileName) then
       begin
@@ -66,18 +73,20 @@ begin
     end;
 
     L.Clear;
-    FindAllFiles(L, SDirName, AFileMask, false{SubDirs});
+    FinderFiles.FileAttribute:= faAnyFile and not (faHidden or faSysFile);
+    FinderFiles.Search(SDirName, AFileMask, false{SubDirs});
     L.Sort;
 
     for SItem in L do
     begin
-      if IsHiddenFilename(SItem) then Continue;
       SItemShort:= ExtractFileName(SItem);
       if (SFileName='') or SBeginsWith(SItemShort, SFileName) then
         Result+= APrefixFile+'|'+SItemShort+#13;
     end;
   finally
     FreeAndNil(L);
+    FreeAndNil(FinderDirs);
+    FreeAndNil(FinderFiles);
   end;
 end;
 
