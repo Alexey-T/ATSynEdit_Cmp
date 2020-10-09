@@ -292,6 +292,22 @@ end;
 
 procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
   ACharsLeft, ACharsRight: integer);
+  //
+  function GetFileNames(const AText, AFileMask: string): string;
+  var
+    bAddSlash: boolean;
+  begin
+    EditorGetDistanceToQuotes(Ed, ACharsLeft, ACharsRight, bAddSlash);
+    Result:= CalculateCompletionFilenames(
+      ExtractFileDir(Ed.FileName),
+      AText,
+      AFileMask,
+      CompletionOpsHtml.PrefixDir,
+      CompletionOpsHtml.PrefixFile,
+      bAddSlash
+      );
+  end;
+  //
 var
   Caret: TATCaretItem;
   Context: TCompletionHtmlContext;
@@ -300,7 +316,7 @@ var
   s_tag, s_attr, s_item, s_subitem, s_value,
   s_tag_bracket, s_tag_close: string;
   s_quote, s_space, s_equalchar: string;
-  ok, bClosing, bAddSlash: boolean;
+  ok, bClosing: boolean;
   NextChar: char;
   i: integer;
 begin
@@ -415,81 +431,36 @@ begin
 
     ctxValueHref:
       begin
-        EditorGetDistanceToQuotes(Ed, ACharsLeft, ACharsRight, bAddSlash);
-        AText:= CalculateCompletionFilenames(
-          ExtractFileDir(Ed.FileName),
-          s_value,
-          CompletionOpsHtml.FileMaskHREF,
-          CompletionOpsHtml.PrefixDir,
-          CompletionOpsHtml.PrefixFile,
-          bAddSlash
-          );
+        AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskHREF);
       end;
 
     ctxValueLinkHref:
       begin
-        EditorGetDistanceToQuotes(Ed, ACharsLeft, ACharsRight, bAddSlash);
-        AText:= CalculateCompletionFilenames(
-          ExtractFileDir(Ed.FileName),
-          s_value,
-          CompletionOpsHtml.FileMaskLinkHREF,
-          CompletionOpsHtml.PrefixDir,
-          CompletionOpsHtml.PrefixFile,
-          bAddSlash
-          );
+        AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskLinkHREF);
       end;
 
     ctxValueImageSrc:
       begin
-        EditorGetDistanceToQuotes(Ed, ACharsLeft, ACharsRight, bAddSlash);
-        AText:= CalculateCompletionFilenames(
-          ExtractFileDir(Ed.FileName),
-          s_value,
-          CompletionOpsHtml.FileMaskPictures,
-          CompletionOpsHtml.PrefixDir,
-          CompletionOpsHtml.PrefixFile,
-          bAddSlash
-          );
+        AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskPictures);
       end;
 
     ctxValueAudioSrc:
       begin
-        EditorGetDistanceToQuotes(Ed, ACharsLeft, ACharsRight, bAddSlash);
-        AText:= CalculateCompletionFilenames(
-          ExtractFileDir(Ed.FileName),
-          s_value,
-          CompletionOpsHtml.FileMaskAudio,
-          CompletionOpsHtml.PrefixDir,
-          CompletionOpsHtml.PrefixFile,
-          bAddSlash
-          );
+        AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskAudio);
       end;
 
     ctxValueVideoSrc:
       begin
-        EditorGetDistanceToQuotes(Ed, ACharsLeft, ACharsRight, bAddSlash);
-        AText:= CalculateCompletionFilenames(
-          ExtractFileDir(Ed.FileName),
-          s_value,
-          CompletionOpsHtml.FileMaskVideo,
-          CompletionOpsHtml.PrefixDir,
-          CompletionOpsHtml.PrefixFile,
-          bAddSlash
-          );
+        AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskVideo);
       end;
 
     ctxValueSomeSrc:
       begin
-        EditorGetDistanceToQuotes(Ed, ACharsLeft, ACharsRight, bAddSlash);
-        AText:= CalculateCompletionFilenames(
-          ExtractFileDir(Ed.FileName),
-          s_value,
-          CompletionOpsHtml.FileMaskSomeSrc,
-          CompletionOpsHtml.PrefixDir,
-          CompletionOpsHtml.PrefixFile,
-          bAddSlash
-          );
+        AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskSomeSrc);
       end;
+
+    else
+      raise Exception.Create('Unknown context in HTML completions');
   end;
 end;
 
