@@ -7,7 +7,7 @@ interface
 uses
   SysUtils, Classes;
 
-function CalculateCompletionFilenames(const ACurDir, AText, AFileMask, APrefixDir, APrefixFile: string): string;
+function CalculateCompletionFilenames(const ACurDir, AText, AFileMask, APrefixDir, APrefixFile: string; AddDirSlash: boolean): string;
 
 implementation
 
@@ -26,7 +26,7 @@ begin
 end;
 
 function CalculateCompletionFilenames(const ACurDir, AText, AFileMask,
-  APrefixDir, APrefixFile: string): string;
+  APrefixDir, APrefixFile: string; AddDirSlash: boolean): string;
 var
   L: TStringList;
   SDir, SName, S, S2: string;
@@ -50,7 +50,12 @@ begin
       if SBeginsWith(S2, '.') then
         Continue;
       if (SName='') or SBeginsWith(S2, SName) then
-        Result+= APrefixDir+'|'+S2+'/'#13;
+      begin
+        Result+= APrefixDir+'|'+S2;
+        if AddDirSlash then
+          Result+= '/';
+        Result+= #13;
+      end;
     end;
 
     L.Clear;
