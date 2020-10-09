@@ -35,6 +35,7 @@ uses
   ATStringProc_Separator,
   ATSynEdit_Carets,
   ATSynEdit_RegExpr,
+  ATSynEdit_Cmp_Filenames,
   ATSynEdit_Form_Complete,
   ATSynEdit_Form_Complete_CSS,
   Dialogs,
@@ -238,6 +239,7 @@ var
   s_tag, s_attr, s_item, s_subitem, s_value,
   s_tag_bracket, s_tag_close: string;
   s_quote, s_space, s_equalchar: string;
+  ListNames: TStringList;
   ok, bClosing: boolean;
   NextChar: char;
   i: integer;
@@ -351,16 +353,24 @@ begin
         until false;
       end;
 
-    ctxValueHref,
+    ctxValueHref:
+      begin
+        exit;
+      end;
+
     ctxValueImageSrc:
       begin
         if SBeginsWith(s_value, 'http:') then exit;
         if SBeginsWith(s_value, 'https:') then exit;
         if Pos('://', s_value)>0 then exit;
-        if Context=ctxValueHref then
-          AText:= 'href|?'
-        else
-          AText:= 'img_src|?';
+        ListNames:= TStringList.Create;
+        try
+          EditorGetCompletionFilenames(ExtractFileDir(Ed.FileName), s_value, ListNames);
+          for s_item in ListNames do
+            AText+= 'img src|'+s_item+#13;
+        finally
+          FreeAndNil(ListNames);
+        end;
       end;
   end;
 end;

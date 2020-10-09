@@ -9,7 +9,8 @@ interface
 
 uses
   ATSynEdit_Form_Complete, ATSynEdit_Form_Complete_CSS, 
-  ATSynEdit_Form_Complete_HTML, ATSynEdit_Form_Complete_SynWrite;
+  ATSynEdit_Form_Complete_HTML, ATSynEdit_Form_Complete_SynWrite, 
+  ATSynEdit_Cmp_Filenames;
 
 implementation
 
