@@ -22,6 +22,8 @@ type
     PrefixTag: string;
     PrefixAttrib: string;
     PrefixValue: string;
+    PrefixDir: string;
+    PrefixFile: string;
     MaxLinesPerTag: integer;
     NonWordChars: UnicodeString;
   end;
@@ -367,13 +369,25 @@ begin
     ctxValueHref:
       begin
         if not _IsFilenameOk(s_value) then exit;
-        AText:= CalculateCompletionFilenames(ExtractFileDir(Ed.FileName), s_value, CompletionOpsHtml.FileMaskHREF);
+        AText:= CalculateCompletionFilenames(
+          ExtractFileDir(Ed.FileName),
+          s_value,
+          CompletionOpsHtml.FileMaskHREF,
+          CompletionOpsHtml.PrefixDir,
+          CompletionOpsHtml.PrefixFile
+          );
       end;
 
     ctxValueImageSrc:
       begin
         if not _IsFilenameOk(s_value) then exit;
-        AText:= CalculateCompletionFilenames(ExtractFileDir(Ed.FileName), s_value, CompletionOpsHtml.FileMaskPictures);
+        AText:= CalculateCompletionFilenames(
+          ExtractFileDir(Ed.FileName),
+          s_value,
+          CompletionOpsHtml.FileMaskPictures,
+          CompletionOpsHtml.PrefixDir,
+          CompletionOpsHtml.PrefixFile
+          );
       end;
   end;
 end;
@@ -488,6 +502,8 @@ initialization
     PrefixTag:= 'tag';
     PrefixAttrib:= 'attrib';
     PrefixValue:= 'value';
+    PrefixDir:= 'folder';
+    PrefixFile:= 'file';
     MaxLinesPerTag:= 40;
     NonWordChars:= '+*=/\()[]{}<>"''.,:;~?!@#$%^&|`…'; // '-' is word char
   end;

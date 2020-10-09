@@ -7,16 +7,7 @@ interface
 uses
   SysUtils, Classes;
 
-function CalculateCompletionFilenames(const ACurDir, AText, AFileMask: string): string;
-
-type
-  TATCompletionOptionsFilenames = record
-    PrefixDir: string;
-    PrefixFile: string;
-  end;
-
-var
-  CompletionOpsFilenames: TATCompletionOptionsFilenames;
+function CalculateCompletionFilenames(const ACurDir, AText, AFileMask, APrefixDir, APrefixFile: string): string;
 
 implementation
 
@@ -25,7 +16,8 @@ uses
   Dialogs,
   FileUtil;
 
-function CalculateCompletionFilenames(const ACurDir, AText, AFileMask: string): string;
+function CalculateCompletionFilenames(const ACurDir, AText, AFileMask,
+  APrefixDir, APrefixFile: string): string;
 var
   L: TStringList;
   SDir, SName, S, S2: string;
@@ -48,7 +40,7 @@ begin
       if SBeginsWith(S2, '.') then
         Continue;
       if (SName='') or SBeginsWith(S2, SName) then
-        Result+= CompletionOpsFilenames.PrefixDir+'|'+S2+'/'#13;
+        Result+= APrefixDir+'|'+S2+'/'#13;
     end;
 
     L.Clear;
@@ -61,16 +53,11 @@ begin
       if SBeginsWith(S2, '.') then
         Continue;
       if (SName='') or SBeginsWith(S2, SName) then
-        Result+= CompletionOpsFilenames.PrefixFile+'|'+S2+#13;
+        Result+= APrefixFile+'|'+S2+#13;
     end;
   finally
     FreeAndNil(L);
   end;
 end;
-
-initialization
-
-  CompletionOpsFilenames.PrefixDir:= 'dir';
-  CompletionOpsFilenames.PrefixFile:= 'file';
 
 end.
