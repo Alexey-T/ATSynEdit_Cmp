@@ -8,9 +8,8 @@ unit atsynedit_cmp_package;
 interface
 
 uses
-  ATSynEdit_Form_Complete, ATSynEdit_Form_Complete_CSS, 
-  ATSynEdit_Form_Complete_HTML, ATSynEdit_Form_Complete_SynWrite, 
-  ATSynEdit_Cmp_Filenames;
+  ATSynEdit_Cmp_Filenames, ATSynEdit_Cmp_AcpFiles, ATSynEdit_Cmp_CSS, 
+  ATSynEdit_Cmp_HTML, ATSynEdit_Cmp_Form;
 
 implementation
 

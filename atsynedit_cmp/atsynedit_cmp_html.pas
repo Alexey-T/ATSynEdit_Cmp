@@ -2,7 +2,7 @@
 Copyright (C) Alexey Torgashin, uvviewsoft.com
 License: MPL 2.0 or LGPL
 }
-unit ATSynEdit_Form_Complete_HTML;
+unit ATSynEdit_Cmp_HTML;
 
 {$mode objfpc}{$H+}
 
@@ -35,9 +35,9 @@ uses
   ATStringProc_Separator,
   ATSynEdit_Carets,
   ATSynEdit_RegExpr,
+  ATSynEdit_Cmp_Form,
+  ATSynEdit_Cmp_CSS,
   ATSynEdit_Cmp_Filenames,
-  ATSynEdit_Form_Complete,
-  ATSynEdit_Form_Complete_CSS,
   Dialogs,
   Math;
 

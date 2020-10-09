@@ -2,7 +2,7 @@
 Copyright (C) Alexey Torgashin, uvviewsoft.com
 License: MPL 2.0 or LGPL
 }
-unit ATSynEdit_Form_Complete_CSS;
+unit ATSynEdit_Cmp_CSS;
 
 {$mode objfpc}{$H+}
 
@@ -37,7 +37,7 @@ uses
   Dialogs,
   ATStringProc,
   ATStringProc_Separator,
-  ATSynEdit_form_complete;
+  ATSynEdit_Cmp_Form;
 
 type
   { TAcp }

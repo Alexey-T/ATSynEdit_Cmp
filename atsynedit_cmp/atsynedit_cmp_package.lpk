@@ -10,34 +10,30 @@
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Description Value="API to show auto-completion listbox from ATSynEdit."/>
+    <Description Value="Auto-completion for ATSynEdit. General form, HTML, CSS, CudaText acp files."/>
     <License Value="MPL 2.0, LGPL"/>
-    <Version Major="1" Minor="1"/>
-    <Files Count="6">
+    <Version Major="1" Minor="2"/>
+    <Files Count="5">
       <Item1>
-        <Filename Value="atsynedit_form_complete.lfm"/>
-        <Type Value="LFM"/>
-      </Item1>
-      <Item2>
-        <Filename Value="atsynedit_form_complete.pas"/>
-        <UnitName Value="ATSynEdit_Form_Complete"/>
-      </Item2>
-      <Item3>
-        <Filename Value="atsynedit_form_complete_css.pas"/>
-        <UnitName Value="ATSynEdit_Form_Complete_CSS"/>
-      </Item3>
-      <Item4>
-        <Filename Value="atsynedit_form_complete_html.pas"/>
-        <UnitName Value="ATSynEdit_Form_Complete_HTML"/>
-      </Item4>
-      <Item5>
-        <Filename Value="atsynedit_form_complete_synwrite.pas"/>
-        <UnitName Value="ATSynEdit_Form_Complete_SynWrite"/>
-      </Item5>
-      <Item6>
         <Filename Value="atsynedit_cmp_filenames.pas"/>
         <UnitName Value="ATSynEdit_Cmp_Filenames"/>
-      </Item6>
+      </Item1>
+      <Item2>
+        <Filename Value="atsynedit_cmp_acpfiles.pas"/>
+        <UnitName Value="ATSynEdit_Cmp_AcpFiles"/>
+      </Item2>
+      <Item3>
+        <Filename Value="atsynedit_cmp_css.pas"/>
+        <UnitName Value="ATSynEdit_Cmp_CSS"/>
+      </Item3>
+      <Item4>
+        <Filename Value="atsynedit_cmp_html.pas"/>
+        <UnitName Value="ATSynEdit_Cmp_HTML"/>
+      </Item4>
+      <Item5>
+        <Filename Value="atsynedit_cmp_form.pas"/>
+        <UnitName Value="ATSynEdit_Cmp_Form"/>
+      </Item5>
     </Files>
     <CompatibilityMode Value="True"/>
     <RequiredPkgs Count="2">

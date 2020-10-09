@@ -2,7 +2,7 @@
 Copyright (C) Alexey Torgashin, uvviewsoft.com
 License: MPL 2.0 or LGPL
 }
-unit ATSynEdit_Form_Complete;
+unit ATSynEdit_Cmp_Form;
 
 {$mode objfpc}{$H+}
 

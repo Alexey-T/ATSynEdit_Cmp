@@ -2,7 +2,7 @@
 Copyright (C) Alexey Torgashin, uvviewsoft.com
 License: MPL 2.0 or LGPL
 }
-unit ATSynEdit_Form_Complete_SynWrite;
+unit ATSynEdit_Cmp_AcpFiles;
 
 {$mode objfpc}{$H+}
 
@@ -21,7 +21,7 @@ implementation
 uses
   ATStringProc,
   ATSynEdit_Carets,
-  ATSynEdit_Form_Complete;
+  ATSynEdit_Cmp_Form;
 
 type
   { TAcp }
