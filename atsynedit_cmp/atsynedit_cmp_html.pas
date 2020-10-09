@@ -19,6 +19,7 @@ type
     FilenameHtmlList: string; //from CudaText: data/autocompletespec/html_list.ini
     FileMaskPictures: string;
     FileMaskHREF: string;
+    FileMaskLinkHREF: string;
     PrefixTag: string;
     PrefixAttrib: string;
     PrefixValue: string;
@@ -53,6 +54,7 @@ type
     ctxValues,
     ctxValuesQuoted,
     ctxValueHref,
+    ctxValueLinkHref,
     ctxValueImageSrc
     );
 
@@ -230,6 +232,9 @@ begin
         if (ATagName='a') and (AAttrName='href') then
           Result:= ctxValueHref
         else
+        if (ATagName='link') and (AAttrName='href') then
+          Result:= ctxValueLinkHref
+        else
         if (ATagName='img') and (AAttrName='src') then
           Result:= ctxValueImageSrc;
       end
@@ -378,6 +383,18 @@ begin
           );
       end;
 
+    ctxValueLinkHref:
+      begin
+        if not _IsFilenameOk(s_value) then exit;
+        AText:= CalculateCompletionFilenames(
+          ExtractFileDir(Ed.FileName),
+          s_value,
+          CompletionOpsHtml.FileMaskLinkHREF,
+          CompletionOpsHtml.PrefixDir,
+          CompletionOpsHtml.PrefixFile
+          );
+      end;
+
     ctxValueImageSrc:
       begin
         if not _IsFilenameOk(s_value) then exit;
@@ -499,6 +516,7 @@ initialization
     FilenameHtmlList:= '';
     FileMaskPictures:= '*.png;*.gif;*.jpg;*.jpeg;*.ico';
     FileMaskHREF:= '*.htm;*.html;*.php*;*.asp*'+';'+FileMaskPictures;
+    FileMaskLinkHREF:= '*.css';
     PrefixTag:= 'tag';
     PrefixAttrib:= 'attrib';
     PrefixValue:= 'value';
