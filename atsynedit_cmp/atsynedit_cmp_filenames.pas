@@ -44,10 +44,11 @@ var
   SDirName, SFileName, SItem, SItemShort: string;
 begin
   Result:= '';
-  if not IsValueFilename(AText) then exit;
+  if (AText<>'') and not IsValueFilename(AText) then exit;
   if ACurDir='' then exit;
 
   SDirName:= ACurDir+'/'+ExtractFileDir(AText);
+  if not DirectoryExists(SDirName) then exit;
   SFileName:= ExtractFileName(AText);
 
   L:= TStringList.Create;
