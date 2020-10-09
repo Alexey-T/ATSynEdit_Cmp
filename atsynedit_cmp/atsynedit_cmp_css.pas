@@ -9,10 +9,7 @@ unit ATSynEdit_Cmp_CSS;
 interface
 
 uses
-  Classes, SysUtils, Graphics,
-  ATSynEdit,
-  ATSynEdit_Carets,
-  ATSynEdit_RegExpr;
+  ATSynEdit;
 
 procedure DoEditorCompletionCss(AEdit: TATSynEdit);
 
@@ -33,10 +30,12 @@ var
 implementation
 
 uses
+  SysUtils, Classes, Graphics,
   Math,
-  Dialogs,
   ATStringProc,
   ATStringProc_Separator,
+  ATSynEdit_Carets,
+  ATSynEdit_RegExpr,
   ATSynEdit_Cmp_Form;
 
 type

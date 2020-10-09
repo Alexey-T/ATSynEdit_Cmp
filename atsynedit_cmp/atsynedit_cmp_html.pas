@@ -9,7 +9,6 @@ unit ATSynEdit_Cmp_HTML;
 interface
 
 uses
-  Classes, SysUtils, Graphics,
   ATSynEdit;
 
 procedure DoEditorCompletionHtml(Ed: TATSynEdit);
@@ -39,7 +38,7 @@ var
 implementation
 
 uses
-  StrUtils,
+  SysUtils, Classes, Graphics, StrUtils,
   ATStringProc,
   ATStringProc_Separator,
   ATSynEdit_Carets,
