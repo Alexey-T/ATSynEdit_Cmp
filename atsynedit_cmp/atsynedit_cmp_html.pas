@@ -23,6 +23,7 @@ type
     FileMaskAudio: string;
     FileMaskVideo: string;
     FileMaskSomeSrc: string;
+    FileMaskScript: string;
     PrefixTag: string;
     PrefixAttrib: string;
     PrefixValue: string;
@@ -58,6 +59,7 @@ type
     ctxValuesQuoted,
     ctxValueHref,
     ctxValueLinkHref,
+    ctxValueScriptSrc,
     ctxValueImageSrc,
     ctxValueAudioSrc,
     ctxValueVideoSrc,
@@ -271,6 +273,9 @@ begin
         if (ATagName='link') and (AAttrName='href') then
           Result:= ctxValueLinkHref
         else
+        if (ATagName='script') and (AAttrName='src') then
+          Result:= ctxValueScriptSrc
+        else
         if (ATagName='img') and (AAttrName='src') then
           Result:= ctxValueImageSrc
         else
@@ -442,6 +447,11 @@ begin
         AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskLinkHREF);
       end;
 
+    ctxValueScriptSrc:
+      begin
+        AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskScript);
+      end;
+
     ctxValueImageSrc:
       begin
         AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskPictures);
@@ -578,6 +588,7 @@ initialization
     FileMaskAudio:= '*.mp3;*.ogg;*.wav';
     FileMaskVideo:= '*.mp4;*.ogg;*.webm';
     FileMaskSomeSrc:= FileMaskAudio+';'+FileMaskVideo;
+    FileMaskScript:= '*.js';
     PrefixTag:= 'tag';
     PrefixAttrib:= 'attrib';
     PrefixValue:= 'value';
