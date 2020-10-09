@@ -17,9 +17,12 @@ procedure DoEditorCompletionHtml(Ed: TATSynEdit);
 type
   TATCompletionOptionsHtml = record
     FilenameHtmlList: string; //from CudaText: data/autocompletespec/html_list.ini
-    FileMaskPictures: string;
     FileMaskHREF: string;
     FileMaskLinkHREF: string;
+    FileMaskPictures: string;
+    FileMaskAudio: string;
+    FileMaskVideo: string;
+    FileMaskSomeSrc: string;
     PrefixTag: string;
     PrefixAttrib: string;
     PrefixValue: string;
@@ -55,7 +58,10 @@ type
     ctxValuesQuoted,
     ctxValueHref,
     ctxValueLinkHref,
-    ctxValueImageSrc
+    ctxValueImageSrc,
+    ctxValueAudioSrc,
+    ctxValueVideoSrc,
+    ctxValueSomeSrc
     );
 
 function _IsValueFilename(const S: string): boolean;
@@ -270,7 +276,16 @@ begin
           Result:= ctxValueLinkHref
         else
         if (ATagName='img') and (AAttrName='src') then
-          Result:= ctxValueImageSrc;
+          Result:= ctxValueImageSrc
+        else
+        if (ATagName='audio') and (AAttrName='src') then
+          Result:= ctxValueAudioSrc
+        else
+        if (ATagName='video') and (AAttrName='src') then
+          Result:= ctxValueVideoSrc
+        else
+        if (ATagName='source') and (AAttrName='src') then
+          Result:= ctxValueSomeSrc;
       end
       else
         Result:= ctxValues;
@@ -443,6 +458,45 @@ begin
           );
         EditorGetDistanceToQuotes(Ed, ACharsLeft, ACharsRight);
       end;
+
+    ctxValueAudioSrc:
+      begin
+        if not _IsValueFilename(s_value) then exit;
+        AText:= CalculateCompletionFilenames(
+          ExtractFileDir(Ed.FileName),
+          s_value,
+          CompletionOpsHtml.FileMaskAudio,
+          CompletionOpsHtml.PrefixDir,
+          CompletionOpsHtml.PrefixFile
+          );
+        EditorGetDistanceToQuotes(Ed, ACharsLeft, ACharsRight);
+      end;
+
+    ctxValueVideoSrc:
+      begin
+        if not _IsValueFilename(s_value) then exit;
+        AText:= CalculateCompletionFilenames(
+          ExtractFileDir(Ed.FileName),
+          s_value,
+          CompletionOpsHtml.FileMaskVideo,
+          CompletionOpsHtml.PrefixDir,
+          CompletionOpsHtml.PrefixFile
+          );
+        EditorGetDistanceToQuotes(Ed, ACharsLeft, ACharsRight);
+      end;
+
+    ctxValueSomeSrc:
+      begin
+        if not _IsValueFilename(s_value) then exit;
+        AText:= CalculateCompletionFilenames(
+          ExtractFileDir(Ed.FileName),
+          s_value,
+          CompletionOpsHtml.FileMaskSomeSrc,
+          CompletionOpsHtml.PrefixDir,
+          CompletionOpsHtml.PrefixFile
+          );
+        EditorGetDistanceToQuotes(Ed, ACharsLeft, ACharsRight);
+      end;
   end;
 end;
 
@@ -551,9 +605,12 @@ initialization
   with CompletionOpsHtml do
   begin
     FilenameHtmlList:= '';
-    FileMaskPictures:= '*.png;*.gif;*.jpg;*.jpeg;*.ico';
     FileMaskHREF:= '*.htm;*.html;*.php*;*.asp*'+';'+FileMaskPictures;
     FileMaskLinkHREF:= '*.css';
+    FileMaskPictures:= '*.png;*.gif;*.jpg;*.jpeg;*.ico';
+    FileMaskAudio:= '*.mp3;*.ogg;*.wav';
+    FileMaskVideo:= '*.mp4;*.ogg;*.webm';
+    FileMaskSomeSrc:= FileMaskAudio+';'+FileMaskVideo;
     PrefixTag:= 'tag';
     PrefixAttrib:= 'attrib';
     PrefixValue:= 'value';
