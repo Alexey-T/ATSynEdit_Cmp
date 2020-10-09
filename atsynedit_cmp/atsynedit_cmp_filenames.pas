@@ -16,6 +16,15 @@ uses
   Dialogs,
   FileUtil;
 
+function _IsValueFilename(const S: string): boolean;
+begin
+  Result:= false;
+  if SBeginsWith(S, 'http:') then exit;
+  if SBeginsWith(S, 'https:') then exit;
+  if Pos('://', S)>0 then exit;
+  Result:= true;
+end;
+
 function CalculateCompletionFilenames(const ACurDir, AText, AFileMask,
   APrefixDir, APrefixFile: string): string;
 var
@@ -23,6 +32,7 @@ var
   SDir, SName, S, S2: string;
 begin
   Result:= '';
+  if not _IsValueFilename(AText) then exit;
   if ACurDir='' then exit;
 
   SDir:= ACurDir+'/'+ExtractFileDir(AText);

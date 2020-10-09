@@ -64,15 +64,6 @@ type
     ctxValueSomeSrc
     );
 
-function _IsValueFilename(const S: string): boolean;
-begin
-  Result:= false;
-  if SBeginsWith(S, 'http:') then exit;
-  if SBeginsWith(S, 'https:') then exit;
-  if Pos('://', S)>0 then exit;
-  Result:= true;
-end;
-
 function _IsSep(ch: WideChar): boolean; inline;
 begin
   case ch of
@@ -422,7 +413,6 @@ begin
 
     ctxValueHref:
       begin
-        if not _IsValueFilename(s_value) then exit;
         AText:= CalculateCompletionFilenames(
           ExtractFileDir(Ed.FileName),
           s_value,
@@ -435,7 +425,6 @@ begin
 
     ctxValueLinkHref:
       begin
-        if not _IsValueFilename(s_value) then exit;
         AText:= CalculateCompletionFilenames(
           ExtractFileDir(Ed.FileName),
           s_value,
@@ -448,7 +437,6 @@ begin
 
     ctxValueImageSrc:
       begin
-        if not _IsValueFilename(s_value) then exit;
         AText:= CalculateCompletionFilenames(
           ExtractFileDir(Ed.FileName),
           s_value,
@@ -461,7 +449,6 @@ begin
 
     ctxValueAudioSrc:
       begin
-        if not _IsValueFilename(s_value) then exit;
         AText:= CalculateCompletionFilenames(
           ExtractFileDir(Ed.FileName),
           s_value,
@@ -474,7 +461,6 @@ begin
 
     ctxValueVideoSrc:
       begin
-        if not _IsValueFilename(s_value) then exit;
         AText:= CalculateCompletionFilenames(
           ExtractFileDir(Ed.FileName),
           s_value,
@@ -487,7 +473,6 @@ begin
 
     ctxValueSomeSrc:
       begin
-        if not _IsValueFilename(s_value) then exit;
         AText:= CalculateCompletionFilenames(
           ExtractFileDir(Ed.FileName),
           s_value,
