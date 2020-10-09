@@ -67,6 +67,40 @@ begin
   Result:= true;
 end;
 
+function _IsSep(ch: WideChar): boolean; inline;
+begin
+  case ch of
+    '"', '''', '/', '\':
+      Result:= true;
+    else
+      Result:= false;
+  end;
+end;
+
+procedure EditorGetDistanceToQuotes(Ed: TATSynEdit; out ALeft, ARight: integer);
+var
+  Caret: TATCaretItem;
+  S: UnicodeString;
+  Len, X, i: integer;
+begin
+  ALeft:= 0;
+  ARight:= 0;
+
+  Caret:= Ed.Carets[0];
+  if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
+  S:= Ed.Strings.Lines[Caret.PosY];
+  Len:= Length(S);
+  X:= Caret.PosX+1;
+
+  i:= X;
+  while (i<=Len) and not _IsSep(S[i]) do Inc(i);
+  ARight:= i-X;
+
+  i:= X;
+  while (i>0) and (i<=Len) and not _IsSep(S[i]) do Dec(i);
+  ALeft:= X-i-1;
+end;
+
 
 function IsTagNeedsClosingTag(const S: string): boolean;
 begin
@@ -381,6 +415,7 @@ begin
           CompletionOpsHtml.PrefixDir,
           CompletionOpsHtml.PrefixFile
           );
+        EditorGetDistanceToQuotes(Ed, ACharsLeft, ACharsRight);
       end;
 
     ctxValueLinkHref:
@@ -393,6 +428,7 @@ begin
           CompletionOpsHtml.PrefixDir,
           CompletionOpsHtml.PrefixFile
           );
+        EditorGetDistanceToQuotes(Ed, ACharsLeft, ACharsRight);
       end;
 
     ctxValueImageSrc:
@@ -405,6 +441,7 @@ begin
           CompletionOpsHtml.PrefixDir,
           CompletionOpsHtml.PrefixFile
           );
+        EditorGetDistanceToQuotes(Ed, ACharsLeft, ACharsRight);
       end;
   end;
 end;
