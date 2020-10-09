@@ -94,8 +94,8 @@ begin
   ARight:= i-X;
 
   i:= X;
-  while (i>0) and (i<=Len) and not _IsSep(S[i]) do Dec(i);
-  ALeft:= X-i-1;
+  while (i>1) and (i<=Len) and not _IsSep(S[i-1]) do Dec(i);
+  ALeft:= Max(0, X-i);
 end;
 
 
