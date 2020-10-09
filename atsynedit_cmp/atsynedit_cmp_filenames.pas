@@ -1,11 +1,12 @@
+{
+Copyright (C) Alexey Torgashin, uvviewsoft.com
+License: MPL 2.0 or LGPL
+}
 unit ATSynEdit_Cmp_Filenames;
 
 {$mode objfpc}{$H+}
 
 interface
-
-uses
-  SysUtils;
 
 function CalculateCompletionFilenames(const ACurDir, AText, AFileMask,
   APrefixDir, APrefixFile: string; AddDirSlash: boolean): string;
@@ -13,7 +14,7 @@ function CalculateCompletionFilenames(const ACurDir, AText, AFileMask,
 implementation
 
 uses
-  Classes,
+  SysUtils, Classes,
   ATStringProc,
   FileUtil;
 
