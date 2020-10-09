@@ -5,22 +5,21 @@ unit ATSynEdit_Cmp_Filenames;
 interface
 
 uses
-  SysUtils, Classes;
+  SysUtils;
 
-function CalculateCompletionFilenames(const ACurDir, AText, AFileMask, APrefixDir, APrefixFile: string; AddDirSlash: boolean): string;
+function CalculateCompletionFilenames(const ACurDir, AText, AFileMask,
+  APrefixDir, APrefixFile: string; AddDirSlash: boolean): string;
 
 implementation
 
 uses
+  Classes,
   ATStringProc,
-  Dialogs,
   FileUtil;
 
-function _IsValueFilename(const S: string): boolean;
+function IsValueFilename(const S: string): boolean;
 begin
   Result:= false;
-  if SBeginsWith(S, 'http:') then exit;
-  if SBeginsWith(S, 'https:') then exit;
   if Pos('://', S)>0 then exit;
   Result:= true;
 end;
@@ -29,29 +28,29 @@ function CalculateCompletionFilenames(const ACurDir, AText, AFileMask,
   APrefixDir, APrefixFile: string; AddDirSlash: boolean): string;
 var
   L: TStringList;
-  SDir, SName, S, S2: string;
+  SDirName, SFileName, SItem, SItemShort: string;
 begin
   Result:= '';
-  if not _IsValueFilename(AText) then exit;
+  if not IsValueFilename(AText) then exit;
   if ACurDir='' then exit;
 
-  SDir:= ACurDir+'/'+ExtractFileDir(AText);
-  SName:= ExtractFileName(AText);
+  SDirName:= ACurDir+'/'+ExtractFileDir(AText);
+  SFileName:= ExtractFileName(AText);
 
   L:= TStringList.Create;
   try
     L.Clear;
-    FindAllDirectories(L, SDir, false{SubDirs});
+    FindAllDirectories(L, SDirName, false{SubDirs});
     L.Sort;
 
-    for S in L do
+    for SItem in L do
     begin
-      S2:= ExtractFileName(S);
-      if SBeginsWith(S2, '.') then
+      SItemShort:= ExtractFileName(SItem);
+      if SBeginsWith(SItemShort, '.') then
         Continue;
-      if (SName='') or SBeginsWith(S2, SName) then
+      if (SFileName='') or SBeginsWith(SItemShort, SFileName) then
       begin
-        Result+= APrefixDir+'|'+S2;
+        Result+= APrefixDir+'|'+SItemShort;
         if AddDirSlash then
           Result+= '/';
         Result+= #13;
@@ -59,16 +58,16 @@ begin
     end;
 
     L.Clear;
-    FindAllFiles(L, SDir, AFileMask, false{SubDirs});
+    FindAllFiles(L, SDirName, AFileMask, false{SubDirs});
     L.Sort;
 
-    for S in L do
+    for SItem in L do
     begin
-      S2:= ExtractFileName(S);
-      if SBeginsWith(S2, '.') then
+      SItemShort:= ExtractFileName(SItem);
+      if SBeginsWith(SItemShort, '.') then
         Continue;
-      if (SName='') or SBeginsWith(S2, SName) then
-        Result+= APrefixFile+'|'+S2+#13;
+      if (SFileName='') or SBeginsWith(SItemShort, SFileName) then
+        Result+= APrefixFile+'|'+SItemShort+#13;
     end;
   finally
     FreeAndNil(L);
