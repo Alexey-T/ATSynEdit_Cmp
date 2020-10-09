@@ -498,7 +498,7 @@ initialization
   begin
     FilenameHtmlList:= '';
     FileMaskPictures:= '*.png;*.gif;*.jpg;*.jpeg;*.ico';
-    FileMaskHREF:= '*.htm;*.html;*.php*';
+    FileMaskHREF:= '*.htm;*.html;*.php*;*.asp*'+';'+FileMaskPictures;
     PrefixTag:= 'tag';
     PrefixAttrib:= 'attrib';
     PrefixValue:= 'value';
