@@ -276,7 +276,7 @@ begin
         if (ATagName='script') and (AAttrName='src') then
           Result:= ctxValueScriptSrc
         else
-        if (ATagName='img') and (AAttrName='src') then
+        if ((ATagName='img') or (ATagName='input')) and (AAttrName='src') then
           Result:= ctxValueImageSrc
         else
         if (ATagName='audio') and (AAttrName='src') then
