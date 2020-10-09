@@ -63,7 +63,7 @@ type
     ctxValueImageSrc,
     ctxValueAudioSrc,
     ctxValueVideoSrc,
-    ctxValueSomeSrc
+    ctxValueSourceSrc
     );
 
 function _IsSep(ch: WideChar): boolean; inline;
@@ -286,7 +286,7 @@ begin
           Result:= ctxValueVideoSrc
         else
         if (ATagName='source') and (AAttrName='src') then
-          Result:= ctxValueSomeSrc;
+          Result:= ctxValueSourceSrc;
       end
       else
         Result:= ctxValues;
@@ -467,7 +467,7 @@ begin
         AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskVideo);
       end;
 
-    ctxValueSomeSrc:
+    ctxValueSourceSrc:
       begin
         AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskSomeSrc);
       end;
