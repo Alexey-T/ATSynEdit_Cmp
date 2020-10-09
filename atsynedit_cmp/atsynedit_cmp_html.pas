@@ -265,6 +265,9 @@ begin
         if (ATagName='a') and (AAttrName='href') then
           Result:= ctxValueHref
         else
+        if ((ATagName='frame') or (ATagName='iframe')) and (AAttrName='src') then
+          Result:= ctxValueHref
+        else
         if (ATagName='link') and (AAttrName='href') then
           Result:= ctxValueLinkHref
         else
