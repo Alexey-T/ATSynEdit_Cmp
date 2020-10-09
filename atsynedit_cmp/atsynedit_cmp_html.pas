@@ -380,7 +380,7 @@ begin
             ok:= SBeginsWith(UpperCase(s_item), UpperCase(s_word));
             if not ok then Continue;
           end;
-          AText:= AText+CompletionOpsHtml.PrefixTag+'|'+s_item+#13;
+          AText:= AText+CompletionOpsHtml.PrefixTag+'|'+s_item+#10;
         end;
       end;
 
@@ -406,7 +406,7 @@ begin
             ok:= SBeginsWith(UpperCase(s_subitem), UpperCase(s_word));
             if not ok then Continue;
           end;
-          AText:= AText+s_tag+' '+CompletionOpsHtml.PrefixAttrib+'|'+s_subitem+#1+s_equalchar+#13;
+          AText:= AText+s_tag+' '+CompletionOpsHtml.PrefixAttrib+'|'+s_subitem+#1+s_equalchar+#10;
         until false;
       end;
 
@@ -432,7 +432,7 @@ begin
           Sep2.Init(s_subitem, '?');
           repeat
             if not Sep2.GetItemStr(s_value) then Break;
-            AText:= AText+s_attr+' '+CompletionOpsHtml.PrefixValue+'|'+s_quote+s_value+s_quote+#1+s_space+#13;
+            AText:= AText+s_attr+' '+CompletionOpsHtml.PrefixValue+'|'+s_quote+s_value+s_quote+#1+s_space+#10;
           until false;
         until false;
       end;

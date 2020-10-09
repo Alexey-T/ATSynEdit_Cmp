@@ -192,7 +192,7 @@ begin
             if not ok then Continue;
           end;
 
-          AText:= AText+CompletionOpsCss.PrefixProp+' "'+s_tag+'"|'+s_val+#1' '#13;
+          AText:= AText+CompletionOpsCss.PrefixProp+' "'+s_tag+'"|'+s_val+#1' '#10;
         until false;
       end;
 
@@ -216,7 +216,7 @@ begin
             if not ok then Continue;
           end;
 
-          AText:= AText+CompletionOpsCss.PrefixProp+'|'+s_item+#1': '#13;
+          AText:= AText+CompletionOpsCss.PrefixProp+'|'+s_item+#1': '#10;
         end;
       end;
 
@@ -235,7 +235,7 @@ begin
         for s_item in ListSel do
         begin
           if (s_tag='') or SBeginsWith(s_item, s_tag) then
-            AText+= s_val+'|'+s_item+#13;
+            AText+= s_val+'|'+s_item+#10;
         end;
       end;
   end;
