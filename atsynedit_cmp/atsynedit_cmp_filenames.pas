@@ -24,6 +24,15 @@ begin
   Result:= true;
 end;
 
+function IsHiddenFilename(const fn: string): boolean; inline;
+begin
+  {$ifdef windows}
+  Result:= (FileGetAttr(fn) and (faHidden or faSysFile))<>0;
+  {$else}
+  Result:= SBeginsWith(ExtractFileName(fn), '.');
+  {$endif}
+end;
+
 function CalculateCompletionFilenames(const ACurDir, AText, AFileMask,
   APrefixDir, APrefixFile: string; AddDirSlash: boolean): string;
 var
@@ -45,9 +54,8 @@ begin
 
     for SItem in L do
     begin
+      if IsHiddenFilename(SItem) then Continue;
       SItemShort:= ExtractFileName(SItem);
-      if SBeginsWith(SItemShort, '.') then
-        Continue;
       if (SFileName='') or SBeginsWith(SItemShort, SFileName) then
       begin
         Result+= APrefixDir+'|'+SItemShort;
@@ -63,9 +71,8 @@ begin
 
     for SItem in L do
     begin
+      if IsHiddenFilename(SItem) then Continue;
       SItemShort:= ExtractFileName(SItem);
-      if SBeginsWith(SItemShort, '.') then
-        Continue;
       if (SFileName='') or SBeginsWith(SItemShort, SFileName) then
         Result+= APrefixFile+'|'+SItemShort+#13;
     end;
