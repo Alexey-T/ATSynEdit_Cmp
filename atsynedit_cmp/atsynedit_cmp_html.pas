@@ -17,6 +17,7 @@ procedure DoEditorCompletionHtml(Ed: TATSynEdit);
 type
   TATCompletionOptionsHtml = record
     FilenameHtmlList: string; //from CudaText: data/autocompletespec/html_list.ini
+    FileMaskPictures: string;
     PrefixTag: string;
     PrefixAttrib: string;
     PrefixValue: string;
@@ -365,9 +366,9 @@ begin
         if Pos('://', s_value)>0 then exit;
         ListNames:= TStringList.Create;
         try
-          EditorGetCompletionFilenames(ExtractFileDir(Ed.FileName), s_value, ListNames);
+          EditorGetCompletionFilenames(ExtractFileDir(Ed.FileName), s_value, ListNames, CompletionOpsHtml.FileMaskPictures);
           for s_item in ListNames do
-            AText+= 'img src|'+s_item+#13;
+            AText+= s_item+#13;
         finally
           FreeAndNil(ListNames);
         end;
@@ -480,6 +481,7 @@ initialization
   with CompletionOpsHtml do
   begin
     FilenameHtmlList:= '';
+    FileMaskPictures:= '*.png;*.gif;*.jpg;*.jpeg;*.ico';
     PrefixTag:= 'tag';
     PrefixAttrib:= 'attrib';
     PrefixValue:= 'value';
