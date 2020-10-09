@@ -7,7 +7,7 @@ interface
 uses
   SysUtils, Classes;
 
-procedure EditorGetCompletionFilenames(const ACurDir, AText: string; AList: TStringList; const AFileMask: string);
+function CalculateCompletionFilenames(const ACurDir, AText, AFileMask: string): string;
 
 type
   TATCompletionOptionsFilenames = record
@@ -25,13 +25,12 @@ uses
   Dialogs,
   FileUtil;
 
-procedure EditorGetCompletionFilenames(const ACurDir, AText: string;
-  AList: TStringList; const AFileMask: string);
+function CalculateCompletionFilenames(const ACurDir, AText, AFileMask: string): string;
 var
   L: TStringList;
   SDir, SName, S, S2: string;
 begin
-  AList.Clear;
+  Result:= '';
   if ACurDir='' then exit;
 
   SDir:= ACurDir+'/'+ExtractFileDir(AText);
@@ -49,7 +48,7 @@ begin
       if SBeginsWith(S2, '.') then
         Continue;
       if (SName='') or SBeginsWith(S2, SName) then
-        AList.Add(CompletionOpsFilenames.PrefixDir+'|'+S2+'/');
+        Result+= CompletionOpsFilenames.PrefixDir+'|'+S2+'/'#13;
     end;
 
     L.Clear;
@@ -62,7 +61,7 @@ begin
       if SBeginsWith(S2, '.') then
         Continue;
       if (SName='') or SBeginsWith(S2, SName) then
-        AList.Add(CompletionOpsFilenames.PrefixFile+'|'+S2);
+        Result+= CompletionOpsFilenames.PrefixFile+'|'+S2+#13;
     end;
   finally
     FreeAndNil(L);

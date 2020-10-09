@@ -18,6 +18,7 @@ type
   TATCompletionOptionsHtml = record
     FilenameHtmlList: string; //from CudaText: data/autocompletespec/html_list.ini
     FileMaskPictures: string;
+    FileMaskHREF: string;
     PrefixTag: string;
     PrefixAttrib: string;
     PrefixValue: string;
@@ -52,6 +53,16 @@ type
     ctxValueHref,
     ctxValueImageSrc
     );
+
+function _IsFilenameOk(const fn: string): boolean;
+begin
+  Result:= false;
+  if SBeginsWith(fn, 'http:') then exit;
+  if SBeginsWith(fn, 'https:') then exit;
+  if Pos('://', fn)>0 then exit;
+  Result:= true;
+end;
+
 
 function IsTagNeedsClosingTag(const S: string): boolean;
 begin
@@ -240,7 +251,6 @@ var
   s_tag, s_attr, s_item, s_subitem, s_value,
   s_tag_bracket, s_tag_close: string;
   s_quote, s_space, s_equalchar: string;
-  ListNames: TStringList;
   ok, bClosing: boolean;
   NextChar: char;
   i: integer;
@@ -356,22 +366,14 @@ begin
 
     ctxValueHref:
       begin
-        exit;
+        if not _IsFilenameOk(s_value) then exit;
+        AText:= CalculateCompletionFilenames(ExtractFileDir(Ed.FileName), s_value, CompletionOpsHtml.FileMaskHREF);
       end;
 
     ctxValueImageSrc:
       begin
-        if SBeginsWith(s_value, 'http:') then exit;
-        if SBeginsWith(s_value, 'https:') then exit;
-        if Pos('://', s_value)>0 then exit;
-        ListNames:= TStringList.Create;
-        try
-          EditorGetCompletionFilenames(ExtractFileDir(Ed.FileName), s_value, ListNames, CompletionOpsHtml.FileMaskPictures);
-          for s_item in ListNames do
-            AText+= s_item+#13;
-        finally
-          FreeAndNil(ListNames);
-        end;
+        if not _IsFilenameOk(s_value) then exit;
+        AText:= CalculateCompletionFilenames(ExtractFileDir(Ed.FileName), s_value, CompletionOpsHtml.FileMaskPictures);
       end;
   end;
 end;
@@ -482,6 +484,7 @@ initialization
   begin
     FilenameHtmlList:= '';
     FileMaskPictures:= '*.png;*.gif;*.jpg;*.jpeg;*.ico';
+    FileMaskHREF:= '*.htm;*.html;*.php*';
     PrefixTag:= 'tag';
     PrefixAttrib:= 'attrib';
     PrefixValue:= 'value';
