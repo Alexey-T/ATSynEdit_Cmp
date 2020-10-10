@@ -67,6 +67,16 @@ type
     ctxValueSourceSrc
     );
 
+function _IsQuote(ch: WideChar): boolean; inline;
+begin
+  case ch of
+    '"', '''':
+      Result:= true;
+    else
+      Result:= false;
+  end;
+end;
+
 function _IsSep(ch: WideChar): boolean; inline;
 begin
   case ch of
@@ -94,9 +104,9 @@ begin
   X:= Caret.PosX+1;
 
   i:= X;
-  while (i<=Len) and not _IsSep(S[i]) do Inc(i);
+  while (i<=Len) and not _IsQuote(S[i]) do Inc(i);
   ARight:= i-X;
-  AAddSlash:= not ((i<=Len) and (S[i]='/'));
+  //AAddSlash:= not ((i<=Len) and (S[i]='/'));
 
   i:= X;
   while (i>1) and (i<=Len) and not _IsSep(S[i-1]) do Dec(i);
