@@ -598,7 +598,7 @@ initialization
   with CompletionOpsHtml do
   begin
     FilenameHtmlList:= '';
-    FileMaskHREF:= '*';
+    FileMaskHREF:= AllFilesMask;
     FileMaskLinkHREF:= '*.css';
     FileMaskPictures:= '*.png;*.gif;*.jpg;*.jpeg;*.ico';
     FileMaskScript:= '*.js';
