@@ -19,6 +19,7 @@ type
     FileMaskHREF: string;
     FileMaskLinkHREF: string;
     FileMaskPictures: string;
+    FileMaskFrame: string;
     FileMaskAudio: string;
     FileMaskVideo: string;
     FileMaskSomeSrc: string;
@@ -58,6 +59,7 @@ type
     ctxValuesQuoted,
     ctxValueHref,
     ctxValueLinkHref,
+    ctxValueFrameSrc,
     ctxValueScriptSrc,
     ctxValueImageSrc,
     ctxValueAudioSrc,
@@ -267,7 +269,7 @@ begin
           Result:= ctxValueHref
         else
         if ((ATagName='frame') or (ATagName='iframe')) and (AAttrName='src') then
-          Result:= ctxValueHref
+          Result:= ctxValueFrameSrc
         else
         if (ATagName='link') and (AAttrName='href') then
           Result:= ctxValueLinkHref
@@ -451,6 +453,11 @@ begin
         AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskScript);
       end;
 
+    ctxValueFrameSrc:
+      begin
+        AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskFrame);
+      end;
+
     ctxValueImageSrc:
       begin
         AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskPictures);
@@ -581,11 +588,12 @@ initialization
   with CompletionOpsHtml do
   begin
     FilenameHtmlList:= '';
-    FileMaskHREF:= '*.htm;*.html;*.php*;*.asp*'+';'+FileMaskPictures;
-    FileMaskLinkHREF:= '*.css';
+    FileMaskFrame:= '*.htm;*.html;*.php*;*.asp;*.aspx';
     FileMaskPictures:= '*.png;*.gif;*.jpg;*.jpeg;*.ico';
+    FileMaskLinkHREF:= '*.css';
     FileMaskAudio:= '*.mp3;*.ogg;*.wav';
     FileMaskVideo:= '*.mp4;*.ogg;*.webm';
+    FileMaskHREF:= '*';
     FileMaskSomeSrc:= FileMaskAudio+';'+FileMaskVideo;
     FileMaskScript:= '*.js';
     PrefixTag:= 'tag';
