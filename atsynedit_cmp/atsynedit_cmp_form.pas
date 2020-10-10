@@ -111,6 +111,7 @@ type
     HintOnlyInTooltip: boolean;
     SuffixSep: char;
     AppendOpeningBracket: boolean;
+    TrailingCharToShowAgain: char;
     ListSort: boolean;
     UpDownAtEdge: TATCompletionUpDownAtEdge;
     BorderSize: integer;
@@ -487,7 +488,12 @@ begin
     DoReplaceTo(Str, WithBracket);
   end;
 
-  Close;
+  if SEndsWith(Str, CompletionOps.TrailingCharToShowAgain) then
+  begin
+    DoUpdate;
+  end
+  else
+    Close;
 end;
 
 procedure TFormATSynEditComplete.DoUpdate;
@@ -613,6 +619,7 @@ initialization
     HintOnlyInTooltip:= true;
     SuffixSep:= #1;
     AppendOpeningBracket:= true;
+    TrailingCharToShowAgain:= '/';
     ListSort:= false;
     UpDownAtEdge:= cudWrap;
     BorderSize:= 4;
