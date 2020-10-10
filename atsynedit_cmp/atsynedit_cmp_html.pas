@@ -19,11 +19,11 @@ type
     FileMaskHREF: string;
     FileMaskLinkHREF: string;
     FileMaskPictures: string;
+    FileMaskScript: string;
     FileMaskFrame: string;
     FileMaskAudio: string;
     FileMaskVideo: string;
     FileMaskSomeSrc: string;
-    FileMaskScript: string;
     PrefixTag: string;
     PrefixAttrib: string;
     PrefixValue: string;
@@ -588,14 +588,14 @@ initialization
   with CompletionOpsHtml do
   begin
     FilenameHtmlList:= '';
-    FileMaskFrame:= '*.htm;*.html;*.php*;*.asp;*.aspx';
-    FileMaskPictures:= '*.png;*.gif;*.jpg;*.jpeg;*.ico';
+    FileMaskHREF:= '*';
     FileMaskLinkHREF:= '*.css';
+    FileMaskPictures:= '*.png;*.gif;*.jpg;*.jpeg;*.ico';
+    FileMaskScript:= '*.js';
+    FileMaskFrame:= '*.htm;*.html;*.php*;*.asp;*.aspx';
     FileMaskAudio:= '*.mp3;*.ogg;*.wav';
     FileMaskVideo:= '*.mp4;*.ogg;*.webm';
-    FileMaskHREF:= '*';
     FileMaskSomeSrc:= FileMaskAudio+';'+FileMaskVideo;
-    FileMaskScript:= '*.js';
     PrefixTag:= 'tag';
     PrefixAttrib:= 'attrib';
     PrefixValue:= 'value';
