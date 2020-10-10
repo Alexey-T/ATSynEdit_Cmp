@@ -118,19 +118,22 @@ begin
   case S of
     'area',
     'base',
-    'basefont',
     'br',
+    'col',
+    'command', //obsolete
     'embed',
-    'frame',
+    'frame', //not in html5
     'hr',
     'img',
     'input',
-    'keygen',
+    'keygen', //obsolete
     'link',
+    'menuitem', //obsolete
     'meta',
     'param',
     'source',
-    'track':
+    'track',
+    'wbr':
       Result:= false;
     else
       Result:= true;
