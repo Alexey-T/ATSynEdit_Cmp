@@ -286,7 +286,7 @@ initialization
     PrefixAtRule:= 'at-rule';
     PrefixPseudo:= 'pseudo';
     LinesToLookup:= 50;
-    NonWordChars:= '#!@.{};'; //don't include ':'
+    NonWordChars:= '#!@.{};''"<>'; //don't include ':'
   end;
 
 finalization
