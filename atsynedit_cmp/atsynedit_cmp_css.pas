@@ -255,6 +255,8 @@ begin
 end;
 
 procedure DoEditorCompletionCss(AEdit: TATSynEdit);
+var
+  i: integer;
 begin
   Acp.Ed:= AEdit;
 
@@ -263,6 +265,10 @@ begin
   begin
     if not FileExists(CompletionOpsCss.FilenameCssList) then exit;
     Acp.List.LoadFromFile(CompletionOpsCss.FilenameCssList);
+
+    //support CSS var() function for values
+    for i:= 0 to Acp.List.Count-1 do
+      Acp.List[i]:= Acp.List[i]+',var()';
   end;
 
   //optional list, load only once
