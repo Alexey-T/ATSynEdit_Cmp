@@ -188,7 +188,10 @@ begin
 
       if AWithBracket then
         if Editor.Strings.TextSubstring(Pos.X, Pos.Y, Pos.X+1, Pos.Y)<>'(' then
-          StrToInsert+= '(';
+        begin
+          StrToInsert+= '()';
+          Str2:= ')';
+        end;
 
       Editor.Strings.TextInsert(Pos.X, Pos.Y, StrToInsert, false, Shift, PosAfter);
 
