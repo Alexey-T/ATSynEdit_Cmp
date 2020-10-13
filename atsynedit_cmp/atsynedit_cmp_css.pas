@@ -22,6 +22,8 @@ type
     PrefixPseudo: string;
     LinesToLookup: integer;
     NonWordChars: UnicodeString;
+    StdColors: string;
+    StdColorsMacro: string;
   end;
 
 var
@@ -37,10 +39,6 @@ uses
   ATSynEdit_Carets,
   ATSynEdit_RegExpr,
   ATSynEdit_Cmp_Form;
-
-const
-  cColorsList = 'aaaa,bbbb()';
-  cColorsMacro = '$a';
 
 type
   { TAcp }
@@ -292,7 +290,7 @@ begin
       LColors.Delimiter:= ',';
       LColors.Sorted:= true;
       LColors.Duplicates:= dupIgnore;
-      LColors.DelimitedText:= cColorsList;
+      LColors.DelimitedText:= CompletionOpsCss.StdColors;
 
       for i:= 0 to Acp.List.Count-1 do
       begin
@@ -300,7 +298,7 @@ begin
         SSplitByChar(S, '=', SKey, SVal);
         L.DelimitedText:= SVal;
 
-        N:= L.IndexOf(cColorsMacro);
+        N:= L.IndexOf(CompletionOpsCss.StdColorsMacro);
         if N>=0 then
         begin
           L.Delete(N);
@@ -342,6 +340,8 @@ initialization
     PrefixPseudo:= 'pseudo';
     LinesToLookup:= 50;
     NonWordChars:= '#!@.{};''"<>'; //don't include ':'
+    StdColors:= 'aliceblue,antiquewhite,aqua,aquamarine,azure,beige,bisque,black,blanchedalmond,blue,blueviolet,brown,burlywood,cadetblue,chartreuse,chocolate,coral,cornflowerblue,cornsilk,crimson,currentcolor,cyan,darkblue,darkcyan,darkgoldenrod,darkgray,darkgreen,darkgrey,darkkhaki,darkmagenta,darkolivegreen,darkorange,darkorchid,darkred,darksalmon,darkseagreen,darkslateblue,darkslategray,darkslategrey,darkturquoise,darkviolet,deeppink,deepskyblue,dimgray,dimgrey,dodgerblue,firebrick,floralwhite,forestgreen,fuchsia,gainsboro,ghostwhite,gold,goldenrod,gray,green,greenyellow,grey,honeydew,hotpink,hsl(),hsla(),indianred,indigo,ivory,khaki,lavender,lavenderblush,lawngreen,lemonchiffon,lightblue,lightcoral,lightcyan,lightgoldenrodyellow,lightgray,lightgreen,lightgrey,lightpink,lightsalmon,lightseagreen,lightskyblue,lightslategray,lightslategrey,lightsteelblue,lightyellow,lime,limegreen,linen,magenta,maroon,mediumaquamarine,mediumblue,mediumorchid,mediumpurple,mediumseagreen,mediumslateblue,mediumspringgreen,mediumturquoise,mediumvioletred,midnightblue,mintcream,mistyrose,moccasin,navajowhite,navy,oldlace,olive,olivedrab,orange,orangered,orchid,palegoldenrod,palegreen,paleturquoise,palevioletred,papayawhip,peachpuff,peru,pink,plum,powderblue,purple,rebeccapurple,red,rgb(),rgba(),rosybrown,royalblue,saddlebrown,salmon,sandybrown,seagreen,seashell,sienna,silver,skyblue,slateblue,slategray,slategrey,snow,springgreen,steelblue,tan,teal,thistle,tomato,transparent,turquoise,violet,wheat,white,whitesmoke,yellow,yellowgreen';
+    StdColorsMacro:= '$c';
   end;
 
 finalization
