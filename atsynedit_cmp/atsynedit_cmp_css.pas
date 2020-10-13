@@ -265,6 +265,8 @@ end;
 
 procedure DoEditorCompletionCss(AEdit: TATSynEdit);
 var
+  L: TStringList;
+  S, SKey, SVal: string;
   i: integer;
 begin
   Acp.Ed:= AEdit;
@@ -275,9 +277,27 @@ begin
     if not FileExists(CompletionOpsCss.FilenameCssList) then exit;
     Acp.List.LoadFromFile(CompletionOpsCss.FilenameCssList);
 
-    //support CSS var() function for values
-    for i:= 0 to Acp.List.Count-1 do
-      Acp.List[i]:= Acp.List[i]+',var()';
+    //support common CSS functions
+    L:= TStringList.Create;
+    try
+      L.Delimiter:= ',';
+      L.Sorted:= true;
+      L.Duplicates:= dupIgnore;
+      for i:= 0 to Acp.List.Count-1 do
+      begin
+        S:= Acp.List[i];
+        SSplitByChar(S, '=', SKey, SVal);
+        L.DelimitedText:= SVal;
+        L.Add('inherit');
+        L.Add('initial');
+        L.Add('unset');
+        L.Add('var()');
+        S:= SKey+'='+L.DelimitedText;
+        Acp.List[i]:= S;
+      end;
+    finally
+      FreeAndNil(L);
+    end;
   end;
 
   //optional list, load only once
