@@ -289,7 +289,12 @@ begin
       L.CaseSensitive:= false;
 
       if FileExists(CompletionOpsCss.FilenameCssColors) then
+      begin
         LColors.LoadFromFile(CompletionOpsCss.FilenameCssColors);
+        for i:= LColors.Count-1 downto 0 do
+          if LColors[i]='' then
+            LColors.Delete(i);
+      end;
 
       for i:= 0 to Acp.List.Count-1 do
       begin
