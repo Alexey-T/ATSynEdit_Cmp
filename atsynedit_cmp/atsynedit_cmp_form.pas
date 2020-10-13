@@ -109,7 +109,7 @@ type
     HintSep: char;
     HintMultiLineSep: char;
     HintOnlyInTooltip: boolean;
-    SuffixSep: char;
+    SuffixSep: char; //after completion value it can be 2 suffixes: value+sep+suffix1+sep+suffix2; and suffix2 won't shift caret.X
     AppendOpeningBracket: boolean;
     TrailingCharToShowAgain: char;
     ListSort: boolean;

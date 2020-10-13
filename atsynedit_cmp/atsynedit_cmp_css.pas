@@ -191,7 +191,7 @@ begin
             if not ok then Continue;
           end;
 
-          AText:= AText+CompletionOpsCss.PrefixProp+' "'+s_tag+'"|'+s_val+#1' '#10;
+          AText:= AText+CompletionOpsCss.PrefixProp+' "'+s_tag+'"|'+s_val+CompletionOps.SuffixSep+' '#10;
         until false;
       end;
 
