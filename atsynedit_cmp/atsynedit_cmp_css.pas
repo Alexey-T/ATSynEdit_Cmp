@@ -200,7 +200,7 @@ begin
             s_valsuffix:= '|()';
           end
           else
-            s_valsuffix:= CompletionOps.SuffixSep+' ';
+            s_valsuffix:= ''; //CompletionOps.SuffixSep+' ';
 
           AText:= AText+CompletionOpsCss.PrefixProp+' "'+s_tag+'"|'+s_val+s_valsuffix+#10;
         until false;
