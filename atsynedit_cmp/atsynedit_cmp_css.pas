@@ -286,6 +286,7 @@ begin
       L.Delimiter:= ',';
       L.Sorted:= true;
       L.Duplicates:= dupIgnore;
+      L.CaseSensitive:= false;
 
       if FileExists(CompletionOpsCss.FilenameCssColors) then
         LColors.LoadFromFile(CompletionOpsCss.FilenameCssColors);
@@ -295,6 +296,22 @@ begin
         S:= Acp.List[i];
         SSplitByChar(S, '=', SKey, SVal);
         L.DelimitedText:= SVal;
+
+        {
+        //to make new file
+        bColor:= false;
+        for SColor in LColors do
+        begin
+          j:= L.IndexOf(LowerCase(SColor));
+          if j>=0 then
+          begin
+            L.Delete(j);
+            bColor:= true;
+          end;
+        end;
+        if bColor then
+          L.Add('$c');
+          }
 
         N:= L.IndexOf(CompletionOpsCss.StdColorsMacro);
         if N>=0 then
@@ -314,6 +331,11 @@ begin
 
         S:= SKey+'='+L.DelimitedText;
         Acp.List[i]:= S;
+
+        {
+        //make new file
+        Acp.List.SaveToFile('/home/user/css_list__.ini');
+        }
       end;
     finally
       FreeAndNil(LColors);
