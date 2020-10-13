@@ -279,7 +279,7 @@ begin
     if not FileExists(CompletionOpsCss.FilenameCssList) then exit;
     Acp.List.LoadFromFile(CompletionOpsCss.FilenameCssList);
 
-    //support common CSS values+functions for all properties
+    //support common CSS values+functions
     L:= TStringList.Create;
     LColors:= TStringList.Create;
     try
@@ -303,12 +303,17 @@ begin
         begin
           L.Delete(N);
           L.AddStrings(LColors);
-        end;
+        end
+        else
+        if SEndsWith(SKey, '-background') or SEndsWith(SKey, '-color') then
+          L.AddStrings(LColors);
 
+        //add items for all props
         L.Add('inherit');
         L.Add('initial');
         L.Add('unset');
         L.Add('var()');
+
         S:= SKey+'='+L.DelimitedText;
         Acp.List[i]:= S;
       end;
