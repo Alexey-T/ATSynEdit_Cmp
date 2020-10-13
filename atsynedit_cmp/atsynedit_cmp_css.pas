@@ -154,7 +154,7 @@ procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
 var
   Caret: TATCaretItem;
   s_word: atString;
-  s_tag, s_item, s_val: string;
+  s_tag, s_item, s_val, s_valsuffix: string;
   context: TCompletionCssContext;
   Sep: TATStringSeparator;
   n: integer;
@@ -191,7 +191,16 @@ begin
             if not ok then Continue;
           end;
 
-          AText:= AText+CompletionOpsCss.PrefixProp+' "'+s_tag+'"|'+s_val+CompletionOps.SuffixSep+' '#10;
+          //handle values like 'rgb()', 'val()'
+          if SEndsWith(s_val, '()') then
+          begin
+            SetLength(s_val, Length(s_val)-2);
+            s_valsuffix:= '|()';
+          end
+          else
+            s_valsuffix:= CompletionOps.SuffixSep+' ';
+
+          AText:= AText+CompletionOpsCss.PrefixProp+' "'+s_tag+'"|'+s_val+s_valsuffix+#10;
         until false;
       end;
 

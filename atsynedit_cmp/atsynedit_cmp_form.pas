@@ -162,7 +162,6 @@ var
   Pos, Shift, PosAfter: TPoint;
   StrText, Str1, Str2, StrToInsert: atString;
   Sep: TATStringSeparator;
-  NFromClosingBracket: integer;
   i: integer;
 begin
   if AStr='' then exit;
@@ -187,11 +186,6 @@ begin
 
       StrToInsert:= StrText+Str1+Str2;
 
-      //when CSS completion inserts "var() ", we should place caret inside brackets ()
-      NFromClosingBracket:= System.Pos('()', StrToInsert);
-      if NFromClosingBracket>0 then
-        NFromClosingBracket:= Length(StrToInsert)-NFromClosingBracket;
-
       if AWithBracket then
         if Editor.Strings.TextSubstring(Pos.X, Pos.Y, Pos.X+1, Pos.Y)<>'(' then
           StrToInsert+= '(';
@@ -204,11 +198,7 @@ begin
         PosAfter
         );
 
-      if NFromClosingBracket>0 then
-        Caret.PosX:= Caret.PosX+Length(StrToInsert)-NFromClosingBracket
-      else
-        Caret.PosX:= Pos.X+Length(StrToInsert)-Length(Str2);
-
+      Caret.PosX:= Pos.X+Length(StrToInsert)-Length(Str2);
       Caret.EndX:= -1;
       Caret.EndY:= -1;
     end;
