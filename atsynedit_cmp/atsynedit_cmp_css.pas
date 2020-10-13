@@ -38,6 +38,10 @@ uses
   ATSynEdit_RegExpr,
   ATSynEdit_Cmp_Form;
 
+const
+  cColorsList = 'aaaa,bbbb()';
+  cColorsMacro = '$a';
+
 type
   { TAcp }
 
@@ -265,9 +269,9 @@ end;
 
 procedure DoEditorCompletionCss(AEdit: TATSynEdit);
 var
-  L: TStringList;
+  L, LColors: TStringList;
   S, SKey, SVal: string;
-  i: integer;
+  i, N: integer;
 begin
   Acp.Ed:= AEdit;
 
@@ -279,15 +283,30 @@ begin
 
     //support common CSS values+functions for all properties
     L:= TStringList.Create;
+    LColors:= TStringList.Create;
     try
       L.Delimiter:= ',';
       L.Sorted:= true;
       L.Duplicates:= dupIgnore;
+
+      LColors.Delimiter:= ',';
+      LColors.Sorted:= true;
+      LColors.Duplicates:= dupIgnore;
+      LColors.DelimitedText:= cColorsList;
+
       for i:= 0 to Acp.List.Count-1 do
       begin
         S:= Acp.List[i];
         SSplitByChar(S, '=', SKey, SVal);
         L.DelimitedText:= SVal;
+
+        N:= L.IndexOf(cColorsMacro);
+        if N>=0 then
+        begin
+          L.Delete(N);
+          L.AddStrings(LColors);
+        end;
+
         L.Add('inherit');
         L.Add('initial');
         L.Add('unset');
@@ -296,6 +315,7 @@ begin
         Acp.List[i]:= S;
       end;
     finally
+      FreeAndNil(LColors);
       FreeAndNil(L);
     end;
   end;
