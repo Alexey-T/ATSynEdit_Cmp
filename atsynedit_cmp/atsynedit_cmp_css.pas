@@ -277,7 +277,7 @@ begin
     if not FileExists(CompletionOpsCss.FilenameCssList) then exit;
     Acp.List.LoadFromFile(CompletionOpsCss.FilenameCssList);
 
-    //support common CSS functions
+    //support common CSS values+functions for all properties
     L:= TStringList.Create;
     try
       L.Delimiter:= ',';
