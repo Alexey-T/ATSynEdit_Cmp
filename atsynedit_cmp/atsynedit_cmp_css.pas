@@ -359,6 +359,7 @@ initialization
   with CompletionOpsCss do
   begin
     FilenameCssList:= '';
+    FilenameCssColors:= '';
     FilenameCssSelectors:= '';
     PrefixProp:= 'css';
     PrefixAtRule:= 'at-rule';
