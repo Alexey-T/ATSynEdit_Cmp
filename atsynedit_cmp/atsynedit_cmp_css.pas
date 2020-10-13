@@ -16,13 +16,13 @@ procedure DoEditorCompletionCss(AEdit: TATSynEdit);
 type
   TATCompletionOptionsCss = record
     FilenameCssList: string; //from CudaText: data/autocompletespec/css_list.ini
+    FilenameCssColors: string; //from CudaText: data/autocompletespec/css_colors.ini
     FilenameCssSelectors: string; //from CudaText: data/autocompletespec/css_sel.ini
     PrefixProp: string;
     PrefixAtRule: string;
     PrefixPseudo: string;
     LinesToLookup: integer;
     NonWordChars: UnicodeString;
-    StdColors: string;
     StdColorsMacro: string;
   end;
 
@@ -287,10 +287,8 @@ begin
       L.Sorted:= true;
       L.Duplicates:= dupIgnore;
 
-      LColors.Delimiter:= ',';
-      LColors.Sorted:= true;
-      LColors.Duplicates:= dupIgnore;
-      LColors.DelimitedText:= CompletionOpsCss.StdColors;
+      if FileExists(CompletionOpsCss.FilenameCssColors) then
+        LColors.LoadFromFile(CompletionOpsCss.FilenameCssColors);
 
       for i:= 0 to Acp.List.Count-1 do
       begin
@@ -345,7 +343,6 @@ initialization
     PrefixPseudo:= 'pseudo';
     LinesToLookup:= 50;
     NonWordChars:= '#!@.{};''"<>'; //don't include ':'
-    StdColors:= 'aliceblue,antiquewhite,aqua,aquamarine,azure,beige,bisque,black,blanchedalmond,blue,blueviolet,brown,burlywood,cadetblue,chartreuse,chocolate,coral,cornflowerblue,cornsilk,crimson,currentcolor,cyan,darkblue,darkcyan,darkgoldenrod,darkgray,darkgreen,darkgrey,darkkhaki,darkmagenta,darkolivegreen,darkorange,darkorchid,darkred,darksalmon,darkseagreen,darkslateblue,darkslategray,darkslategrey,darkturquoise,darkviolet,deeppink,deepskyblue,dimgray,dimgrey,dodgerblue,firebrick,floralwhite,forestgreen,fuchsia,gainsboro,ghostwhite,gold,goldenrod,gray,green,greenyellow,grey,honeydew,hotpink,hsl(),hsla(),indianred,indigo,ivory,khaki,lavender,lavenderblush,lawngreen,lemonchiffon,lightblue,lightcoral,lightcyan,lightgoldenrodyellow,lightgray,lightgreen,lightgrey,lightpink,lightsalmon,lightseagreen,lightskyblue,lightslategray,lightslategrey,lightsteelblue,lightyellow,lime,limegreen,linen,magenta,maroon,mediumaquamarine,mediumblue,mediumorchid,mediumpurple,mediumseagreen,mediumslateblue,mediumspringgreen,mediumturquoise,mediumvioletred,midnightblue,mintcream,mistyrose,moccasin,navajowhite,navy,oldlace,olive,olivedrab,orange,orangered,orchid,palegoldenrod,palegreen,paleturquoise,palevioletred,papayawhip,peachpuff,peru,pink,plum,powderblue,purple,rebeccapurple,red,rgb(),rgba(),rosybrown,royalblue,saddlebrown,salmon,sandybrown,seagreen,seashell,sienna,silver,skyblue,slateblue,slategray,slategrey,snow,springgreen,steelblue,tan,teal,thistle,tomato,transparent,turquoise,violet,wheat,white,whitesmoke,yellow,yellowgreen';
     StdColorsMacro:= '$c';
   end;
 
