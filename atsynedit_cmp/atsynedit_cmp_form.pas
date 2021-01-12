@@ -333,9 +333,6 @@ end;
 
 procedure TFormATSynEditComplete.FormShow(Sender: TObject);
 begin
-  if Assigned(FEdit) then
-    FEdit.OptCaretStopUnfocused:= false;
-
   if (FSelectedIndex>=0) and (FSelectedIndex<List.ItemCount) then
     List.ItemIndex:= FSelectedIndex;
 end;
@@ -545,6 +542,8 @@ begin
 
   if Application.MainForm.FormStyle in [fsStayOnTop, fsSystemStayOnTop] then
     FormStyle:= Application.MainForm.FormStyle;
+
+  Editor.OptCaretStopUnfocused:= false;
 
   SetBounds(P.X, P.Y, CompletionOps.FormSizeX, CompletionOps.FormSizeY);
   Show;
