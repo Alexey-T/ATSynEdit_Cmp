@@ -99,6 +99,7 @@ type
     );
 
   TATCompletionOptions = record
+    AutoCommitIfSingleItem: boolean;
     ColorFontPrefix: TColor;
     ColorFontParams: TColor;
     CommitChars: string;
@@ -512,6 +513,12 @@ begin
 
   SList.Text:= AText;
   if SList.Count=0 then exit;
+  if SList.Count=1 then
+    if CompletionOps.AutoCommitIfSingleItem then
+    begin
+      DoResult;
+      exit
+    end;
   if CompletionOps.ListSort then SList.Sort;
 
   List.VirtualItemCount:= SList.Count;
@@ -610,6 +617,7 @@ initialization
   FillChar(CompletionOps, SizeOf(CompletionOps), 0);
   with CompletionOps do
   begin
+    AutoCommitIfSingleItem:= false;
     ColorFontPrefix:= clPurple;
     ColorFontParams:= clGray;
     CommitChars:= ' .,;/\''"';
