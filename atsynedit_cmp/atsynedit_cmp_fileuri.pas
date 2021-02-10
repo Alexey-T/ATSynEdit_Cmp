@@ -70,7 +70,7 @@ begin
     Result:= true;
 end;
 
-function DoEditorCompletionFileURIContext(Ed: TATSynEdit;
+function GetContext(Ed: TATSynEdit;
   out AFileName: UnicodeString;
   out ACharsLeft, ACharsRight: integer): boolean;
 var
@@ -89,8 +89,15 @@ begin
   Caret:= Ed.Carets[0];
   if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
   S:= Ed.Strings.Lines[Caret.PosY];
+
   if Caret.PosX>Length(S) then exit;
   if Caret.PosX<=Length(cFilePrefix) then exit;
+
+  for i:= Caret.PosX to Length(S)-1 do
+    if IsCharFromFilename(S[i+1]) then
+      Inc(ACharsRight)
+    else
+      Break;
 
   for i:= Caret.PosX downto Length(cFilePrefix) do
   begin
@@ -112,7 +119,7 @@ procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
 var
   SFileName: UnicodeString;
 begin
-  if not DoEditorCompletionFileURIContext(Ed, SFileName, ACharsLeft, ACharsRight) then
+  if not GetContext(Ed, SFileName, ACharsLeft, ACharsRight) then
   begin
     AText:= '';
     ACharsLeft:= 0;
@@ -135,7 +142,7 @@ var
   SFilename: UnicodeString;
   NCharsLeft, NCharsRight: integer;
 begin
-  Result:= DoEditorCompletionFileURIContext(Ed, SFilename, NCharsLeft, NCharsRight);
+  Result:= GetContext(Ed, SFilename, NCharsLeft, NCharsRight);
   if not Result then exit;
 
   if not Assigned(Acp) then
