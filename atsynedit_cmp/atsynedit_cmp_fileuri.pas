@@ -11,10 +11,7 @@ interface
 uses
   ATSynEdit;
 
-procedure DoEditorCompletionFileURI(Ed: TATSynEdit);
-function DoEditorCompletionFileURIContext(Ed: TATSynEdit;
-  out AFileName: UnicodeString;
-  out ACharsLeft, ACharsRight: integer): boolean;
+function DoEditorCompletionFileURI(Ed: TATSynEdit): boolean;
 
 implementation
 
@@ -106,7 +103,7 @@ begin
     begin
       Result:= true;
       AFileName:= Copy(S, i+1, Caret.PosX-i);
-      ACharsLeft:= Length(AFileName);
+      ACharsLeft:= Length(ExtractFileName(AFileName));
       exit
     end;
   end;
@@ -143,14 +140,17 @@ begin
   AText:= GetFileNames(SFileName);
 end;
 
-procedure DoEditorCompletionFileURI(Ed: TATSynEdit);
+function DoEditorCompletionFileURI(Ed: TATSynEdit): boolean;
 var
   SFilename: UnicodeString;
   NCharsLeft, NCharsRight: integer;
 begin
-  Acp.Ed:= Ed;
+  Result:= DoEditorCompletionFileURIContext(Ed, SFilename, NCharsLeft, NCharsRight);
+  if not Result then exit;
 
-  if not DoEditorCompletionFileURIContext(Ed, SFilename, NCharsLeft, NCharsRight) then exit;
+  if not Assigned(Acp) then
+    Acp:= TAcp.Create;
+  Acp.Ed:= Ed;
 
   DoEditorCompletionListbox(Ed, @Acp.DoOnGetCompleteProp,
     nil, '', 0,
@@ -158,11 +158,10 @@ begin
     );
 end;
 
-initialization
-  Acp:= TAcp.Create;
 
 finalization
-  FreeAndNil(Acp);
+  if Assigned(Acp) then
+    FreeAndNil(Acp);
 
 end.
 
