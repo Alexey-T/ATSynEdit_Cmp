@@ -13,15 +13,27 @@ uses
 
 function DoEditorCompletionFileURI(Ed: TATSynEdit): boolean;
 
+type
+  TATCompletionOptionsFile = record
+    PrefixDir: string;
+    PrefixFile: string;
+    FilenameChars: set of char;
+  end;
+
+var
+  CompletionOpsFile: TATCompletionOptionsFile;
+
 implementation
 
 uses
   SysUtils, Classes, Graphics,
-  Dialogs,
   ATSynEdit_Carets,
   ATSynEdit_Cmp_Form,
   ATSynEdit_Cmp_Filenames;
-  
+
+const
+  cFilePrefix = 'file:///';
+
 type
   { TAcp }
 
@@ -38,23 +50,9 @@ var
 
 function IsCharFromFilename(ch: WideChar): boolean;
 begin
-  case ch of
-    'a'..'z',
-    'A'..'Z',
-    '0'..'9',
-    '_',
-    '/', '\',
-    '-', '+',
-    '(', ')', '[', ']',
-    ':', '%', '.', ',', '=', '&':
-      Result:= true;
-    else
-      Result:= false;
-  end;
+  if Ord(ch)>255 then exit(false);
+  Result:= char(Ord(ch)) in CompletionOpsFile.FilenameChars;
 end;
-
-const
-  cFilePrefix = 'file:///';
 
 function IsPrefixEndsAt(const S: UnicodeString; APos: integer): boolean;
 begin
@@ -111,22 +109,6 @@ end;
 
 procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
   ACharsLeft, ACharsRight: integer);
-  //
-  function GetFileNames(const AFileName: string): string;
-  var
-    bAddSlash: boolean;
-  begin
-    bAddSlash:= true;
-    Result:= CalculateCompletionFilenames(
-      ExtractFileDir(AFileName),
-      ExtractFileName(AFileName),
-      AllFilesMask,
-      'folder',
-      'file',
-      bAddSlash
-      );
-  end;
-  //
 var
   SFileName: UnicodeString;
 begin
@@ -137,7 +119,15 @@ begin
     ACharsRight:= 0;
     exit;
   end;
-  AText:= GetFileNames(SFileName);
+
+  AText:= CalculateCompletionFilenames(
+    ExtractFileDir(SFileName),
+    ExtractFileName(SFileName),
+    AllFilesMask,
+    CompletionOpsFile.PrefixDir,
+    CompletionOpsFile.PrefixFile,
+    true //bAddSlash
+    );
 end;
 
 function DoEditorCompletionFileURI(Ed: TATSynEdit): boolean;
@@ -158,6 +148,23 @@ begin
     );
 end;
 
+
+initialization
+
+  with CompletionOpsFile do
+  begin
+    PrefixDir:= 'folder';
+    PrefixFile:= 'file';
+    FilenameChars:= [
+      'a'..'z',
+      'A'..'Z',
+      '0'..'9',
+      '_',
+      '/', '\',
+      '-', '+',
+      '(', ')', '[', ']',
+      ':', '%', '.', ',', '=', '&'];
+  end;
 
 finalization
   if Assigned(Acp) then
