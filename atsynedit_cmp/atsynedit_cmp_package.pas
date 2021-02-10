@@ -9,7 +9,7 @@ interface
 
 uses
   ATSynEdit_Cmp_Filenames, ATSynEdit_Cmp_AcpFiles, ATSynEdit_Cmp_CSS, 
-  ATSynEdit_Cmp_HTML, ATSynEdit_Cmp_Form;
+  ATSynEdit_Cmp_HTML, ATSynEdit_Cmp_Form, ATSynEdit_Cmp_FileURI;
 
 implementation
 
