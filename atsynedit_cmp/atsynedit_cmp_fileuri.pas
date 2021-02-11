@@ -17,7 +17,6 @@ type
   TATCompletionOptionsFile = record
     PrefixDir: string;
     PrefixFile: string;
-    FilenameChars: set of char;
   end;
 
 var
@@ -36,6 +35,15 @@ uses
 const
   cFilePrefix = 'file://';
 
+//copy from https://github.com/graemeg/freepascal/blob/master/packages/fcl-base/src/uriparser.pp
+const
+  GenDelims = [':', '/', '?', '#', '[', ']', '@'];
+  SubDelims = ['!', '$', '&', '''', '(', ')', '*', '+', ',', ';', '='];
+  ALPHA = ['A'..'Z', 'a'..'z'];
+  DIGIT = ['0'..'9'];
+  Unreserved = ALPHA + DIGIT + ['-', '.', '_', '~'];
+  ValidPathChars = Unreserved + SubDelims + ['@', ':', '/'];
+
 type
   { TAcp }
 
@@ -53,7 +61,7 @@ var
 function IsCharFromFilename(ch: WideChar): boolean;
 begin
   if Ord(ch)>255 then exit(false);
-  Result:= char(Ord(ch)) in CompletionOpsFile.FilenameChars;
+  Result:= char(Ord(ch)) in ValidPathChars;
 end;
 
 function GetContext(Ed: TATSynEdit;
@@ -147,14 +155,6 @@ initialization
   begin
     PrefixDir:= 'folder';
     PrefixFile:= 'file';
-    FilenameChars:= [
-      'a'..'z',
-      'A'..'Z',
-      '0'..'9',
-      '_',
-      '/', '\',
-      '-', ':', '%', '.', ','
-      ];
   end;
 
 finalization
