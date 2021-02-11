@@ -423,12 +423,17 @@ end;
 
 procedure TFormATSynEditComplete.EditorOptionsRestore;
 begin
-  if Assigned(FEdit) and FOldSaved then
+  if Assigned(FEdit) then
   begin
-    FOldSaved:= false;
-    FEdit.OptCaretStopUnfocused:= FOldCaretStopUnfocused;
-    FEdit.OptDimUnfocusedBack:= FOldDimUnfocusedBack;
-    FEdit.Update;
+    if FOldSaved then
+    begin
+      FOldSaved:= false;
+      FEdit.OptCaretStopUnfocused:= FOldCaretStopUnfocused;
+      FEdit.OptDimUnfocusedBack:= FOldDimUnfocusedBack;
+    end;
+
+    //make caret visible!
+    FEdit.DoGotoCaret(cEdgeTop);
   end;
 end;
 
