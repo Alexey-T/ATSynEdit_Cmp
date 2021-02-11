@@ -28,6 +28,7 @@ implementation
 uses
   SysUtils, Classes, Graphics,
   StrUtils,
+  URIParser,
   ATSynEdit_Carets,
   ATSynEdit_Cmp_Form,
   ATSynEdit_Cmp_Filenames;
@@ -56,7 +57,7 @@ begin
 end;
 
 function GetContext(Ed: TATSynEdit;
-  out AFileName: UnicodeString;
+  out AFileName: string;
   out ACharsLeft, ACharsRight: integer): boolean;
 var
   Caret: TATCaretItem;
@@ -84,14 +85,13 @@ begin
     else
       Break;
 
-  NPos:= RPosEX(cFilePrefix, S, Caret.PosX);
+  NPos:= RPosEx(cFilePrefix, S, Caret.PosX);
   if NPos=0 then exit;
 
-  Inc(NPos, Length(cFilePrefix));
-  for i:= NPos to Caret.PosX do
-    if not IsCharFromFilename(S[i]) then exit;
+  if not URIToFilename(
+    Copy(S, NPos, Caret.PosX-NPos+1),
+    AFileName) then exit;
 
-  AFileName:= Copy(S, NPos, Caret.PosX-NPos+1);
   if Pos('localhost', AFileName)=1 then
     Delete(AFileName, 1, Length('localhost'));
 
@@ -102,7 +102,7 @@ end;
 procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
   ACharsLeft, ACharsRight: integer);
 var
-  SFileName: UnicodeString;
+  SFileName: string;
 begin
   if not GetContext(Ed, SFileName, ACharsLeft, ACharsRight) then
   begin
@@ -124,7 +124,7 @@ end;
 
 function DoEditorCompletionFileURI(Ed: TATSynEdit): boolean;
 var
-  SFilename: UnicodeString;
+  SFilename: string;
   NCharsLeft, NCharsRight: integer;
 begin
   Result:= GetContext(Ed, SFilename, NCharsLeft, NCharsRight);
@@ -153,7 +153,7 @@ initialization
       '0'..'9',
       '_',
       '/', '\',
-      '-', ':', '%', '.', ',', '='
+      '-', ':', '%', '.', ','
       ];
   end;
 
