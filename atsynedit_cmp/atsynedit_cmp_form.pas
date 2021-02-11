@@ -72,6 +72,9 @@ type
     FHintWnd: THintWindow;
     FSnippetId: string;
     FSelectedIndex: integer;
+    FOldCaretStopUnfocused: boolean;
+    FOldDimUnfocusedBack: integer;
+    FOldSaved: boolean;
     procedure DoHintHide;
     procedure DoHintShow(const AHint: string);
     procedure DoReplaceTo(const AStr: string; AWithBracket: boolean);
@@ -79,6 +82,8 @@ type
     procedure DoUpdate;
     function GetItemText(const AText: string; AIndex: integer): string;
     procedure GetResultText(out AText: string; out AWithBracket: boolean);
+    procedure EditorOptionsSave;
+    procedure EditorOptionsRestore;
   public
     { public declarations }
     property Editor: TATSynEdit read FEdit write FEdit;
@@ -224,14 +229,13 @@ end;
 procedure TFormATSynEditComplete.FormDeactivate(Sender: TObject);
 begin
   Close;
+  EditorOptionsRestore;
 end;
 
 procedure TFormATSynEditComplete.FormClose(Sender: TObject;
   var CloseAction: TCloseAction);
 begin
   DoHintHide;
-  if Assigned(FEdit) then
-    FEdit.OptCaretStopUnfocused:= true;
   CloseAction:= caHide;
 end;
 
@@ -405,6 +409,29 @@ begin
   end;
 end;
 
+procedure TFormATSynEditComplete.EditorOptionsSave;
+begin
+  if not FOldSaved then
+  begin
+    FOldSaved:= true;
+    FOldCaretStopUnfocused:= Editor.OptCaretStopUnfocused;
+    FOldDimUnfocusedBack:= Editor.OptDimUnfocusedBack;
+    Editor.OptCaretStopUnfocused:= false;
+    Editor.OptDimUnfocusedBack:= 0;
+  end;
+end;
+
+procedure TFormATSynEditComplete.EditorOptionsRestore;
+begin
+  if Assigned(FEdit) and FOldSaved then
+  begin
+    FOldSaved:= false;
+    FEdit.OptCaretStopUnfocused:= FOldCaretStopUnfocused;
+    FEdit.OptDimUnfocusedBack:= FOldDimUnfocusedBack;
+    FEdit.Update;
+  end;
+end;
+
 procedure TFormATSynEditComplete.ListDrawItem(Sender: TObject; C: TCanvas;
   AIndex: integer; const ARect: TRect);
 var
@@ -544,13 +571,13 @@ begin
       P.Y:= NewY;
   end;
 
+  EditorOptionsSave;
+
   //check that form fits on the right
   P.X:= Max(RectMon.Left, Min(P.X, RectMon.Right-CompletionOps.FormSizeX));
 
   if Application.MainForm.FormStyle in [fsStayOnTop, fsSystemStayOnTop] then
     FormStyle:= Application.MainForm.FormStyle;
-
-  Editor.OptCaretStopUnfocused:= false;
 
   SetBounds(P.X, P.Y, CompletionOps.FormSizeX, CompletionOps.FormSizeY);
   Show;
