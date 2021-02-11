@@ -27,12 +27,13 @@ implementation
 
 uses
   SysUtils, Classes, Graphics,
+  StrUtils,
   ATSynEdit_Carets,
   ATSynEdit_Cmp_Form,
   ATSynEdit_Cmp_Filenames;
 
 const
-  cFilePrefix = 'file:///';
+  cFilePrefix = 'file://';
 
 type
   { TAcp }
@@ -54,22 +55,6 @@ begin
   Result:= char(Ord(ch)) in CompletionOpsFile.FilenameChars;
 end;
 
-function IsPrefixEndsAt(const S: UnicodeString; APos: integer): boolean;
-begin
-  Result:= false;
-  if APos<Length(cFilePrefix) then exit;
-  if APos>Length(S) then exit;
-  if (S[APos]='/') and
-    (S[APos-1]='/') and
-    (S[APos-2]='/') and
-    (S[APos-3]=':') and
-    (S[APos-4]='e') and
-    (S[APos-5]='l') and
-    (S[APos-6]='i') and
-    (S[APos-7]='f') then
-    Result:= true;
-end;
-
 function GetContext(Ed: TATSynEdit;
   out AFileName: UnicodeString;
   out ACharsLeft, ACharsRight: integer): boolean;
@@ -77,7 +62,7 @@ var
   Caret: TATCaretItem;
   S: UnicodeString;
   ch: WideChar;
-  i: integer;
+  NPos, i: integer;
 begin
   Result:= false;
   AFileName:= '';
@@ -99,19 +84,19 @@ begin
     else
       Break;
 
-  for i:= Caret.PosX downto Length(cFilePrefix) do
-  begin
-    ch:= S[i];
-    if not IsCharFromFilename(ch) then
-      exit;
-    if IsPrefixEndsAt(S, i) then
-    begin
-      Result:= true;
-      AFileName:= Copy(S, i+1, Caret.PosX-i);
-      ACharsLeft:= Length(ExtractFileName(AFileName));
-      exit
-    end;
-  end;
+  NPos:= RPosEX(cFilePrefix, S, Caret.PosX);
+  if NPos=0 then exit;
+
+  Inc(NPos, Length(cFilePrefix));
+  for i:= NPos to Caret.PosX do
+    if not IsCharFromFilename(S[i]) then exit;
+
+  AFileName:= Copy(S, NPos, Caret.PosX-NPos+1);
+  if Pos('localhost', AFileName)=1 then
+    Delete(AFileName, 1, Length('localhost'));
+
+  ACharsLeft:= Length(ExtractFileName(AFileName));
+  Result:= true;
 end;
 
 procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
@@ -168,9 +153,8 @@ initialization
       '0'..'9',
       '_',
       '/', '\',
-      '-', '+',
-      '(', ')', '[', ']',
-      ':', '%', '.', ',', '=', '&'];
+      '-', ':', '%', '.', ',', '='
+      ];
   end;
 
 finalization
