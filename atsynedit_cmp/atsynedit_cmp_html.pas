@@ -325,7 +325,8 @@ procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
       AFileMask,
       CompletionOpsHtml.PrefixDir,
       CompletionOpsHtml.PrefixFile,
-      bAddSlash
+      bAddSlash,
+      false
       );
   end;
   //

@@ -9,14 +9,53 @@ unit ATSynEdit_Cmp_Filenames;
 interface
 
 function CalculateCompletionFilenames(const ACurDir, AText, AFileMask,
-  APrefixDir, APrefixFile: string; AddDirSlash: boolean): string;
+  APrefixDir, APrefixFile: string; AddDirSlash, AURIEncode: boolean): string;
 
 implementation
 
 uses
   SysUtils, Classes,
+  URIParser,
   ATStringProc,
   FileUtil;
+
+const
+  GenDelims = [':', '/', '?', '#', '[', ']', '@'];
+  SubDelims = ['!', '$', '&', '''', '(', ')', '*', '+', ',', ';', '='];
+  ALPHA = ['A'..'Z', 'a'..'z'];
+  DIGIT = ['0'..'9'];
+  Unreserved = ALPHA + DIGIT + ['-', '.', '_', '~'];
+  ValidPathChars = Unreserved + SubDelims + ['@', ':', '/'];
+
+//copy from FPC's URIParser unit
+function Escape(const s: String; const Allowed: TSysCharSet): String;
+var
+  i, L: Integer;
+  P: PChar;
+begin
+  L := Length(s);
+  for i := 1 to Length(s) do
+    if not (s[i] in Allowed) then Inc(L,2);
+  if L = Length(s) then
+  begin
+    Result := s;
+    Exit;
+  end;
+
+  SetLength(Result, L);
+  P := @Result[1];
+  for i := 1 to Length(s) do
+  begin
+    if not (s[i] in Allowed) then
+    begin
+      P^ := '%'; Inc(P);
+      StrFmt(P, '%.2x', [ord(s[i])]); Inc(P);
+    end
+    else
+      P^ := s[i];
+    Inc(P);
+  end;
+end;
 
 function IsValueFilename(const S: string): boolean;
 begin
@@ -37,7 +76,16 @@ end;
 *)
 
 function CalculateCompletionFilenames(const ACurDir, AText, AFileMask,
-  APrefixDir, APrefixFile: string; AddDirSlash: boolean): string;
+  APrefixDir, APrefixFile: string; AddDirSlash, AURIEncode: boolean): string;
+  //
+  function MaybeEscape(const S: string): string;
+  begin
+    if AURIEncode then
+      Result:= Escape(S, ValidPathChars)
+    else
+      Result:= S;
+  end;
+  //
 var
   FinderDirs: TFileSearcher;
   FinderFiles: TFileSearcher;
@@ -58,7 +106,7 @@ begin
 
   try
     L.Clear;
-    FinderDirs.FileAttribute:= faAnyFile and not (faHidden or faSysFile);
+    FinderDirs.FileAttribute:= faAnyFile and not (faHidden{%H-} or faSysFile{%H-});
     FinderDirs.Search(SDirName, AllFilesMask, false{SubDirs});
     L.Sort;
 
@@ -67,7 +115,7 @@ begin
       SItemShort:= ExtractFileName(SItem);
       if (SFileName='') or SBeginsWith(SItemShort, SFileName) then
       begin
-        Result+= APrefixDir+'|'+SItemShort;
+        Result+= APrefixDir+'|'+MaybeEscape(SItemShort);
         if AddDirSlash then
           Result+= '/';
         Result+= #10;
@@ -83,7 +131,7 @@ begin
     begin
       SItemShort:= ExtractFileName(SItem);
       if (SFileName='') or SBeginsWith(SItemShort, SFileName) then
-        Result+= APrefixFile+'|'+SItemShort+#10;
+        Result+= APrefixFile+'|'+MaybeEscape(SItemShort)+#10;
     end;
   finally
     FreeAndNil(L);

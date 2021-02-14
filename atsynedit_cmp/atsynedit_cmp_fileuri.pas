@@ -61,6 +61,7 @@ var
 function IsCharFromFilename(ch: WideChar): boolean;
 begin
   if Ord(ch)>255 then exit(false);
+  if ch='%' then exit(true);
   Result:= char(Ord(ch)) in ValidPathChars;
 end;
 
@@ -126,7 +127,8 @@ begin
     AllFilesMask,
     CompletionOpsFile.PrefixDir,
     CompletionOpsFile.PrefixFile,
-    true //bAddSlash
+    true, //bAddSlash
+    true
     );
 end;
 
