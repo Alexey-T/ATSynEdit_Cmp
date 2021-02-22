@@ -71,7 +71,6 @@ function GetContext(Ed: TATSynEdit;
 var
   Caret: TATCaretItem;
   S: UnicodeString;
-  ch: WideChar;
   NPos, i: integer;
 begin
   Result:= false;

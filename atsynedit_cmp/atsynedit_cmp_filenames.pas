@@ -123,7 +123,7 @@ begin
     end;
 
     L.Clear;
-    FinderFiles.FileAttribute:= faAnyFile and not (faHidden or faSysFile);
+    FinderFiles.FileAttribute:= faAnyFile and not (faHidden{%H-} or faSysFile{%H-});
     FinderFiles.Search(SDirName, AFileMask, false{SubDirs});
     L.Sort;
 
