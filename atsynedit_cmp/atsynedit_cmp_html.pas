@@ -490,9 +490,6 @@ begin
       begin
         AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskSomeSrc);
       end;
-
-    else
-      raise Exception.Create('Unknown context in HTML completions');
   end;
 end;
 
