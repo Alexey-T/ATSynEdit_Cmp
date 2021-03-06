@@ -221,6 +221,7 @@ var
 begin
   L.Clear;
 
+  //add values specific to AProp
   for S in ListProps do
   begin
     SSplitByChar(S, '=', SKey, SVal);
@@ -233,6 +234,7 @@ begin
     end;
   end;
 
+  //auto add 'color' values
   N:= L.IndexOf('$c');
   if N>=0 then
   begin
@@ -243,6 +245,7 @@ begin
   if SEndsWith(AProp, '-background') or SEndsWith(AProp, '-color') then
     L.AddStrings(ListColors);
 
+  //add common values
   L.Add('inherit');
   L.Add('initial');
   L.Add('unset');
