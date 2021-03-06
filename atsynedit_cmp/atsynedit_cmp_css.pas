@@ -9,12 +9,21 @@ unit ATSynEdit_Cmp_CSS;
 interface
 
 uses
+  Classes,
   ATSynEdit;
 
 procedure DoEditorCompletionCss(AEdit: TATSynEdit);
 
 type
+  TATCssProvider = class
+  public
+    procedure GetProps(L: TStringList); virtual; abstract;
+    procedure GetValues(const AProp: string; L: TStringList); virtual; abstract;
+  end;
+
+type
   TATCompletionOptionsCss = record
+    Provider: TATCssProvider;
     FilenameCssList: string; //from CudaText: data/autocompletespec/css_list.ini
     FilenameCssColors: string; //from CudaText: data/autocompletespec/css_colors.ini
     FilenameCssSelectors: string; //from CudaText: data/autocompletespec/css_sel.ini
@@ -23,7 +32,21 @@ type
     PrefixPseudo: string;
     LinesToLookup: integer;
     NonWordChars: UnicodeString;
-    StdColorsMacro: string;
+  end;
+
+type
+
+  { TATCssBasicProvider }
+
+  TATCssBasicProvider = class(TATCssProvider)
+  private
+    ListProps: TStringList;
+    ListColors: TStringList;
+  public
+    constructor Create(const AFilenameProps, AFilenameColors: string);
+    destructor Destroy; override;
+    procedure GetProps(L: TStringList); override;
+    procedure GetValues(const AProp: string; L: TStringList); override;
   end;
 
 var
@@ -32,7 +55,7 @@ var
 implementation
 
 uses
-  SysUtils, Classes, Graphics,
+  SysUtils, Graphics,
   Math,
   ATStringProc,
   ATStringProc_Separator,
@@ -45,7 +68,6 @@ type
 
   TAcp = class
   private
-    List: TStringlist; //CSS props and values of props
     ListSel: TStringList; //CSS at-rules (@) and pseudo elements (:)
     procedure DoOnGetCompleteProp(Sender: TObject; out AText: string;
       out ACharsLeft, ACharsRight: integer);
@@ -150,16 +172,94 @@ begin
   end;
 end;
 
+{ TATCssBasicProvider }
+
+constructor TATCssBasicProvider.Create(const AFilenameProps, AFilenameColors: string);
+var
+  i: integer;
+begin
+  ListProps:= TStringList.Create;
+  ListColors:= TStringList.Create;
+
+  if FileExists(AFilenameProps) then
+    ListProps.LoadFromFile(AFilenameProps);
+  if FileExists(AFilenameColors) then
+    ListColors.LoadFromFile(AFilenameColors);
+
+  for i:= ListProps.Count-1 downto 0 do
+    if ListProps[i]='' then
+      ListProps.Delete(i);
+
+  for i:= ListColors.Count-1 downto 0 do
+    if ListColors[i]='' then
+      ListColors.Delete(i);
+end;
+
+destructor TATCssBasicProvider.Destroy;
+begin
+  FreeAndNil(ListColors);
+  FreeAndNil(ListProps);
+  inherited Destroy;
+end;
+
+procedure TATCssBasicProvider.GetProps(L: TStringList);
+var
+  S, SKey, SVal: string;
+begin
+  L.Clear;
+  for S in ListProps do
+  begin
+    SSplitByChar(S, '=', SKey, SVal);
+    L.Add(SKey);
+  end;
+end;
+
+procedure TATCssBasicProvider.GetValues(const AProp: string; L: TStringList);
+var
+  S, SKey, SVal, SItem: string;
+  Sep: TATStringSeparator;
+  N: integer;
+begin
+  L.Clear;
+
+  for S in ListProps do
+  begin
+    SSplitByChar(S, '=', SKey, SVal);
+    if SameText(AProp, SKey) then
+    begin
+      Sep.Init(SVal, ',');
+      while Sep.GetItemStr(SItem) do
+        L.Add(SItem);
+      Break;
+    end;
+  end;
+
+  N:= L.IndexOf('$c');
+  if N>=0 then
+  begin
+    L.Delete(N);
+    L.AddStrings(ListColors);
+  end
+  else
+  if SEndsWith(AProp, '-background') or SEndsWith(AProp, '-color') then
+    L.AddStrings(ListColors);
+
+  L.Add('inherit');
+  L.Add('initial');
+  L.Add('unset');
+  L.Add('var()');
+end;
+
+{ TAcp }
 
 procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
   ACharsLeft, ACharsRight: integer);
 var
   Caret: TATCaretItem;
+  L: TStringList;
   s_word: atString;
   s_tag, s_item, s_val, s_valsuffix: string;
   context: TCompletionCssContext;
-  Sep: TATStringSeparator;
-  n: integer;
   ok: boolean;
 begin
   AText:= '';
@@ -179,54 +279,62 @@ begin
   case context of
     CtxPropertyValue:
       begin
-        s_item:= List.Values[s_tag];
-        if s_item='' then exit;
-
-        Sep.Init(s_item);
-        repeat
-          if not Sep.GetItemStr(s_val) then Break;
-
-          //filter values by cur word (not case sens)
-          if s_word<>'' then
+        L:= TStringList.Create;
+        try
+          CompletionOpsCss.Provider.GetValues(s_tag, L);
+          for s_item in L do
           begin
-            ok:= SBeginsWith(UpperCase(s_val), UpperCase(s_word));
-            if not ok then Continue;
+            s_val:= s_item;
+
+            //filter values by cur word (not case sens)
+            if s_word<>'' then
+            begin
+              ok:= SBeginsWith(UpperCase(s_val), UpperCase(s_word));
+              if not ok then Continue;
+            end;
+
+            //handle values like 'rgb()', 'val()'
+            if SEndsWith(s_val, '()') then
+            begin
+              SetLength(s_val, Length(s_val)-2);
+              s_valsuffix:= '|()';
+            end
+            else
+              s_valsuffix:= ''; //CompletionOps.SuffixSep+' ';
+
+            AText:= AText+CompletionOpsCss.PrefixProp+' "'+s_tag+'"|'+s_val+s_valsuffix+#10;
           end;
-
-          //handle values like 'rgb()', 'val()'
-          if SEndsWith(s_val, '()') then
-          begin
-            SetLength(s_val, Length(s_val)-2);
-            s_valsuffix:= '|()';
-          end
-          else
-            s_valsuffix:= ''; //CompletionOps.SuffixSep+' ';
-
-          AText:= AText+CompletionOpsCss.PrefixProp+' "'+s_tag+'"|'+s_val+s_valsuffix+#10;
-        until false;
+        finally
+          FreeAndNil(L);
+        end;
       end;
 
     CtxPropertyName:
       begin
-        //if caret is inside word
-        //  back|ground: left;
-        //then we must replace "background" with ": "
-        s_item:= Ed.Strings.LineSub(Caret.PosY, Caret.PosX+ACharsRight+1, 2);
-        if s_item=': ' then
-          Inc(ACharsRight, 2);
+        L:= TStringList.Create;
+        try
+          CompletionOpsCss.Provider.GetProps(L);
 
-        for n:= 0 to List.Count-1 do
-        begin
-          s_item:= List.Names[n];
+          //if caret is inside word
+          //  back|ground: left;
+          //then we must replace "background" with ": "
+          s_item:= Ed.Strings.LineSub(Caret.PosY, Caret.PosX+ACharsRight+1, 2);
+          if s_item=': ' then
+            Inc(ACharsRight, 2);
 
-          //filter by cur word (not case sens)
-          if s_word<>'' then
+          for s_item in L do
           begin
-            ok:= SBeginsWith(UpperCase(s_item), UpperCase(s_word));
-            if not ok then Continue;
-          end;
+            //filter by cur word (not case sens)
+            if s_word<>'' then
+            begin
+              ok:= SBeginsWith(UpperCase(s_item), UpperCase(s_word));
+              if not ok then Continue;
+            end;
 
-          AText:= AText+CompletionOpsCss.PrefixProp+'|'+s_item+#1': '#10;
+            AText:= AText+CompletionOpsCss.PrefixProp+'|'+s_item+#1': '#10;
+          end;
+        finally
+          FreeAndNil(L);
         end;
       end;
 
@@ -254,98 +362,24 @@ end;
 constructor TAcp.Create;
 begin
   inherited;
-  List:= TStringlist.create;
   ListSel:= TStringlist.create;
 end;
 
 destructor TAcp.Destroy;
 begin
   FreeAndNil(ListSel);
-  FreeAndNil(List);
   inherited;
 end;
 
 procedure DoEditorCompletionCss(AEdit: TATSynEdit);
-var
-  L, LColors: TStringList;
-  S, SKey, SVal: string;
-  i, N: integer;
 begin
   Acp.Ed:= AEdit;
 
-  //load file only once
-  if Acp.List.Count=0 then
+  if CompletionOpsCss.Provider=nil then
   begin
-    if not FileExists(CompletionOpsCss.FilenameCssList) then exit;
-    Acp.List.LoadFromFile(CompletionOpsCss.FilenameCssList);
-
-    //support common CSS values+functions
-    L:= TStringList.Create;
-    LColors:= TStringList.Create;
-    try
-      L.Delimiter:= ',';
-      L.Sorted:= true;
-      L.Duplicates:= dupIgnore;
-      L.CaseSensitive:= false;
-
-      if FileExists(CompletionOpsCss.FilenameCssColors) then
-      begin
-        LColors.LoadFromFile(CompletionOpsCss.FilenameCssColors);
-        for i:= LColors.Count-1 downto 0 do
-          if LColors[i]='' then
-            LColors.Delete(i);
-      end;
-
-      for i:= 0 to Acp.List.Count-1 do
-      begin
-        S:= Acp.List[i];
-        SSplitByChar(S, '=', SKey, SVal);
-        L.DelimitedText:= SVal;
-
-        {
-        //to make new file
-        bColor:= false;
-        for SColor in LColors do
-        begin
-          j:= L.IndexOf(LowerCase(SColor));
-          if j>=0 then
-          begin
-            L.Delete(j);
-            bColor:= true;
-          end;
-        end;
-        if bColor then
-          L.Add('$c');
-          }
-
-        N:= L.IndexOf(CompletionOpsCss.StdColorsMacro);
-        if N>=0 then
-        begin
-          L.Delete(N);
-          L.AddStrings(LColors);
-        end
-        else
-        if SEndsWith(SKey, '-background') or SEndsWith(SKey, '-color') then
-          L.AddStrings(LColors);
-
-        //add items for all props
-        L.Add('inherit');
-        L.Add('initial');
-        L.Add('unset');
-        L.Add('var()');
-
-        S:= SKey+'='+L.DelimitedText;
-        Acp.List[i]:= S;
-
-        {
-        //make new file
-        Acp.List.SaveToFile('/home/user/css_list__.ini');
-        }
-      end;
-    finally
-      FreeAndNil(LColors);
-      FreeAndNil(L);
-    end;
+    CompletionOpsCss.Provider:= TATCssBasicProvider.Create(
+      CompletionOpsCss.FilenameCssList,
+      CompletionOpsCss.FilenameCssColors);
   end;
 
   //optional list, load only once
@@ -363,6 +397,7 @@ initialization
 
   with CompletionOpsCss do
   begin
+    Provider:= nil;
     FilenameCssList:= '';
     FilenameCssColors:= '';
     FilenameCssSelectors:= '';
@@ -371,7 +406,6 @@ initialization
     PrefixPseudo:= 'pseudo';
     LinesToLookup:= 50;
     NonWordChars:= '#!@.{};''"<>'; //don't include ':'
-    StdColorsMacro:= '$c';
   end;
 
 finalization
