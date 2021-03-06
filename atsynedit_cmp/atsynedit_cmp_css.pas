@@ -408,6 +408,9 @@ initialization
   end;
 
 finalization
+
+  if Assigned(CompletionOpsCss.Provider) then
+    FreeAndNil(CompletionOpsCss.Provider);
   FreeAndNil(Acp);
 
 end.
