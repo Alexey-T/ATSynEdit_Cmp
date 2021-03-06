@@ -15,7 +15,7 @@ uses
 procedure DoEditorCompletionCss(AEdit: TATSynEdit);
 
 type
-  TATCssProvider = class
+  TATCssProvider = class abstract
   public
     procedure GetProps(L: TStringList); virtual; abstract;
     procedure GetValues(const AProp: string; L: TStringList); virtual; abstract;
@@ -34,21 +34,6 @@ type
     NonWordChars: UnicodeString;
   end;
 
-type
-
-  { TATCssBasicProvider }
-
-  TATCssBasicProvider = class(TATCssProvider)
-  private
-    ListProps: TStringList;
-    ListColors: TStringList;
-  public
-    constructor Create(const AFilenameProps, AFilenameColors: string);
-    destructor Destroy; override;
-    procedure GetProps(L: TStringList); override;
-    procedure GetValues(const AProp: string; L: TStringList); override;
-  end;
-
 var
   CompletionOpsCss: TATCompletionOptionsCss;
 
@@ -62,6 +47,20 @@ uses
   ATSynEdit_Carets,
   ATSynEdit_RegExpr,
   ATSynEdit_Cmp_Form;
+
+type
+  { TATCssBasicProvider }
+
+  TATCssBasicProvider = class(TATCssProvider)
+  private
+    ListProps: TStringList;
+    ListColors: TStringList;
+  public
+    constructor Create(const AFilenameProps, AFilenameColors: string);
+    destructor Destroy; override;
+    procedure GetProps(L: TStringList); override;
+    procedure GetValues(const AProp: string; L: TStringList); override;
+  end;
 
 type
   { TAcp }
