@@ -9,12 +9,22 @@ unit ATSynEdit_Cmp_HTML;
 interface
 
 uses
+  Classes,
   ATSynEdit;
 
 procedure DoEditorCompletionHtml(Ed: TATSynEdit);
 
 type
+  TATHtmlProvider = class abstract
+  public
+    procedure GetTags(L: TStringList); virtual; abstract;
+    procedure GetTagProps(const ATag: string; L: TStringList); virtual; abstract;
+    procedure GetTabPropValues(const ATag, AProp: string; L: TStringList); virtual; abstract;
+  end;
+
+type
   TATCompletionOptionsHtml = record
+    Provider: TATHtmlProvider;
     FilenameHtmlList: string; //from CudaText: data/autocompletespec/html_list.ini
     FilenameHtmlEvents: string; //from CudaText: data/autocompletespec/html_events.ini
     FileMaskHREF: string;
@@ -40,7 +50,7 @@ var
 implementation
 
 uses
-  SysUtils, Classes, Graphics, StrUtils,
+  SysUtils, Graphics, StrUtils,
   ATStringProc,
   ATStringProc_Separator,
   ATSynEdit_Carets,
@@ -50,6 +60,22 @@ uses
   ATSynEdit_Cmp_Filenames,
   Dialogs,
   Math;
+
+type
+
+  { TATHtmlBasicProvider }
+
+  TATHtmlBasicProvider = class(TATHtmlProvider)
+  private
+    ListAll: TStringList;
+    ListEvents: TStringList;
+  public
+    constructor Create(const AFilenameList, AFilenameEvents: string);
+    destructor Destroy; override;
+    procedure GetTags(L: TStringList); override;
+    procedure GetTagProps(const ATag: string; L: TStringList); override;
+    procedure GetTabPropValues(const ATag, AProp: string; L: TStringList); override;
+  end;
 
 type
   TCompletionHtmlContext = (
@@ -146,8 +172,6 @@ type
 
   TAcp = class
   private
-    List: TStringlist;
-    ListEvents: TStringList;
     procedure DoOnGetCompleteProp(Sender: TObject; out AText: string;
       out ACharsLeft, ACharsRight: integer);
   public
@@ -313,6 +337,117 @@ begin
     Result:= ctxTags;
 end;
 
+{ TATHtmlBasicProvider }
+
+constructor TATHtmlBasicProvider.Create(const AFilenameList, AFilenameEvents: string);
+var
+  i: integer;
+begin
+  ListAll:= TStringList.Create;
+  ListEvents:= TStringList.Create;
+
+  if FileExists(AFilenameList) then
+    ListAll.LoadFromFile(AFilenameList);
+  if FileExists(AFilenameEvents) then
+    ListEvents.LoadFromFile(AFilenameEvents);
+
+  for i:= ListAll.Count-1 downto 0 do
+    if ListAll[i]='' then
+      ListAll.Delete(i);
+
+  for i:= ListEvents.Count-1 downto 0 do
+    if ListEvents[i]='' then
+      ListEvents.Delete(i);
+end;
+
+destructor TATHtmlBasicProvider.Destroy;
+begin
+  FreeAndNil(ListEvents);
+  FreeAndNil(ListAll);
+  inherited Destroy;
+end;
+
+procedure TATHtmlBasicProvider.GetTags(L: TStringList);
+var
+  S, SKey, SVal: string;
+begin
+  L.Clear;
+  L.Sorted:= true;
+
+  for S in ListAll do
+  begin
+    SSplitByChar(S, '=', SKey, SVal);
+    L.Add(SKey);
+  end;
+end;
+
+procedure TATHtmlBasicProvider.GetTagProps(const ATag: string; L: TStringList);
+var
+  S, SKey, SVal, SItem: string;
+  Sep: TATStringSeparator;
+begin
+  L.Clear;
+  L.Sorted:= true;
+
+  L.Add('class');
+  L.Add('id');
+
+  for S in ListAll do
+  begin
+    SSplitByChar(S, '=', SKey, SVal);
+    if SameText(SKey, ATag) then
+    begin
+      Sep.Init(SVal, '|');
+      while Sep.GetItemStr(SItem) do
+      begin
+        SItem:= SGetItem(SItem, '<');
+        if SItem='$e' then
+          L.AddStrings(ListEvents)
+        else
+          L.Add(SItem);
+      end;
+    end;
+  end;
+end;
+
+procedure TATHtmlBasicProvider.GetTabPropValues(const ATag, AProp: string; L: TStringList);
+var
+  S, SKey, SVal, SItem, SItem2: string;
+  Sep, Sep2: TATStringSeparator;
+begin
+  L.Clear;
+  L.Sorted:= true;
+
+  if SameText(AProp, 'dir') then
+  begin
+    L.Add('ltr');
+    L.Add('rtl');
+    L.Add('auto');
+    exit;
+  end;
+
+  for S in ListAll do
+  begin
+    SSplitByChar(S, '=', SKey, SVal);
+    if SameText(SKey, ATag) then
+    begin
+      Sep.Init(SVal, '|');
+      while Sep.GetItemStr(SItem) do
+      begin
+        SItem:= SGetItem(SItem, '<');
+        if SameText(SItem, AProp) then
+        begin
+          Sep2.Init(SItem, '?');
+          while Sep2.GetItemStr(SItem2) do
+            L.Add(SItem2);
+        end;
+      end;
+    end;
+  end;
+end;
+
+{ TAcp }
+
 procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
   ACharsLeft, ACharsRight: integer);
   //
@@ -335,9 +470,8 @@ procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
 var
   Caret: TATCaretItem;
   Context: TCompletionHtmlContext;
-  Sep, Sep2: TATStringSeparator;
   s_word: atString;
-  s_tag, s_attr, s_item, s_subitem, s_value, s_event,
+  s_tag, s_attr, s_item, s_value,
   s_tag_bracket, s_tag_close: string;
   s_quote, s_space, s_equalchar: string;
   ok, bClosing: boolean;
@@ -370,42 +504,52 @@ begin
   case Context of
     ctxTags:
       begin
-        for i:= 0 to List.Count-1 do
-        begin
-          s_item:= List.Names[i];
+        L:= TStringList.Create;
+        try
+          CompletionOpsHtml.Provider.GetTags(L);
 
-          //special handle of some tags: a, img, link...
-          if s_item='a' then s_item:= 'a'#1' href="'#1'"></a>' else
-          if s_item='img' then s_item:= 'img'#1' src="'#1'">' else
-          if s_item='link' then s_item:= 'link'#1' rel="stylesheet" type="text/css" href="'#1'">' else
-          //usual handle of all tags
+          for i:= 0 to L.Count-1 do
           begin
-            s_tag_bracket:= '';
-            s_tag_close:= '';
-            if NextChar<>'>' then
+            s_item:= L[i];
+
+            //special handle of some tags: a, img, link...
+            if s_item='a' then
+              s_item:= 'a'#1' href="'#1'"></a>'
+            else
+            if s_item='img' then
+              s_item:= 'img'#1' src="'#1'">'
+            else
+            if s_item='link' then
+              s_item:= 'link'#1' rel="stylesheet" type="text/css" href="'#1'">'
+            else
             begin
-              s_tag_bracket:= '>';
-              if not bClosing and IsTagNeedsClosingTag(s_item) then
-                s_tag_close:= #1'</'+s_item+'>';
+              //usual handle of all tags
+              s_tag_bracket:= '';
+              s_tag_close:= '';
+              if NextChar<>'>' then
+              begin
+                s_tag_bracket:= '>';
+                if not bClosing and IsTagNeedsClosingTag(s_item) then
+                  s_tag_close:= #1'</'+s_item+'>';
+              end;
+              s_item:= s_item+#1+s_tag_bracket+s_tag_close;
             end;
-            s_item:= s_item+#1+s_tag_bracket+s_tag_close;
-          end;
 
-          //filter items
-          if s_word<>'' then
-          begin
-            ok:= SBeginsWith(UpperCase(s_item), UpperCase(s_word));
-            if not ok then Continue;
+            //filter items
+            if s_word<>'' then
+            begin
+              ok:= SBeginsWith(UpperCase(s_item), UpperCase(s_word));
+              if not ok then Continue;
+            end;
+            AText+= CompletionOpsHtml.PrefixTag+'|'+s_item+#10;
           end;
-          AText:= AText+CompletionOpsHtml.PrefixTag+'|'+s_item+#10;
+        finally
+          FreeAndNil(L);
         end;
       end;
 
     ctxAttrs:
       begin
-        s_item:= List.Values[s_tag];
-        if s_item='' then exit;
-
         if NextChar='=' then
           s_equalchar:= ''
         else
@@ -413,30 +557,17 @@ begin
 
         L:= TStringList.Create;
         try
-          L.Sorted:= true;
-          L.Add('class');
-          L.Add('id');
-
-          Sep.Init(s_item, '|');
-          while Sep.GetItemStr(s_subitem) do
-          begin
-            s_subitem:= SGetItem(s_subitem, '<');
-            if s_subitem='' then Break;
-            if s_subitem='$e' then
-              L.AddStrings(ListEvents)
-            else
-              L.Add(s_subitem);
-          end;
+          CompletionOpsHtml.Provider.GetTagProps(s_tag, L);
 
           //keep only items which begin with s_word
-          for s_subitem in L do
+          for s_item in L do
           begin
             if s_word<>'' then
             begin
-              ok:= SBeginsWith(UpperCase(s_subitem), UpperCase(s_word));
+              ok:= SBeginsWith(UpperCase(s_item), UpperCase(s_word));
               if not ok then Continue;
             end;
-            AText+= s_tag+' '+CompletionOpsHtml.PrefixAttrib+'|'+s_subitem+#1+s_equalchar+#10;
+            AText+= s_tag+' '+CompletionOpsHtml.PrefixAttrib+'|'+s_item+#1+s_equalchar+#10;
           end;
         finally
           FreeAndNil(L);
@@ -457,33 +588,9 @@ begin
           s_space:= ' ';
         end;
 
-        s_item:= List.Values[s_tag];
-        if s_item='' then exit;
-
         L:= TStringList.Create;
         try
-          L.Sorted:= true;
-
-          Sep.Init(s_item, '|');
-          while Sep.GetItemStr(s_subitem) do
-          begin
-            if SGetItem(s_subitem, '<')<>s_attr then Continue;
-            Sep2.Init(s_subitem, '?');
-            repeat
-              if Sep2.GetItemStr(s_value) then
-                L.Add(s_value)
-              else
-                Break;
-            until false;
-          end;
-
-          if s_attr='dir' then
-          begin
-            L.Add('ltr');
-            L.Add('rtl');
-            L.Add('auto');
-          end;
-
+          CompletionOpsHtml.Provider.GetTabPropValues(s_tag, s_attr, L);
           for s_value in L do
             AText+= s_attr+' '+CompletionOpsHtml.PrefixValue+'|'+s_quote+s_value+s_quote+#1+s_space+#10;
         finally
@@ -536,14 +643,10 @@ end;
 constructor TAcp.Create;
 begin
   inherited;
-  List:= TStringlist.create;
-  ListEvents:= TStringlist.create;
 end;
 
 destructor TAcp.Destroy;
 begin
-  FreeAndNil(ListEvents);
-  FreeAndNil(List);
   inherited;
 end;
 
@@ -560,21 +663,10 @@ var
 begin
   Acp.Ed:= Ed;
 
-  //load file only once
-  if Acp.List.Count=0 then
-  begin
-    if FileExists(CompletionOpsHtml.FilenameHtmlList) then
-      Acp.List.LoadFromFile(CompletionOpsHtml.FilenameHtmlList)
-    else
-      exit;
-  end;
-
-  //load file only once
-  if Acp.ListEvents.Count=0 then
-  begin
-    if FileExists(CompletionOpsHtml.FilenameHtmlEvents) then
-      Acp.ListEvents.LoadFromFile(CompletionOpsHtml.FilenameHtmlEvents);
-  end;
+  if CompletionOpsHtml.Provider=nil then
+    CompletionOpsHtml.Provider:= TATHtmlBasicProvider.Create(
+      CompletionOpsHtml.FilenameHtmlList,
+      CompletionOpsHtml.FilenameHtmlEvents);
 
   if Ed.Carets.Count=0 then exit;
   Caret:= Ed.Carets[0];
@@ -644,10 +736,12 @@ begin
 end;
 
 initialization
+
   Acp:= TAcp.Create;
 
   with CompletionOpsHtml do
   begin
+    Provider:= nil;
     FilenameHtmlList:= '';
     FileMaskHREF:= AllFilesMask;
     FileMaskLinkHREF:= '*.css';
@@ -667,6 +761,11 @@ initialization
   end;
 
 finalization
+
+  with CompletionOpsHtml do
+    if Assigned(Provider) then
+      FreeAndNil(Provider);
+
   FreeAndNil(Acp);
 
 end.
