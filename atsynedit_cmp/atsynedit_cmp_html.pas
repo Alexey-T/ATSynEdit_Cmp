@@ -16,6 +16,7 @@ procedure DoEditorCompletionHtml(Ed: TATSynEdit);
 type
   TATCompletionOptionsHtml = record
     FilenameHtmlList: string; //from CudaText: data/autocompletespec/html_list.ini
+    FilenameHtmlEvents: string; //from CudaText: data/autocompletespec/html_events.ini
     FileMaskHREF: string;
     FileMaskLinkHREF: string;
     FileMaskPictures: string;
@@ -146,6 +147,7 @@ type
   TAcp = class
   private
     List: TStringlist;
+    ListEvents: TStringList;
     procedure DoOnGetCompleteProp(Sender: TObject; out AText: string;
       out ACharsLeft, ACharsRight: integer);
   public
@@ -335,7 +337,7 @@ var
   Context: TCompletionHtmlContext;
   Sep, Sep2: TATStringSeparator;
   s_word: atString;
-  s_tag, s_attr, s_item, s_subitem, s_value,
+  s_tag, s_attr, s_item, s_subitem, s_value, s_event,
   s_tag_bracket, s_tag_close: string;
   s_quote, s_space, s_equalchar: string;
   ok, bClosing: boolean;
@@ -413,6 +415,22 @@ begin
           if not Sep.GetItemStr(s_subitem) then Break;
           s_subitem:= SGetItem(s_subitem, '<');
           if s_subitem='' then Break;
+
+          //insert list of HTML events
+          if s_subitem='$e' then
+          begin
+            for s_event in ListEvents do
+            begin
+              //keep only items which begin with s_word
+              if s_word<>'' then
+              begin
+                ok:= SBeginsWith(UpperCase(s_event), UpperCase(s_word));
+                if not ok then Continue;
+              end;
+              AText:= AText+s_tag+' '+CompletionOpsHtml.PrefixAttrib+'|'+s_event+#1+s_equalchar+#10;
+            end;
+            Continue;
+          end;
 
           //keep only items which begin with s_word
           if s_word<>'' then
@@ -497,10 +515,12 @@ constructor TAcp.Create;
 begin
   inherited;
   List:= TStringlist.create;
+  ListEvents:= TStringlist.create;
 end;
 
 destructor TAcp.Destroy;
 begin
+  FreeAndNil(ListEvents);
   FreeAndNil(List);
   inherited;
 end;
@@ -521,8 +541,17 @@ begin
   //load file only once
   if Acp.List.Count=0 then
   begin
-    if not FileExists(CompletionOpsHtml.FilenameHtmlList) then exit;
-    Acp.List.LoadFromFile(CompletionOpsHtml.FilenameHtmlList);
+    if FileExists(CompletionOpsHtml.FilenameHtmlList) then
+      Acp.List.LoadFromFile(CompletionOpsHtml.FilenameHtmlList)
+    else
+      exit;
+  end;
+
+  //load file only once
+  if Acp.ListEvents.Count=0 then
+  begin
+    if FileExists(CompletionOpsHtml.FilenameHtmlEvents) then
+      Acp.ListEvents.LoadFromFile(CompletionOpsHtml.FilenameHtmlEvents);
   end;
 
   if Ed.Carets.Count=0 then exit;
