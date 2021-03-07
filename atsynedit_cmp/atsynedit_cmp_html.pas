@@ -45,7 +45,6 @@ implementation
 uses
   SysUtils, Graphics, StrUtils,
   ATStringProc,
-  ATStringProc_Separator,
   ATSynEdit_Carets,
   ATSynEdit_RegExpr,
   ATSynEdit_Cmp_Form,
@@ -220,7 +219,7 @@ const
   cGroupTagClose = 0;
   cGroupAttr = 1;
 var
-  S: atString;
+  S: UnicodeString;
   NPrev, N: integer;
   ch: WideChar;
 begin
@@ -406,7 +405,7 @@ begin
             //filter items
             if s_word<>'' then
             begin
-              ok:= SBeginsWith(UpperCase(s_item), UpperCase(s_word));
+              ok:= StartsText(s_word, s_item);
               if not ok then Continue;
             end;
             AText+= CompletionOpsHtml.PrefixTag+'|'+s_item+#10;
@@ -432,7 +431,7 @@ begin
           begin
             if s_word<>'' then
             begin
-              ok:= SBeginsWith(UpperCase(s_item), UpperCase(s_word));
+              ok:= StartsText(s_word, s_item);
               if not ok then Continue;
             end;
             AText+= s_tag+' '+CompletionOpsHtml.PrefixAttrib+'|'+s_item+#1+s_equalchar+#10;
