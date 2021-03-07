@@ -456,18 +456,39 @@ begin
           s_quote:= '"';
           s_space:= ' ';
         end;
+
         s_item:= List.Values[s_tag];
         if s_item='' then exit;
-        Sep.Init(s_item, '|');
-        repeat
-          if not Sep.GetItemStr(s_subitem) then Break;
-          if SGetItem(s_subitem, '<')<>s_attr then Continue;
-          Sep2.Init(s_subitem, '?');
-          repeat
-            if not Sep2.GetItemStr(s_value) then Break;
-            AText:= AText+s_attr+' '+CompletionOpsHtml.PrefixValue+'|'+s_quote+s_value+s_quote+#1+s_space+#10;
-          until false;
-        until false;
+
+        L:= TStringList.Create;
+        try
+          L.Sorted:= true;
+
+          Sep.Init(s_item, '|');
+          while Sep.GetItemStr(s_subitem) do
+          begin
+            if SGetItem(s_subitem, '<')<>s_attr then Continue;
+            Sep2.Init(s_subitem, '?');
+            repeat
+              if Sep2.GetItemStr(s_value) then
+                L.Add(s_value)
+              else
+                Break;
+            until false;
+          end;
+
+          if s_attr='dir' then
+          begin
+            L.Add('ltr');
+            L.Add('rtl');
+            L.Add('auto');
+          end;
+
+          for s_value in L do
+            AText+= s_attr+' '+CompletionOpsHtml.PrefixValue+'|'+s_quote+s_value+s_quote+#1+s_space+#10;
+        finally
+          FreeAndNil(L);
+        end;
       end;
 
     ctxValueHref:
