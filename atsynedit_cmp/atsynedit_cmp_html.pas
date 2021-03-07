@@ -9,7 +9,6 @@ unit ATSynEdit_Cmp_HTML;
 interface
 
 uses
-  Classes,
   ATSynEdit,
   ATSynEdit_Cmp_HTML_Provider;
 
@@ -43,7 +42,7 @@ var
 implementation
 
 uses
-  SysUtils, Graphics, StrUtils,
+  SysUtils, Classes, Graphics, StrUtils,
   ATStringProc,
   ATSynEdit_Carets,
   ATSynEdit_RegExpr,

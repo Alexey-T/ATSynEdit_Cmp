@@ -9,7 +9,6 @@ unit ATSynEdit_Cmp_CSS;
 interface
 
 uses
-  Classes,
   ATSynEdit,
   ATSynEdit_Cmp_CSS_Provider;
 
@@ -34,7 +33,7 @@ var
 implementation
 
 uses
-  SysUtils, Graphics,
+  SysUtils, Classes, Graphics,
   StrUtils, Math,
   ATSynEdit_Carets,
   ATSynEdit_RegExpr,
