@@ -35,9 +35,7 @@ implementation
 
 uses
   SysUtils, Graphics,
-  Math,
-  ATStringProc,
-  ATStringProc_Separator,
+  StrUtils, Math,
   ATSynEdit_Carets,
   ATSynEdit_RegExpr,
   ATSynEdit_Cmp_Form;
@@ -158,7 +156,7 @@ procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
 var
   Caret: TATCaretItem;
   L: TStringList;
-  s_word: atString;
+  s_word: UnicodeString;
   s_tag, s_item, s_val, s_valsuffix: string;
   context: TCompletionCssContext;
   ok: boolean;
@@ -190,12 +188,12 @@ begin
             //filter values by cur word (not case sens)
             if s_word<>'' then
             begin
-              ok:= SBeginsWith(UpperCase(s_val), UpperCase(s_word));
+              ok:= StartsText(s_word, s_val);
               if not ok then Continue;
             end;
 
             //handle values like 'rgb()', 'val()'
-            if SEndsWith(s_val, '()') then
+            if EndsStr('()', s_val) then
             begin
               SetLength(s_val, Length(s_val)-2);
               s_valsuffix:= '|()';
@@ -227,7 +225,7 @@ begin
             //filter by cur word (not case sens)
             if s_word<>'' then
             begin
-              ok:= SBeginsWith(UpperCase(s_item), UpperCase(s_word));
+              ok:= StartsText(s_word, s_item);
               if not ok then Continue;
             end;
 
@@ -252,7 +250,7 @@ begin
 
         for s_item in ListSel do
         begin
-          if (s_tag='') or SBeginsWith(s_item, s_tag) then
+          if (s_tag='') or StartsText(s_tag, s_item) then
             AText+= s_val+'|'+s_item+#10;
         end;
       end;
