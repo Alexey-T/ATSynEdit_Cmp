@@ -313,17 +313,16 @@ begin
 
     CtxPropertyName:
       begin
+        //if caret is inside property
+        //  back|ground: left;
+        //then we must replace "background: ", ie replace extra 2 chars
+        s_item:= Ed.Strings.LineSub(Caret.PosY, Caret.PosX+ACharsRight+1, 2);
+        if s_item=': ' then
+          Inc(ACharsRight, 2);
+
         L:= TStringList.Create;
         try
           CompletionOpsCss.Provider.GetProps(L);
-
-          //if caret is inside word
-          //  back|ground: left;
-          //then we must replace "background" with ": "
-          s_item:= Ed.Strings.LineSub(Caret.PosY, Caret.PosX+ACharsRight+1, 2);
-          if s_item=': ' then
-            Inc(ACharsRight, 2);
-
           for s_item in L do
           begin
             //filter by cur word (not case sens)
