@@ -19,7 +19,7 @@ type
   public
     procedure GetTags(L: TStringList); virtual; abstract;
     procedure GetTagProps(const ATag: string; L: TStringList); virtual; abstract;
-    procedure GetTabPropValues(const ATag, AProp: string; L: TStringList); virtual; abstract;
+    procedure GetTagPropValues(const ATag, AProp: string; L: TStringList); virtual; abstract;
   end;
 
 type
@@ -74,7 +74,7 @@ type
     destructor Destroy; override;
     procedure GetTags(L: TStringList); override;
     procedure GetTagProps(const ATag: string; L: TStringList); override;
-    procedure GetTabPropValues(const ATag, AProp: string; L: TStringList); override;
+    procedure GetTagPropValues(const ATag, AProp: string; L: TStringList); override;
   end;
 
 type
@@ -410,7 +410,7 @@ begin
   end;
 end;
 
-procedure TATHtmlBasicProvider.GetTabPropValues(const ATag, AProp: string; L: TStringList);
+procedure TATHtmlBasicProvider.GetTagPropValues(const ATag, AProp: string; L: TStringList);
 var
   S, SKey, SVal, SItem, SItem2: string;
   Sep, Sep2: TATStringSeparator;
@@ -590,7 +590,7 @@ begin
 
         L:= TStringList.Create;
         try
-          CompletionOpsHtml.Provider.GetTabPropValues(s_tag, s_attr, L);
+          CompletionOpsHtml.Provider.GetTagPropValues(s_tag, s_attr, L);
           for s_value in L do
             AText+= s_attr+' '+CompletionOpsHtml.PrefixValue+'|'+s_quote+s_value+s_quote+#1+s_space+#10;
         finally
