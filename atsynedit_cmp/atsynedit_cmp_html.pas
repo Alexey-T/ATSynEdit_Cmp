@@ -342,6 +342,7 @@ var
   s_quote, s_space, s_equalchar: string;
   ok, bClosing: boolean;
   NextChar: char;
+  L: TStringList;
   i: integer;
 begin
   AText:= '';
@@ -410,36 +411,36 @@ begin
         else
           s_equalchar:= '=';
 
-        Sep.Init(s_item, '|');
-        repeat
-          if not Sep.GetItemStr(s_subitem) then Break;
-          s_subitem:= SGetItem(s_subitem, '<');
-          if s_subitem='' then Break;
+        L:= TStringList.Create;
+        try
+          L.Sorted:= true;
+          L.Add('class');
+          L.Add('id');
 
-          //insert list of HTML events
-          if s_subitem='$e' then
+          Sep.Init(s_item, '|');
+          while Sep.GetItemStr(s_subitem) do
           begin
-            for s_event in ListEvents do
-            begin
-              //keep only items which begin with s_word
-              if s_word<>'' then
-              begin
-                ok:= SBeginsWith(UpperCase(s_event), UpperCase(s_word));
-                if not ok then Continue;
-              end;
-              AText:= AText+s_tag+' '+CompletionOpsHtml.PrefixAttrib+'|'+s_event+#1+s_equalchar+#10;
-            end;
-            Continue;
+            s_subitem:= SGetItem(s_subitem, '<');
+            if s_subitem='' then Break;
+            if s_subitem='$e' then
+              L.AddStrings(ListEvents)
+            else
+              L.Add(s_subitem);
           end;
 
           //keep only items which begin with s_word
-          if s_word<>'' then
+          for s_subitem in L do
           begin
-            ok:= SBeginsWith(UpperCase(s_subitem), UpperCase(s_word));
-            if not ok then Continue;
+            if s_word<>'' then
+            begin
+              ok:= SBeginsWith(UpperCase(s_subitem), UpperCase(s_word));
+              if not ok then Continue;
+            end;
+            AText+= s_tag+' '+CompletionOpsHtml.PrefixAttrib+'|'+s_subitem+#1+s_equalchar+#10;
           end;
-          AText:= AText+s_tag+' '+CompletionOpsHtml.PrefixAttrib+'|'+s_subitem+#1+s_equalchar+#10;
-        until false;
+        finally
+          FreeAndNil(L);
+        end;
       end;
 
     ctxValues,
