@@ -412,7 +412,7 @@ end;
 
 procedure TATHtmlBasicProvider.GetTagPropValues(const ATag, AProp: string; L: TStringList);
 var
-  S, SKey, SVal, SItem, SItem2: string;
+  S, SKey, SVal, SItem, SItemBegin, SItemEnd, SItem2: string;
   Sep, Sep2: TATStringSeparator;
 begin
   L.Clear;
@@ -434,10 +434,10 @@ begin
       Sep.Init(SVal, '|');
       while Sep.GetItemStr(SItem) do
       begin
-        SItem:= SGetItem(SItem, '<');
-        if SameText(SItem, AProp) then
+        SSplitByChar(SItem, '<', SItemBegin, SItemEnd);
+        if SameText(SItemBegin, AProp) then
         begin
-          Sep2.Init(SItem, '?');
+          Sep2.Init(SItemEnd, '?');
           while Sep2.GetItemStr(SItem2) do
             L.Add(SItem2);
         end;
