@@ -395,6 +395,7 @@ begin
 end;
 
 initialization
+
   Acp:= TAcp.Create;
 
   with CompletionOpsCss do
@@ -412,8 +413,9 @@ initialization
 
 finalization
 
-  if Assigned(CompletionOpsCss.Provider) then
-    FreeAndNil(CompletionOpsCss.Provider);
+  with CompletionOpsCss do
+    if Assigned(Provider) then
+      FreeAndNil(Provider);
   FreeAndNil(Acp);
 
 end.
