@@ -107,6 +107,7 @@ begin
         else
           L.Add(SItem);
       end;
+      Break;
     end;
   end;
 end;
@@ -141,8 +142,10 @@ begin
           Sep2.Init(SItemEnd, '?');
           while Sep2.GetItemStr(SItem2) do
             L.Add(SItem2);
+          Break;
         end;
       end;
+      Break;
     end;
   end;
 end;
