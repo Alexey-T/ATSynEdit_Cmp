@@ -487,8 +487,8 @@ begin
             ListEntities.LoadFromFile(CompletionOpsHtml.FilenameHtmlEntities);
         end;
         for s_value in ListEntities do
-          if (StartsText(s_word, s_value)) then
-            AText+= CompletionOpsHtml.PrefixEntity+'|'+s_value+#10;
+          if StartsText(s_word, s_value) then
+            AText+= CompletionOpsHtml.PrefixEntity+'|'+s_value+';'+#10;
       end;
 
     ctxValueHref:
