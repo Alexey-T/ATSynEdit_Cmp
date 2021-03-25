@@ -350,6 +350,7 @@ procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
 var
   Caret: TATCaretItem;
   Context: TCompletionHtmlContext;
+  EdLine: UnicodeString;
   s_word: atString;
   s_tag, s_attr, s_item, s_value,
   s_tag_bracket, s_tag_close: string;
@@ -364,6 +365,8 @@ begin
   ACharsRight:= 0;
 
   Caret:= Ed.Carets[0];
+  if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
+
   Context:= EditorGetHtmlContext(Ed,
     Caret.PosX,
     Caret.PosY,
@@ -480,6 +483,15 @@ begin
 
     ctxEntity:
       begin
+        EdLine:= Ed.Strings.Lines[Caret.PosY];
+        i:= Caret.PosX+ACharsRight+1;
+        if i<=Length(EdLine) then
+        begin
+          NextChar:= EdLine[i];
+          if NextChar=';' then
+            Inc(ACharsRight); //to replace old entity with ';'
+        end;
+
         if not Assigned(ListEntities) then
         begin
           ListEntities:= TStringList.Create;
