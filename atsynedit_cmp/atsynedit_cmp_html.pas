@@ -19,6 +19,7 @@ type
     Provider: TATHtmlProvider;
     FilenameHtmlList: string; //from CudaText: data/autocompletespec/html_list.ini
     FilenameHtmlEvents: string; //from CudaText: data/autocompletespec/html_events.ini
+    FilenameHtmlEntities: string; //from CudaText: data/autocompletespec/html_entities.ini
     FileMaskHREF: string;
     FileMaskLinkHREF: string;
     FileMaskPictures: string;
@@ -32,6 +33,7 @@ type
     PrefixValue: string;
     PrefixDir: string;
     PrefixFile: string;
+    PrefixEntity: string;
     MaxLinesPerTag: integer;
     NonWordChars: UnicodeString;
   end;
@@ -59,6 +61,7 @@ type
     ctxAttrs,
     ctxValues,
     ctxValuesQuoted,
+    ctxEntity,
     ctxValueHref,
     ctxValueLinkHref,
     ctxValueFrameSrc,
@@ -151,6 +154,7 @@ type
       out ACharsLeft, ACharsRight: integer);
   public
     Ed: TATSynEdit;
+    ListEntities: TStringList;
     constructor Create; virtual;
     destructor Destroy; override;
   end;
@@ -231,6 +235,16 @@ begin
 
   //get str before caret
   S:= Ed.Strings.LineSub(APosY, 1, APosX);
+
+  //detect HTML entity like &name;
+  if (APosX>0) and (APosX<=Ed.Strings.LinesLen[APosY]) then
+  begin
+    N:= Length(S);
+    while (N>0) and (Ord(S[N])<255) and IsCharWordA(char(Ord(S[N]))) do
+      Dec(N);
+    if (N>0) and (S[N]='&') then
+      exit(ctxEntity);
+  end;
 
   //detect char after caret and next wordchars
   N:= APosX;
@@ -464,6 +478,19 @@ begin
         end;
       end;
 
+    ctxEntity:
+      begin
+        if not Assigned(ListEntities) then
+        begin
+          ListEntities:= TStringList.Create;
+          if FileExists(CompletionOpsHtml.FilenameHtmlEntities) then
+            ListEntities.LoadFromFile(CompletionOpsHtml.FilenameHtmlEntities);
+        end;
+        for s_value in ListEntities do
+          if (StartsText(s_word, s_value)) then
+            AText+= CompletionOpsHtml.PrefixEntity+'|'+s_value+#10;
+      end;
+
     ctxValueHref:
       begin
         AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskHREF);
@@ -513,6 +540,7 @@ end;
 
 destructor TAcp.Destroy;
 begin
+  FreeAndNil(ListEntities);
   inherited;
 end;
 
@@ -561,6 +589,7 @@ begin
   if Caret.PosX=0 then
     bAddBracket:= true
   else
+  if Context<>ctxEntity then
   begin
     //check that before caret it's not bad position:
     //- someword after line start
@@ -609,6 +638,8 @@ initialization
   begin
     Provider:= nil;
     FilenameHtmlList:= '';
+    FilenameHtmlEvents:= '';
+    FilenameHtmlEntities:= '';
     FileMaskHREF:= AllFilesMask;
     FileMaskLinkHREF:= '*.css';
     FileMaskPictures:= '*.png;*.gif;*.jpg;*.jpeg;*.ico';
@@ -622,6 +653,7 @@ initialization
     PrefixValue:= 'value';
     PrefixDir:= 'folder';
     PrefixFile:= 'file';
+    PrefixEntity:= 'entity';
     MaxLinesPerTag:= 40;
     NonWordChars:= '+*=/\()[]{}<>"''.,:;~?!@#$%^&|`…'; // '-' is word char
   end;
