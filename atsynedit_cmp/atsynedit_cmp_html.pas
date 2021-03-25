@@ -240,7 +240,7 @@ begin
   if (APosX>0) and (APosX<=Ed.Strings.LinesLen[APosY]) then
   begin
     N:= Length(S);
-    while (N>0) and (Ord(S[N])<255) and IsCharWordA(char(Ord(S[N]))) do
+    while (N>0) and IsCharWordInIdentifier(S[N]) do
       Dec(N);
     if (N>0) and (S[N]='&') then
       exit(ctxEntity);
