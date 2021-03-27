@@ -12,7 +12,7 @@
     </CompilerOptions>
     <Description Value="Auto-completion for ATSynEdit. General form with listbox, and helpers for: HTML, CSS, file:///, CudaText acp files."/>
     <License Value="MPL 2.0, LGPL"/>
-    <Version Major="1" Minor="6"/>
+    <Version Major="2"/>
     <Files Count="8">
       <Item1>
         <Filename Value="atsynedit_cmp_filenames.pas"/>
