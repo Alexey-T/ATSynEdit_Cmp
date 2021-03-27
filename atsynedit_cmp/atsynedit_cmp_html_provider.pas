@@ -22,9 +22,9 @@ type
   TATHtmlBasicProvider = class(TATHtmlProvider)
   private
     ListAll: TStringList;
-    ListEvents: TStringList;
+    ListGlobals: TStringList;
   public
-    constructor Create(const AFilenameList, AFilenameEvents: string);
+    constructor Create(const AFilenameList, AFilenameGlobals: string);
     destructor Destroy; override;
     procedure GetTags(L: TStringList); override;
     procedure GetTagProps(const ATag: string; L: TStringList); override;
@@ -40,30 +40,30 @@ uses
 
 { TATHtmlBasicProvider }
 
-constructor TATHtmlBasicProvider.Create(const AFilenameList, AFilenameEvents: string);
+constructor TATHtmlBasicProvider.Create(const AFilenameList, AFilenameGlobals: string);
 var
   i: integer;
 begin
   ListAll:= TStringList.Create;
-  ListEvents:= TStringList.Create;
+  ListGlobals:= TStringList.Create;
 
   if FileExists(AFilenameList) then
     ListAll.LoadFromFile(AFilenameList);
-  if FileExists(AFilenameEvents) then
-    ListEvents.LoadFromFile(AFilenameEvents);
+  if FileExists(AFilenameGlobals) then
+    ListGlobals.LoadFromFile(AFilenameGlobals);
 
   for i:= ListAll.Count-1 downto 0 do
     if ListAll[i]='' then
       ListAll.Delete(i);
 
-  for i:= ListEvents.Count-1 downto 0 do
-    if ListEvents[i]='' then
-      ListEvents.Delete(i);
+  for i:= ListGlobals.Count-1 downto 0 do
+    if ListGlobals[i]='' then
+      ListGlobals.Delete(i);
 end;
 
 destructor TATHtmlBasicProvider.Destroy;
 begin
-  FreeAndNil(ListEvents);
+  FreeAndNil(ListGlobals);
   FreeAndNil(ListAll);
   inherited Destroy;
 end;
@@ -90,8 +90,7 @@ begin
   L.Clear;
   L.Sorted:= true;
 
-  L.Add('class');
-  L.Add('id');
+  L.AddStrings(ListGlobals);
 
   for S in ListAll do
   begin
@@ -102,10 +101,7 @@ begin
       while Sep.GetItemStr(SItem) do
       begin
         SItem:= SGetItem(SItem, '<');
-        if SItem='$e' then
-          L.AddStrings(ListEvents)
-        else
-          L.Add(SItem);
+        L.Add(SItem);
       end;
       Break;
     end;

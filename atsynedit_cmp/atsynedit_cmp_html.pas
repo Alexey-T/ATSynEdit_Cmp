@@ -18,7 +18,7 @@ type
   TATCompletionOptionsHtml = record
     Provider: TATHtmlProvider;
     FilenameHtmlList: string; //from CudaText: data/autocompletespec/html_list.ini
-    FilenameHtmlEvents: string; //from CudaText: data/autocompletespec/html_events.ini
+    FilenameHtmlGlobals: string; //from CudaText: data/autocompletespec/html_globals.ini
     FilenameHtmlEntities: string; //from CudaText: data/autocompletespec/html_entities.ini
     FileMaskHREF: string;
     FileMaskLinkHREF: string;
@@ -573,7 +573,7 @@ begin
   if CompletionOpsHtml.Provider=nil then
     CompletionOpsHtml.Provider:= TATHtmlBasicProvider.Create(
       CompletionOpsHtml.FilenameHtmlList,
-      CompletionOpsHtml.FilenameHtmlEvents);
+      CompletionOpsHtml.FilenameHtmlGlobals);
 
   if Ed.Carets.Count=0 then exit;
   Caret:= Ed.Carets[0];
@@ -651,7 +651,7 @@ initialization
   begin
     Provider:= nil;
     FilenameHtmlList:= '';
-    FilenameHtmlEvents:= '';
+    FilenameHtmlGlobals:= '';
     FilenameHtmlEntities:= '';
     FileMaskHREF:= AllFilesMask;
     FileMaskLinkHREF:= '*.css';
