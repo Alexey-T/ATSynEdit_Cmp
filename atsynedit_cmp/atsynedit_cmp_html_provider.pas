@@ -113,24 +113,33 @@ begin
 end;
 
 procedure TATHtmlBasicProvider.GetTagPropValues(const ATag, AProp: string; L: TStringList);
-var
-  SRoot, SRootKey, SRootVal, SItem, SItem2, SItemBegin, SItemEnd: string;
-  Sep, Sep2: TATStringSeparator;
-begin
-  L.Clear;
-  L.Sorted:= true;
-
-  for SRoot in ListGlobals do
+  //
+  function AddFromData(const SData: string): boolean;
+  var
+    SRootKey, SRootVal, SItem: string;
+    Sep: TATStringSeparator;
   begin
-    SSplitByChar(SRoot, '<', SRootKey, SRootVal);
+    Result:= false;
+    SSplitByChar(SData, '<', SRootKey, SRootVal);
     if SameText(AProp, SRootKey) then
     begin
       Sep.Init(SRootVal, '?');
       while Sep.GetItemStr(SItem) do
         L.Add(SItem);
-      exit;
+      exit(true);
     end;
   end;
+  //
+var
+  SRoot, SRootKey, SRootVal, SItem: string;
+  Sep: TATStringSeparator;
+begin
+  L.Clear;
+  L.Sorted:= true;
+
+  for SItem in ListGlobals do
+    if AddFromData(SItem) then
+      exit;
 
   for SRoot in ListAll do
   begin
@@ -139,16 +148,7 @@ begin
     begin
       Sep.Init(SRootVal, '|');
       while Sep.GetItemStr(SItem) do
-      begin
-        SSplitByChar(SItem, '<', SItemBegin, SItemEnd);
-        if SameText(SItemBegin, AProp) then
-        begin
-          Sep2.Init(SItemEnd, '?');
-          while Sep2.GetItemStr(SItem2) do
-            L.Add(SItem2);
-          Break;
-        end;
-      end;
+        if AddFromData(SItem) then Break;
       Break;
     end;
   end;
