@@ -90,7 +90,11 @@ begin
   L.Clear;
   L.Sorted:= true;
 
-  L.AddStrings(ListGlobals);
+  for S in ListGlobals do
+  begin
+    SSplitByChar(S, '<', SKey, SVal);
+    L.Add(SKey);
+  end;
 
   for S in ListAll do
   begin
@@ -116,12 +120,16 @@ begin
   L.Clear;
   L.Sorted:= true;
 
-  if SameText(AProp, 'dir') then
+  for SRoot in ListGlobals do
   begin
-    L.Add('ltr');
-    L.Add('rtl');
-    L.Add('auto');
-    exit;
+    SSplitByChar(SRoot, '<', SRootKey, SRootVal);
+    if SameText(AProp, SRootKey) then
+    begin
+      Sep.Init(SRootVal, '?');
+      while Sep.GetItemStr(SItem) do
+        L.Add(SItem);
+      exit;
+    end;
   end;
 
   for SRoot in ListAll do
