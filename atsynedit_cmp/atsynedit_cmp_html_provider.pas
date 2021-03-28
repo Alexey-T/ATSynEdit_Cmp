@@ -114,16 +114,16 @@ end;
 
 procedure TATHtmlBasicProvider.GetTagPropValues(const ATag, AProp: string; L: TStringList);
   //
-  function AddFromData(const SData: string): boolean;
+  function AddFromData(const AData: string): boolean;
   var
-    SRootKey, SRootVal, SItem: string;
+    SKey, SVal, SItem: string;
     Sep: TATStringSeparator;
   begin
     Result:= false;
-    SSplitByChar(SData, '<', SRootKey, SRootVal);
-    if SameText(AProp, SRootKey) then
+    SSplitByChar(AData, '<', SKey, SVal);
+    if SameText(AProp, SKey) then
     begin
-      Sep.Init(SRootVal, '?');
+      Sep.Init(SVal, '?');
       while Sep.GetItemStr(SItem) do
         L.Add(SItem);
       exit(true);
