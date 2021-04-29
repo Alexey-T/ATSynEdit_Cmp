@@ -200,6 +200,7 @@ begin
         end;
 
       Editor.Strings.TextInsert(Pos.X, Pos.Y, StrToInsert, false, Shift, PosAfter);
+      Editor.DoEventChange(Pos.Y);
 
       //adjust markers/attrs
       Editor.DoCaretsShift(i, Pos.X, Pos.Y,
