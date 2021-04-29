@@ -171,12 +171,14 @@ var
   i: integer;
 begin
   if AStr='' then exit;
+  if Editor.Carets.Count=0 then exit;
+
   Sep.Init(AStr, CompletionOps.SuffixSep);
   Sep.GetItemStr(StrText);
   Sep.GetItemStr(Str1);
   Sep.GetItemStr(Str2);
 
-  //must support carets, for HTML
+  //must support multi-carets, for HTML
   Editor.Strings.BeginUndoGroup;
   try
     for i:= 0 to Editor.Carets.Count-1 do
@@ -200,7 +202,6 @@ begin
         end;
 
       Editor.Strings.TextInsert(Pos.X, Pos.Y, StrToInsert, false, Shift, PosAfter);
-      Editor.DoEventChange(Pos.Y);
 
       //adjust markers/attrs
       Editor.DoCaretsShift(i, Pos.X, Pos.Y,
@@ -214,8 +215,8 @@ begin
     end;
   finally
     Editor.Strings.EndUndoGroup;
+    Editor.DoEventChange(Editor.Carets[0].PosY);
     Editor.Update(true);
-    Editor.DoEventChange;
   end;
 end;
 
