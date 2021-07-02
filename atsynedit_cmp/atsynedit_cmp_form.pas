@@ -513,8 +513,11 @@ end;
 
 procedure TFormATSynEditComplete.DoResult;
 var
+  Caret: TATCaretItem;
   Str: string;
+  SLine: UnicodeString;
   WithBracket: boolean;
+  iCaret: integer;
 begin
   if Assigned(FOnResult) then
     FOnResult(Self, FSnippetId, List.ItemIndex)
@@ -523,6 +526,17 @@ begin
     GetResultText(Str, WithBracket);
     DoReplaceTo(Str, WithBracket);
   end;
+
+  //for HTML: if inserted 'value=""' we must move caret lefter
+  if SEndsWith(Str, '=""') then
+    for iCaret:= 0 to Editor.Carets.Count-1 do
+    begin
+      Caret:= Editor.Carets[iCaret];
+      if not Editor.Strings.IsIndexValid(Caret.PosY) then Continue;
+      SLine:= Editor.Strings.Lines[Caret.PosY];
+      if Copy(SLine, Max(0, Caret.PosX-2), 3)='=""' then
+        Caret.PosX:= Caret.PosX-1;
+    end;
 
   if SEndsWith(Str, CompletionOps.TrailingCharToShowAgain) then
   begin

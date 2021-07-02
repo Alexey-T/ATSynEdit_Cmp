@@ -436,7 +436,7 @@ begin
         if NextChar='=' then
           s_equalchar:= ''
         else
-          s_equalchar:= '=';
+          s_equalchar:= '=""';
 
         L:= TStringList.Create;
         try
