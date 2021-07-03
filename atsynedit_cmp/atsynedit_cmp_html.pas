@@ -169,24 +169,26 @@ var
   Acp: TAcp = nil;
 
 function CompareHtmlItems(List: TStringList; Index1, Index2: Integer): Integer;
+  //
+  function GetStr(const SFrom: string): string;
+  var
+    Sep: TATStringSeparator;
+  begin
+    Sep.Init(SFrom, CompletionOps.ColumnsSep);
+    //get 2nd column
+    Sep.GetItemStr(Result);
+    Sep.GetItemStr(Result);
+    //delete from #1
+    SDeleteFrom(Result, CompletionOps.SuffixSep);
+  end;
+  //
 var
-  Sep1, Sep2: TATStringSeparator;
   LastChoices: TStringList;
-  All1, All2, S1, S2: string;
+  S1, S2: string;
   N1, N2: integer;
 begin
-  All1:= List[Index1];
-  All2:= List[Index2];
-  Sep1.Init(All1, CompletionOps.ColumnsSep);
-  Sep2.Init(All2, CompletionOps.ColumnsSep);
-  //get 2nd column
-  Sep1.GetItemStr(S1);
-  Sep1.GetItemStr(S1);
-  Sep2.GetItemStr(S2);
-  Sep2.GetItemStr(S2);
-  //delete from #1
-  SDeleteFrom(S1, CompletionOps.SuffixSep);
-  SDeleteFrom(S2, CompletionOps.SuffixSep);
+  S1:= GetStr(List[Index1]);
+  S2:= GetStr(List[Index2]);
 
   LastChoices:= Acp.LastChoices[Acp.LastContext];
   N1:= LastChoices.IndexOf(S1);
