@@ -9,6 +9,7 @@ unit ATSynEdit_Cmp_HTML;
 interface
 
 uses
+  ATStringProc_Separator,
   ATSynEdit,
   ATSynEdit_Cmp_HTML_Provider;
 
@@ -155,6 +156,9 @@ type
   public
     Ed: TATSynEdit;
     ListEntities: TStringList;
+    LastContext: TCompletionHtmlContext;
+    LastChoices: array[TCompletionHtmlContext] of string;
+    procedure DoOnChoose(Sender: TObject; const ASnippetId: string; ASnippetIndex: integer);
     constructor Create; virtual;
     destructor Destroy; override;
   end;
@@ -557,10 +561,21 @@ begin
   inherited;
 end;
 
+procedure TAcp.DoOnChoose(Sender: TObject; const ASnippetId: string;
+  ASnippetIndex: integer);
+var
+  Sep: TATStringSeparator;
+  Str: string;
+begin
+  Sep.Init(ASnippetId, CompletionOps.SuffixSep);
+  Sep.GetItemStr(Str);
+  LastChoices[LastContext]:= Str;
+end;
+
+
 procedure DoEditorCompletionHtml(Ed: TATSynEdit);
 var
   Caret: TATCaretItem;
-  Context: TCompletionHtmlContext;
   S_Tag, S_Attr, S_Value: string;
   S: atString;
   bClosing, bAddBracket: boolean;
@@ -582,7 +597,7 @@ begin
   S:= Ed.Strings.Lines[Caret.PosY];
 
   //we are inside style="..." ? call CSS completions.
-  Context:= EditorGetHtmlContext(Ed,
+  Acp.LastContext:= EditorGetHtmlContext(Ed,
     Caret.PosX,
     Caret.PosY,
     S_Tag,
@@ -590,7 +605,7 @@ begin
     S_Value,
     bClosing,
     NextChar);
-  if (Context in [ctxValues, ctxValuesQuoted]) and (S_Attr='style') then
+  if (Acp.LastContext in [ctxValues, ctxValuesQuoted]) and (S_Attr='style') then
   begin
     DoEditorCompletionCss(Ed);
     exit;
@@ -602,7 +617,7 @@ begin
   if Caret.PosX=0 then
     bAddBracket:= true
   else
-  if Context<>ctxEntity then
+  if Acp.LastContext<>ctxEntity then
   begin
     //check that before caret it's not bad position:
     //- someword after line start
@@ -638,8 +653,11 @@ begin
   end;
 
   EditorShowCompletionListbox(Ed, @Acp.DoOnGetCompleteProp,
-    nil, nil, '', 0,
-    true //allow carets in HTML like Sublime does
+    nil,
+    @Acp.DoOnChoose,
+    '',
+    0,
+    true //allow multi-carets in HTML like Sublime does
     );
 end;
 

@@ -163,6 +163,7 @@ begin
   FormComplete.SnippetId:= ASnippetId;
   FormComplete.OnGetProp:= AOnGetProp;
   FormComplete.OnResult:= AOnResult;
+  FormComplete.OnChoose:= AOnChoose;
   FormComplete.DoUpdate;
 end;
 
@@ -520,15 +521,15 @@ var
   Str: string;
   WithBracket: boolean;
 begin
-  if Assigned(FOnChoose) then
-    FOnChoose(Self, FSnippetId, List.ItemIndex);
-
   if Assigned(FOnResult) then
     FOnResult(Self, FSnippetId, List.ItemIndex)
   else
   begin
     GetResultText(Str, WithBracket);
     DoReplaceTo(Str, WithBracket);
+
+    if Assigned(FOnChoose) then
+      FOnChoose(Self, Str, List.ItemIndex);
   end;
 
   //for HTML: if inserted 'value=""' we must move caret lefter
