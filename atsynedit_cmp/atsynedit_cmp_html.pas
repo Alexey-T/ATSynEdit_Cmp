@@ -177,14 +177,16 @@ var
 begin
   All1:= List[Index1];
   All2:= List[Index2];
-  Sep1.Init(All1, '|');
-  Sep2.Init(All2, '|');
+  Sep1.Init(All1, CompletionOps.ColumnsSep);
+  Sep2.Init(All2, CompletionOps.ColumnsSep);
+  //get 2nd column
   Sep1.GetItemStr(S1);
   Sep1.GetItemStr(S1);
   Sep2.GetItemStr(S2);
   Sep2.GetItemStr(S2);
-  SDeleteFrom(S1, #1);
-  SDeleteFrom(S2, #1);
+  //delete from #1
+  SDeleteFrom(S1, CompletionOps.SuffixSep);
+  SDeleteFrom(S2, CompletionOps.SuffixSep);
 
   LastChoices:= Acp.LastChoices[Acp.LastContext];
   N1:= LastChoices.IndexOf(S1);
