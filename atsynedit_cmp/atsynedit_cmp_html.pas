@@ -154,6 +154,7 @@ type
     ListResult: TStringList;
     procedure DoOnGetCompleteProp(Sender: TObject; out AText: string;
       out ACharsLeft, ACharsRight: integer);
+    procedure InitMainLists;
   public
     Ed: TATSynEdit;
     ListEntities: TStringList;
@@ -398,6 +399,7 @@ var
   L: TStringList;
   i: integer;
 begin
+  InitMainLists;
   AText:= '';
   ACharsLeft:= 0;
   ACharsRight:= 0;
@@ -592,14 +594,22 @@ begin
 end;
 
 constructor TAcp.Create;
+begin
+  inherited;
+end;
+
+procedure TAcp.InitMainLists;
 var
   ctx: TCompletionHtmlContext;
 begin
-  inherited;
-  ListResult:= TStringList.Create;
-  ListResult.TextLineBreakStyle:= tlbsLF;
-  for ctx:= Low(ctx) to High(ctx) do
-    LastChoices[ctx]:= TStringList.Create;
+  if ListResult=nil then
+  begin
+    ListResult:= TStringList.Create;
+    ListResult.TextLineBreakStyle:= tlbsLF;
+
+    for ctx:= Low(ctx) to High(ctx) do
+      LastChoices[ctx]:= TStringList.Create;
+  end;
 end;
 
 destructor TAcp.Destroy;
@@ -607,7 +617,7 @@ var
   ctx: TCompletionHtmlContext;
 begin
   for ctx:= Low(ctx) to High(ctx) do
-    LastChoices[ctx].Free;
+    FreeAndNil(LastChoices[ctx]);
   FreeAndNil(ListResult);
   FreeAndNil(ListEntities);
   inherited;
@@ -621,6 +631,8 @@ var
   L: TStringList;
   N: integer;
 begin
+  InitMainLists;
+
   Sep.Init(ASnippetId, CompletionOps.SuffixSep);
   Sep.GetItemStr(Str);
 
