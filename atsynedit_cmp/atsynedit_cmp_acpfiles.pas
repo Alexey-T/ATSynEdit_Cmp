@@ -251,7 +251,7 @@ begin
   Acp.DoLoadAcpFile(AFilenameAcp, bPascal);
   Acp.Ed:= AEdit;
   Acp.CaseSens:= ACaseSens;
-  DoEditorCompletionListbox(AEdit, @Acp.DoOnGetCompleteProp);
+  EditorShowCompletionListbox(AEdit, @Acp.DoOnGetCompleteProp);
 end;
 
 initialization

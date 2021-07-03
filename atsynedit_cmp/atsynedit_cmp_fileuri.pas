@@ -143,7 +143,7 @@ begin
     Acp:= TAcp.Create;
   Acp.Ed:= Ed;
 
-  DoEditorCompletionListbox(Ed, @Acp.DoOnGetCompleteProp,
+  EditorShowCompletionListbox(Ed, @Acp.DoOnGetCompleteProp,
     nil, '', 0,
     false
     );

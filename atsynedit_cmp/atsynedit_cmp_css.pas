@@ -286,7 +286,7 @@ begin
       Acp.ListSel.LoadFromFile(CompletionOpsCss.FilenameCssSelectors);
   end;
 
-  DoEditorCompletionListbox(AEdit, @Acp.DoOnGetCompleteProp);
+  EditorShowCompletionListbox(AEdit, @Acp.DoOnGetCompleteProp);
 end;
 
 initialization

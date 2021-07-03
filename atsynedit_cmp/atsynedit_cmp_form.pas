@@ -34,7 +34,7 @@ type
 //e.g. 'func|Func1|(param1, param2)'+#13+'var|Var1'+#13+'var|Var2'
 //Item for text can have suffixes after #1: text+#1+suffix_before_caret+#1+suffix_after_caret
 
-procedure DoEditorCompletionListbox(AEd: TATSynEdit;
+procedure EditorShowCompletionListbox(AEd: TATSynEdit;
   AOnGetProp: TATCompletionPropEvent;
   AOnResult: TATCompletionResultEvent = nil;
   const ASnippetId: string = '';
@@ -138,7 +138,7 @@ implementation
 var
   FormComplete: TFormATSynEditComplete = nil;
 
-procedure DoEditorCompletionListbox(AEd: TATSynEdit;
+procedure EditorShowCompletionListbox(AEd: TATSynEdit;
   AOnGetProp: TATCompletionPropEvent;
   AOnResult: TATCompletionResultEvent = nil;
   const ASnippetId: string = '';
