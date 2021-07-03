@@ -8,13 +8,16 @@ unit ATSynEdit_Cmp_Filenames;
 
 interface
 
-function CalculateCompletionFilenames(const ACurDir, AText, AFileMask,
-  APrefixDir, APrefixFile: string; AddDirSlash, AURIEncode: boolean): string;
+uses Classes;
+
+procedure CalculateCompletionFilenames(AResult: TStringList;
+  const ACurDir, AText, AFileMask,
+  APrefixDir, APrefixFile: string; AddDirSlash, AURIEncode: boolean);
 
 implementation
 
 uses
-  SysUtils, Classes,
+  SysUtils,
   URIParser,
   ATStringProc,
   FileUtil;
@@ -75,8 +78,9 @@ begin
 end;
 *)
 
-function CalculateCompletionFilenames(const ACurDir, AText, AFileMask,
-  APrefixDir, APrefixFile: string; AddDirSlash, AURIEncode: boolean): string;
+procedure CalculateCompletionFilenames(AResult: TStringList;
+  const ACurDir, AText, AFileMask,
+  APrefixDir, APrefixFile: string; AddDirSlash, AURIEncode: boolean);
   //
   function MaybeEscape(const S: string): string;
   begin
@@ -91,8 +95,9 @@ var
   FinderFiles: TFileSearcher;
   L: TStringList;
   SDirName, SFileName, SItem, SItemShort: string;
+  SRes: string;
 begin
-  Result:= '';
+  AResult.Clear;
   if (AText<>'') and not IsValueFilename(AText) then exit;
   if ACurDir='' then exit;
 
@@ -115,10 +120,10 @@ begin
       SItemShort:= ExtractFileName(SItem);
       if (SFileName='') or SBeginsWith(SItemShort, SFileName) then
       begin
-        Result+= APrefixDir+'|'+MaybeEscape(SItemShort);
+        SRes:= APrefixDir+'|'+MaybeEscape(SItemShort);
         if AddDirSlash then
-          Result+= '/';
-        Result+= #10;
+          SRes+= '/';
+        AResult.Add(SRes);
       end;
     end;
 
@@ -131,7 +136,7 @@ begin
     begin
       SItemShort:= ExtractFileName(SItem);
       if (SFileName='') or SBeginsWith(SItemShort, SFileName) then
-        Result+= APrefixFile+'|'+MaybeEscape(SItemShort)+#10;
+        AResult.Add(APrefixFile+'|'+MaybeEscape(SItemShort));
     end;
   finally
     FreeAndNil(L);

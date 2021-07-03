@@ -107,10 +107,11 @@ begin
   Result:= true;
 end;
 
-procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
-  ACharsLeft, ACharsRight: integer);
+procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string;
+  out ACharsLeft, ACharsRight: integer);
 var
   SFileName: string;
+  ListRes: TStringList;
 begin
   if not GetContext(Ed, SFileName, ACharsLeft, ACharsRight) then
   begin
@@ -120,15 +121,22 @@ begin
     exit;
   end;
 
-  AText:= CalculateCompletionFilenames(
-    ExtractFileDir(SFileName),
-    ExtractFileName(SFileName),
-    AllFilesMask,
-    CompletionOpsFile.PrefixDir,
-    CompletionOpsFile.PrefixFile,
-    true, //bAddSlash
-    true
-    );
+  ListRes:= TStringList.Create;
+  try
+    ListRes.TextLineBreakStyle:= tlbsLF;
+    CalculateCompletionFilenames(ListRes,
+      ExtractFileDir(SFileName),
+      ExtractFileName(SFileName),
+      AllFilesMask,
+      CompletionOpsFile.PrefixDir,
+      CompletionOpsFile.PrefixFile,
+      true, //bAddSlash
+      true
+      );
+    AText:= ListRes.Text;
+  finally
+    ListRes.Free;
+  end;
 end;
 
 function DoEditorCompletionFileURI(Ed: TATSynEdit): boolean;

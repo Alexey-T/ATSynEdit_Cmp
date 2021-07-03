@@ -151,6 +151,7 @@ type
 
   TAcp = class
   private
+    ListResult: TStringList;
     procedure DoOnGetCompleteProp(Sender: TObject; out AText: string;
       out ACharsLeft, ACharsRight: integer);
   public
@@ -335,12 +336,12 @@ end;
 procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
   ACharsLeft, ACharsRight: integer);
   //
-  function GetFileNames(const AText, AFileMask: string): string;
+  procedure GetFileNames(AResult: TStringList; const AText, AFileMask: string);
   var
     bAddSlash: boolean;
   begin
     EditorGetDistanceToQuotes(Ed, ACharsLeft, ACharsRight, bAddSlash);
-    Result:= CalculateCompletionFilenames(
+    CalculateCompletionFilenames(AResult,
       ExtractFileDir(Ed.FileName),
       AText,
       AFileMask,
@@ -367,6 +368,7 @@ begin
   AText:= '';
   ACharsLeft:= 0;
   ACharsRight:= 0;
+  ListResult.Clear;
 
   Caret:= Ed.Carets[0];
   if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
@@ -428,7 +430,8 @@ begin
               ok:= StartsText(s_word, s_item);
               if not ok then Continue;
             end;
-            AText+= CompletionOpsHtml.PrefixTag+'|'+s_item+#10;
+
+            ListResult.Add(CompletionOpsHtml.PrefixTag+'|'+s_item);
           end;
         finally
           FreeAndNil(L);
@@ -454,7 +457,8 @@ begin
               ok:= StartsText(s_word, s_item);
               if not ok then Continue;
             end;
-            AText+= s_tag+' '+CompletionOpsHtml.PrefixAttrib+'|'+s_item+#1+s_equalchar+#10;
+
+            ListResult.Add(s_tag+' '+CompletionOpsHtml.PrefixAttrib+'|'+s_item+#1+s_equalchar);
           end;
         finally
           FreeAndNil(L);
@@ -479,7 +483,7 @@ begin
         try
           CompletionOpsHtml.Provider.GetTagPropValues(s_tag, s_attr, L);
           for s_value in L do
-            AText+= s_attr+' '+CompletionOpsHtml.PrefixValue+'|'+s_quote+s_value+s_quote+#1+s_space+#10;
+            ListResult.Add(s_attr+' '+CompletionOpsHtml.PrefixValue+'|'+s_quote+s_value+s_quote+#1+s_space);
         finally
           FreeAndNil(L);
         end;
@@ -505,58 +509,63 @@ begin
 
         for s_value in ListEntities do
           if StartsText(s_word, s_value) then //case insensitive
-            AText+= CompletionOpsHtml.PrefixEntity+'|'+s_value+';'+#10;
+            ListResult.Add(CompletionOpsHtml.PrefixEntity+'|'+s_value+';');
       end;
 
     ctxValueHref:
       begin
-        AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskHREF);
+        GetFileNames(ListResult, s_value, CompletionOpsHtml.FileMaskHREF);
       end;
 
     ctxValueLinkHref:
       begin
-        AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskLinkHREF);
+        GetFileNames(ListResult, s_value, CompletionOpsHtml.FileMaskLinkHREF);
       end;
 
     ctxValueScriptSrc:
       begin
-        AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskScript);
+        GetFileNames(ListResult, s_value, CompletionOpsHtml.FileMaskScript);
       end;
 
     ctxValueFrameSrc:
       begin
-        AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskFrame);
+        GetFileNames(ListResult, s_value, CompletionOpsHtml.FileMaskFrame);
       end;
 
     ctxValueImageSrc:
       begin
-        AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskPictures);
+        GetFileNames(ListResult, s_value, CompletionOpsHtml.FileMaskPictures);
       end;
 
     ctxValueAudioSrc:
       begin
-        AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskAudio);
+        GetFileNames(ListResult, s_value, CompletionOpsHtml.FileMaskAudio);
       end;
 
     ctxValueVideoSrc:
       begin
-        AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskVideo);
+        GetFileNames(ListResult, s_value, CompletionOpsHtml.FileMaskVideo);
       end;
 
     ctxValueSourceSrc:
       begin
-        AText:= GetFileNames(s_value, CompletionOpsHtml.FileMaskSomeSrc);
+        GetFileNames(ListResult, s_value, CompletionOpsHtml.FileMaskSomeSrc);
       end;
   end;
+
+  AText:= ListResult.Text;
 end;
 
 constructor TAcp.Create;
 begin
   inherited;
+  ListResult:= TStringList.Create;
+  ListResult.TextLineBreakStyle:= tlbsLF;
 end;
 
 destructor TAcp.Destroy;
 begin
+  FreeAndNil(ListResult);
   FreeAndNil(ListEntities);
   inherited;
 end;
