@@ -37,6 +37,7 @@ type
 procedure EditorShowCompletionListbox(AEd: TATSynEdit;
   AOnGetProp: TATCompletionPropEvent;
   AOnResult: TATCompletionResultEvent = nil;
+  AOnChoose: TATCompletionResultEvent = nil;
   const ASnippetId: string = '';
   ASelectedIndex: integer = 0;
   AAllowCarets: boolean = false);
@@ -66,6 +67,7 @@ type
     SList: TStringlist;
     FOnGetProp: TATCompletionPropEvent;
     FOnResult: TATCompletionResultEvent;
+    FOnChoose: TATCompletionResultEvent;
     FEdit: TATSynEdit;
     FCharsLeft,
     FCharsRight: integer;
@@ -89,6 +91,7 @@ type
     property Editor: TATSynEdit read FEdit write FEdit;
     property OnGetProp: TATCompletionPropEvent read FOnGetProp write FOnGetProp;
     property OnResult: TATCompletionResultEvent read FOnResult write FOnResult;
+    property OnChoose: TATCompletionResultEvent read FOnChoose write FOnChoose;
     property SnippetId: string read FSnippetId write FSnippetId;
     property SelectedIndex: integer read FSelectedIndex write FSelectedIndex;
   end;
@@ -141,6 +144,7 @@ var
 procedure EditorShowCompletionListbox(AEd: TATSynEdit;
   AOnGetProp: TATCompletionPropEvent;
   AOnResult: TATCompletionResultEvent = nil;
+  AOnChoose: TATCompletionResultEvent = nil;
   const ASnippetId: string = '';
   ASelectedIndex: integer = 0;
   AAllowCarets: boolean = false);
@@ -516,6 +520,9 @@ var
   Str: string;
   WithBracket: boolean;
 begin
+  if Assigned(FOnChoose) then
+    FOnChoose(Self, FSnippetId, List.ItemIndex);
+
   if Assigned(FOnResult) then
     FOnResult(Self, FSnippetId, List.ItemIndex)
   else

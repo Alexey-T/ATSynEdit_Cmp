@@ -638,7 +638,7 @@ begin
   end;
 
   EditorShowCompletionListbox(Ed, @Acp.DoOnGetCompleteProp,
-    nil, '', 0,
+    nil, nil, '', 0,
     true //allow carets in HTML like Sublime does
     );
 end;

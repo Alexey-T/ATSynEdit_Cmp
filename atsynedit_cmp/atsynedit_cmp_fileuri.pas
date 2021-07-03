@@ -144,7 +144,7 @@ begin
   Acp.Ed:= Ed;
 
   EditorShowCompletionListbox(Ed, @Acp.DoOnGetCompleteProp,
-    nil, '', 0,
+    nil, nil, '', 0,
     false
     );
 end;
