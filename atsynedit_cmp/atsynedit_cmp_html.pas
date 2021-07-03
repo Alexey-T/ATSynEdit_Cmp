@@ -158,7 +158,7 @@ type
     Ed: TATSynEdit;
     ListEntities: TStringList;
     LastContext: TCompletionHtmlContext;
-    LastChoices: array[TCompletionHtmlContext] of string;
+    LastChoices: array[TCompletionHtmlContext] of TStringList;
     procedure DoOnChoose(Sender: TObject; const ASnippetId: string; ASnippetIndex: integer);
     constructor Create; virtual;
     destructor Destroy; override;
@@ -166,6 +166,39 @@ type
 
 var
   Acp: TAcp = nil;
+
+function CompareHtmlItems(List: TStringList; Index1, Index2: Integer): Integer;
+var
+  Sep1, Sep2: TATStringSeparator;
+  LastChoices: TStringList;
+  All1, All2, S1, S2: string;
+  N1, N2: integer;
+begin
+  All1:= List[Index1];
+  All2:= List[Index2];
+  Sep1.Init(All1, '|');
+  Sep2.Init(All2, '|');
+  Sep1.GetItemStr(S1);
+  Sep1.GetItemStr(S1);
+  Sep2.GetItemStr(S2);
+  Sep2.GetItemStr(S2);
+  SDeleteFrom(S1, #1);
+  SDeleteFrom(S2, #1);
+
+  LastChoices:= Acp.LastChoices[Acp.LastContext];
+  N1:= LastChoices.IndexOf(S1);
+  N2:= LastChoices.IndexOf(S2);
+
+  if (N1>=0) and (N2>=0) then
+    exit(N1-N2);
+
+  if (N1>=0) then
+    exit(-1);
+  if (N2>=0) then
+    exit(1);
+
+  Result:= strcomp(PChar(S1), PChar(S2));
+end;
 
 function SFindRegex(const SText, SRegex: string; NGroup: integer): string;
 var
@@ -553,18 +586,28 @@ begin
       end;
   end;
 
+  ListResult.CustomSort(@CompareHtmlItems);
+
   AText:= ListResult.Text;
 end;
 
 constructor TAcp.Create;
+var
+  ctx: TCompletionHtmlContext;
 begin
   inherited;
   ListResult:= TStringList.Create;
   ListResult.TextLineBreakStyle:= tlbsLF;
+  for ctx:= Low(ctx) to High(ctx) do
+    LastChoices[ctx]:= TStringList.Create;
 end;
 
 destructor TAcp.Destroy;
+var
+  ctx: TCompletionHtmlContext;
 begin
+  for ctx:= Low(ctx) to High(ctx) do
+    LastChoices[ctx].Free;
   FreeAndNil(ListResult);
   FreeAndNil(ListEntities);
   inherited;
@@ -575,10 +618,17 @@ procedure TAcp.DoOnChoose(Sender: TObject; const ASnippetId: string;
 var
   Sep: TATStringSeparator;
   Str: string;
+  L: TStringList;
+  N: integer;
 begin
   Sep.Init(ASnippetId, CompletionOps.SuffixSep);
   Sep.GetItemStr(Str);
-  LastChoices[LastContext]:= Str;
+
+  L:= LastChoices[LastContext];
+  N:= L.IndexOf(Str);
+  if N>=0 then
+    L.Delete(N);
+  L.Insert(0, Str);
 end;
 
 
