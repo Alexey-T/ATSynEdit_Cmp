@@ -556,9 +556,11 @@ begin
     FOnGetProp(Editor, SList, FCharsLeft, FCharsRight);
 
   if SList.Count=0 then
-    begin Close; exit end;
+  begin
+    Close;
+    exit
+  end;
 
-  if SList.Count=0 then exit;
   if SList.Count=1 then
     if CompletionOps.CommitIfSingleItem then
     begin
