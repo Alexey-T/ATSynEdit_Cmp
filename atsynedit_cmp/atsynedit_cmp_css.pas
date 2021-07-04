@@ -45,7 +45,7 @@ type
   TAcp = class
   private
     ListSel: TStringList; //CSS at-rules (@) and pseudo elements (:)
-    procedure DoOnGetCompleteProp(Sender: TObject; out AText: string;
+    procedure DoOnGetCompleteProp(Sender: TObject; AContent: TStringList;
       out ACharsLeft, ACharsRight: integer);
   public
     Ed: TATSynEdit;
@@ -150,8 +150,8 @@ end;
 
 { TAcp }
 
-procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
-  ACharsLeft, ACharsRight: integer);
+procedure TAcp.DoOnGetCompleteProp(Sender: TObject;
+  AContent: TStringList; out ACharsLeft, ACharsRight: integer);
 var
   Caret: TATCaretItem;
   L: TStringList;
@@ -160,7 +160,7 @@ var
   context: TCompletionCssContext;
   ok: boolean;
 begin
-  AText:= '';
+  AContent.Clear;
   ACharsLeft:= 0;
   ACharsRight:= 0;
   Caret:= Ed.Carets[0];
@@ -200,7 +200,7 @@ begin
             else
               s_valsuffix:= ''; //CompletionOps.SuffixSep+' ';
 
-            AText:= AText+CompletionOpsCss.PrefixProp+' "'+s_tag+'"|'+s_val+s_valsuffix+#10;
+            AContent.Add(CompletionOpsCss.PrefixProp+' "'+s_tag+'"|'+s_val+s_valsuffix);
           end;
         finally
           FreeAndNil(L);
@@ -228,7 +228,7 @@ begin
               if not ok then Continue;
             end;
 
-            AText:= AText+CompletionOpsCss.PrefixProp+'|'+s_item+#1': '#10;
+            AContent.Add(CompletionOpsCss.PrefixProp+'|'+s_item+#1': ');
           end;
         finally
           FreeAndNil(L);
@@ -250,7 +250,7 @@ begin
         for s_item in ListSel do
         begin
           if (s_tag='') or StartsText(s_tag, s_item) then
-            AText+= s_val+'|'+s_item+#10;
+            AContent.Add(s_val+'|'+s_item);
         end;
       end;
   end;

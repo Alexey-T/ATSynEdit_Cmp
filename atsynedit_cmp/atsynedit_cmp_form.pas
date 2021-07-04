@@ -23,7 +23,7 @@ uses
 
 type
   TATCompletionPropEvent = procedure (Sender: TObject;
-    out AText: string; out ACharsLeft, ACharsRight: integer) of object;
+    AContent: TStringList; out ACharsLeft, ACharsRight: integer) of object;
   TATCompletionResultEvent = procedure (Sender: TObject;
     const ASnippetId: string; ASnippetIndex: integer) of object;
 
@@ -230,6 +230,7 @@ end;
 procedure TFormATSynEditComplete.FormCreate(Sender: TObject);
 begin
   SList:= TStringList.Create;
+  SList.TextLineBreakStyle:= tlbsLF;
   FHintWnd:= THintWindow.Create(Self);
 end;
 
@@ -546,18 +547,17 @@ end;
 
 procedure TFormATSynEditComplete.DoUpdate;
 var
-  AText: string;
   P: TPoint;
   RectMon: TRect;
   NewY: integer;
 begin
+  SList.Clear;
   if Assigned(FOnGetProp) then
-    FOnGetProp(Editor, AText, FCharsLeft, FCharsRight);
+    FOnGetProp(Editor, SList, FCharsLeft, FCharsRight);
 
-  if (AText='') then
+  if SList.Count=0 then
     begin Close; exit end;
 
-  SList.Text:= AText;
   if SList.Count=0 then exit;
   if SList.Count=1 then
     if CompletionOps.CommitIfSingleItem then

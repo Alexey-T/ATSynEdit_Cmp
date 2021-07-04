@@ -34,7 +34,7 @@ type
     FLexerWordChars: string;
     procedure DoLoadAcpFile(const fn: string; IsPascal: boolean);
     procedure DoOnGetCompleteProp(Sender: TObject;
-      out AText: string;
+      AContent: TStringList;
       out ACharsLeft, ACharsRight: integer);
     function GetActualNonWordChars: UnicodeString;
   public
@@ -183,8 +183,8 @@ begin
     SDeleteOneChar(Result, FLexerWordChars[i]);
 end;
 
-procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
-  ACharsLeft, ACharsRight: integer);
+procedure TAcp.DoOnGetCompleteProp(Sender: TObject;
+  AContent: TStringList; out ACharsLeft, ACharsRight: integer);
 var
   Caret: TATCaretItem;
   s_word_w: atString;
@@ -192,10 +192,9 @@ var
   n: integer;
   ok: boolean;
 begin
-  AText:= '';
+  AContent.Clear;
   ACharsLeft:= 0;
   ACharsRight:= 0;
-
 
   Caret:= Ed.Carets[0];
   EditorGetCurrentWord(Ed,
@@ -221,7 +220,7 @@ begin
       if not ok then Continue;
     end;
 
-    AText:= AText+s_type+'|'+s_text+'|'+s_desc+#13;
+    AContent.Add(s_type+'|'+s_text+'|'+s_desc);
   end;
 end;
 

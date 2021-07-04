@@ -152,7 +152,8 @@ type
   TAcp = class
   private
     ListResult: TStringList;
-    procedure DoOnGetCompleteProp(Sender: TObject; out AText: string;
+    procedure DoOnGetCompleteProp(Sender: TObject;
+      AContent: TStringList;
       out ACharsLeft, ACharsRight: integer);
     procedure InitMainLists;
   public
@@ -371,8 +372,8 @@ end;
 
 { TAcp }
 
-procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string; out
-  ACharsLeft, ACharsRight: integer);
+procedure TAcp.DoOnGetCompleteProp(Sender: TObject;
+  AContent: TStringList; out ACharsLeft, ACharsRight: integer);
   //
   procedure GetFileNames(AResult: TStringList; const AText, AFileMask: string);
   var
@@ -404,7 +405,7 @@ var
   i: integer;
 begin
   InitMainLists;
-  AText:= '';
+  AContent.Clear;
   ACharsLeft:= 0;
   ACharsRight:= 0;
   ListResult.Clear;
@@ -593,8 +594,7 @@ begin
   end;
 
   ListResult.CustomSort(@CompareHtmlItems);
-
-  AText:= ListResult.Text;
+  AContent.Assign(ListResult);
 end;
 
 constructor TAcp.Create;

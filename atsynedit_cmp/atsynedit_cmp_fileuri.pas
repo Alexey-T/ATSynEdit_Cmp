@@ -49,7 +49,8 @@ type
 
   TAcp = class
   private
-    procedure DoOnGetCompleteProp(Sender: TObject; out AText: string;
+    procedure DoOnGetCompleteProp(Sender: TObject;
+      AContent: TStringList;
       out ACharsLeft, ACharsRight: integer);
   public
     Ed: TATSynEdit;
@@ -107,36 +108,28 @@ begin
   Result:= true;
 end;
 
-procedure TAcp.DoOnGetCompleteProp(Sender: TObject; out AText: string;
+procedure TAcp.DoOnGetCompleteProp(Sender: TObject;
+  AContent: TStringList;
   out ACharsLeft, ACharsRight: integer);
 var
   SFileName: string;
-  ListRes: TStringList;
 begin
-  if not GetContext(Ed, SFileName, ACharsLeft, ACharsRight) then
-  begin
-    AText:= '';
-    ACharsLeft:= 0;
-    ACharsRight:= 0;
-    exit;
-  end;
+  AContent.Clear;
+  ACharsLeft:= 0;
+  ACharsRight:= 0;
 
-  ListRes:= TStringList.Create;
-  try
-    ListRes.TextLineBreakStyle:= tlbsLF;
-    CalculateCompletionFilenames(ListRes,
-      ExtractFileDir(SFileName),
-      ExtractFileName(SFileName),
-      AllFilesMask,
-      CompletionOpsFile.PrefixDir,
-      CompletionOpsFile.PrefixFile,
-      true, //bAddSlash
-      true
-      );
-    AText:= ListRes.Text;
-  finally
-    ListRes.Free;
-  end;
+  if not GetContext(Ed, SFileName, ACharsLeft, ACharsRight) then
+    exit;
+
+  CalculateCompletionFilenames(AContent,
+    ExtractFileDir(SFileName),
+    ExtractFileName(SFileName),
+    AllFilesMask,
+    CompletionOpsFile.PrefixDir,
+    CompletionOpsFile.PrefixFile,
+    true, //bAddSlash
+    true
+    );
 end;
 
 function DoEditorCompletionFileURI(Ed: TATSynEdit): boolean;
