@@ -25,6 +25,9 @@ type
     PrefixPseudo: string;
     LinesToLookup: integer;
     NonWordChars: UnicodeString;
+    FileMaskPictures: string;
+    PrefixDir: string;
+    PrefixFile: string;
   end;
 
 var
@@ -37,6 +40,7 @@ uses
   StrUtils, Math,
   ATSynEdit_Carets,
   ATSynEdit_RegExpr,
+  ATSynEdit_Cmp_Filenames,
   ATSynEdit_Cmp_Form;
 
 type
@@ -61,8 +65,8 @@ type
     CtxNone,
     CtxPropertyName,
     CtxPropertyValue,
-    CtxURI,
-    CtxSelectors
+    CtxSelectors,
+    CtxURI
     );
 
 function SFindRegex(const SText, SRegex: UnicodeString; NGroup: integer): string;
@@ -166,10 +170,72 @@ begin
   end;
 end;
 
+function IsQuoteRight(ch: WideChar): boolean; inline;
+begin
+  case ch of
+    '"', '''', ')':
+      Result:= true;
+    else
+      Result:= false;
+  end;
+end;
+
+function IsQuoteLeftOrSlash(ch: WideChar): boolean; inline;
+begin
+  case ch of
+    '"', '''', '/', '\', '(':
+      Result:= true;
+    else
+      Result:= false;
+  end;
+end;
+
+procedure EditorGetDistanceToQuotes(Ed: TATSynEdit; out ALeft, ARight: integer; out AAddSlash: boolean);
+var
+  Caret: TATCaretItem;
+  S: UnicodeString;
+  Len, X, i: integer;
+begin
+  ALeft:= 0;
+  ARight:= 0;
+  AAddSlash:= true;
+
+  Caret:= Ed.Carets[0];
+  if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
+  S:= Ed.Strings.Lines[Caret.PosY];
+  Len:= Length(S);
+  X:= Caret.PosX+1;
+
+  i:= X;
+  while (i<=Len) and not IsQuoteRight(S[i]) do Inc(i);
+  ARight:= i-X;
+
+  i:= X;
+  while (i>1) and (i<=Len) and not IsQuoteLeftOrSlash(S[i-1]) do Dec(i);
+  ALeft:= Max(0, X-i);
+end;
+
 { TAcp }
 
 procedure TAcp.DoOnGetCompleteProp(Sender: TObject;
   AContent: TStringList; out ACharsLeft, ACharsRight: integer);
+  //
+  procedure GetFileNames(AResult: TStringList; const AText, AFileMask: string);
+  var
+    bAddSlash: boolean;
+  begin
+    EditorGetDistanceToQuotes(Ed, ACharsLeft, ACharsRight, bAddSlash);
+    CalculateCompletionFilenames(AResult,
+      ExtractFileDir(Ed.FileName),
+      AText,
+      AFileMask,
+      CompletionOpsCss.PrefixDir,
+      CompletionOpsCss.PrefixFile,
+      bAddSlash,
+      false
+      );
+  end;
+  //
 var
   Caret: TATCaretItem;
   L: TStringList;
@@ -271,6 +337,11 @@ begin
             AContent.Add(s_val+'|'+s_item);
         end;
       end;
+
+    CtxURI:
+      begin
+        GetFileNames(AContent, s_tag, CompletionOpsCss.FileMaskPictures);
+      end;
   end;
 end;
 
@@ -322,6 +393,9 @@ initialization
     PrefixPseudo:= 'pseudo';
     LinesToLookup:= 50;
     NonWordChars:= '#!@.{};''"<>'; //don't include ':'
+    FileMaskPictures:= '*.png;*.gif;*.jpg;*.jpeg;*.ico';
+    PrefixDir:= 'folder';
+    PrefixFile:= 'file';
   end;
 
 finalization
