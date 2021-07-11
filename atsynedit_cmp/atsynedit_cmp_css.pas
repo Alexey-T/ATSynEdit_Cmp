@@ -61,6 +61,7 @@ type
     CtxNone,
     CtxPropertyName,
     CtxPropertyValue,
+    CtxURI,
     CtxSelectors
     );
 
@@ -116,13 +117,30 @@ const
   cRegexAtRule = '(@[a-z\-]*)$';
   cRegexSelectors = '\w+(:+[a-z\-]*)$';
   cRegexGroup = 1; //group 1 in (..)
+  cRegexUri = 'url\(\s*[''"]?(' + '[\w\.,/~@!=\-]*' + ')$';
 var
-  S: UnicodeString;
+  S, S2: UnicodeString;
+  NPos: integer;
 begin
   AContext:= CtxNone;
   ATag:= '';
 
   S:= Ed.Strings.LineSub(APosY, 1, APosX);
+
+  NPos:= RPos(' url(', S);
+  if NPos=0 then
+    NPos:= RPos(':url(', S);
+  if NPos>0 then
+  begin
+    S2:= Copy(S, NPos+1, MaxInt);
+    S2:= SFindRegex(S2, cRegexUri, 1);
+    if S2<>'' then
+    begin
+      AContext:= CtxURI;
+      ATag:= S2;
+      exit;
+    end;
+  end;
 
   ATag:= SFindRegex(S, cRegexAtRule, cRegexGroup);
   if ATag<>'' then
