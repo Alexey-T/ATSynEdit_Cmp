@@ -23,11 +23,11 @@ type
     PrefixProp: string;
     PrefixAtRule: string;
     PrefixPseudo: string;
+    PrefixDir: string;
+    PrefixFile: string;
     LinesToLookup: integer;
     NonWordChars: UnicodeString;
     FileMaskPictures: string;
-    PrefixDir: string;
-    PrefixFile: string;
   end;
 
 var
@@ -391,11 +391,11 @@ initialization
     PrefixProp:= 'css';
     PrefixAtRule:= 'at-rule';
     PrefixPseudo:= 'pseudo';
+    PrefixDir:= 'folder';
+    PrefixFile:= 'file';
     LinesToLookup:= 50;
     NonWordChars:= '#!@.{};''"<>'; //don't include ':'
     FileMaskPictures:= '*.png;*.gif;*.jpg;*.jpeg;*.ico';
-    PrefixDir:= 'folder';
-    PrefixFile:= 'file';
   end;
 
 finalization
