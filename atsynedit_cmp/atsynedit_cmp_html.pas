@@ -648,15 +648,53 @@ begin
 end;
 
 
+function EditorCompletionNeedsLeadingAngleBracket(Ed: TATSynEdit;
+  const S: UnicodeString;
+  const AX, AY: integer): boolean;
+var
+  ch: WideChar;
+  i: integer;
+begin
+  Result:= false;
+  if AX>Length(S) then exit;
+  if AX=0 then
+    Result:= true
+  else
+  if Acp.LastContext<>ctxEntity then
+  begin
+    //check that before caret it's not bad position:
+    //- someword after line start
+    //- someword after ">"
+    i:= AX;
+    if (i>0) and (i<=Length(S)) and IsCharWordA(S[i]) then
+    begin
+      while (i>0) and IsCharWordA(S[i]) do Dec(i);
+      if i=0 then exit;
+      if S[i]='>' then exit;
+    end;
+
+    //check nearest non-space char lefter than caret
+    i:= AX;
+    while (i>0) and (S[i]=' ') do Dec(i);
+    if i>0 then
+    begin
+      ch:= S[i];
+      if (Pos(ch, '<="''/:.-,')=0) and not IsCharWord(ch, cDefaultNonWordChars) then
+        Result:= true;
+    end
+    else
+      Result:= true;
+  end;
+end;
+
+
 procedure DoEditorCompletionHtml(Ed: TATSynEdit);
 var
   Caret: TATCaretItem;
   S_Tag, S_Attr, S_Value: string;
   S: atString;
-  bClosing, bAddBracket: boolean;
+  bClosing: boolean;
   NextChar: char;
-  ch: WideChar;
-  i: integer;
 begin
   Acp.Ed:= Ed;
 
@@ -686,39 +724,8 @@ begin
     exit;
   end;
 
-  //bAddBracket: insert missing '<' if completion was called without it
-  bAddBracket:= false;
-  if Caret.PosX>Length(S) then exit;
-  if Caret.PosX=0 then
-    bAddBracket:= true
-  else
-  if Acp.LastContext<>ctxEntity then
-  begin
-    //check that before caret it's not bad position:
-    //- someword after line start
-    //- someword after ">"
-    i:= Caret.PosX;
-    if (i>0) and (i<=Length(S)) and IsCharWordA(S[i]) then
-    begin
-      while (i>0) and IsCharWordA(S[i]) do Dec(i);
-      if i=0 then exit;
-      if S[i]='>' then exit;
-    end;
-
-    //check nearest non-space char lefter than caret
-    i:= Caret.PosX;
-    while (i>0) and (S[i]=' ') do Dec(i);
-    if i>0 then
-    begin
-      ch:= S[i];
-      if (Pos(ch, '<="''/:.-,')=0) and not IsCharWord(ch, cDefaultNonWordChars) then
-        bAddBracket:= true;
-    end
-    else
-      bAddBracket:= true;
-  end;
-
-  if bAddBracket then
+  //insert missing '<' if completion was called without it?
+  if EditorCompletionNeedsLeadingAngleBracket(Ed, S, Caret.PosX, Caret.PosY) then
   begin
     Insert('<', S, Caret.PosX+1);
     Ed.Strings.Lines[Caret.PosY]:= S;
