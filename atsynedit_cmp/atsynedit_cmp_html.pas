@@ -782,10 +782,13 @@ begin
     exit;
   end;
 
-  SetLength(Acp.NeedBracketX, 0);
-  EditorCompletionNeedsLeadingAngleBracketEx(Ed, Acp.NeedBracketX);
-  if Length(Acp.NeedBracketX)>0 then
-    Acp.ApplyNeedBracketX;
+  if Acp.LastContext=ctxTags then
+  begin
+    SetLength(Acp.NeedBracketX, 0);
+    EditorCompletionNeedsLeadingAngleBracketEx(Ed, Acp.NeedBracketX);
+    if Length(Acp.NeedBracketX)>0 then
+      Acp.ApplyNeedBracketX;
+  end;
 
   { //needs testing
   else
