@@ -44,6 +44,8 @@ uses
   ATSynEdit_Cmp_Form;
 
 type
+  TQuoteKind = (qkNone, qkSingle, qkDouble);
+
   { TAcp }
 
   TAcp = class
@@ -112,7 +114,7 @@ begin
 end;
 
 procedure EditorGetCssContext(Ed: TATSynEdit; APosX, APosY: integer;
-  out AContext: TCompletionCssContext; out ATag: string);
+  out AContext: TCompletionCssContext; out ATag: string; out AQuoteKind: TQuoteKind);
 const
   //char class for all chars in css values
   cRegexChars = '[''"\w\s\.,:/~&%@!=\#\$\^\-\+\(\)\?]';
@@ -121,27 +123,38 @@ const
   cRegexAtRule = '(@[a-z\-]*)$';
   cRegexSelectors = '\w+(:+[a-z\-]*)$';
   cRegexGroup = 1; //group 1 in (..)
-  cRegexUri = 'url\(\s*[''"]?(' + '[\w\.,/~@!=\-]*' + ')$';
+  cRegexUri = 'url\(\s*([''"]?)(' + '[\w\.,/~@!=\-]*' + ')$';
 var
-  S, S2: UnicodeString;
+  S, S2, SQuote: UnicodeString;
   NPos: integer;
 begin
   AContext:= CtxNone;
   ATag:= '';
+  AQuoteKind:= qkDouble;
 
   S:= Ed.Strings.LineSub(APosY, 1, APosX);
 
+  //detect 'url()' context
   NPos:= RPos(' url(', S);
   if NPos=0 then
     NPos:= RPos(':url(', S);
   if NPos>0 then
   begin
     S2:= Copy(S, NPos+1, MaxInt);
-    S2:= SFindRegex(S2, cRegexUri, 1);
-    if S2<>'' then
+    ATag:= SFindRegex(S2, cRegexUri, 2);
+    if ATag<>'' then
     begin
       AContext:= CtxURI;
-      ATag:= S2;
+
+      SQuote:= SFindRegex(S2, cRegexUri, 1);
+      if SQuote='''' then
+        AQuoteKind:= qkSingle
+      else
+      if SQuote='"' then
+        AQuoteKind:= qkDouble
+      else
+        AQuoteKind:= qkNone;
+
       exit;
     end;
   end;
@@ -170,27 +183,57 @@ begin
   end;
 end;
 
-function IsQuoteRight(ch: WideChar): boolean; inline;
+function IsQuoteRight(QuoteKind: TQuoteKind; ch: WideChar): boolean; inline;
 begin
   case ch of
-    '"', '''', ')':
+    '"':
+      begin
+        if QuoteKind=qkDouble then
+          Result:= true;
+      end;
+    '''':
+      begin
+        if QuoteKind=qkSingle then
+          Result:= true;
+      end;
+    ')':
+      begin
+        if QuoteKind=qkNone then
+          Result:= true;
+      end;
+    else
+      Result:= false;
+  end;
+end;
+
+function IsQuoteLeftOrSlash(QuoteKind: TQuoteKind; ch: WideChar): boolean; inline;
+begin
+  case ch of
+    '"':
+      begin
+        if QuoteKind=qkDouble then
+          Result:= true;
+      end;
+    '''':
+      begin
+        if QuoteKind=qkSingle then
+          Result:= true;
+      end;
+    '(':
+      begin
+        if QuoteKind=qkNone then
+          Result:= true;
+      end;
+    '/':
       Result:= true;
     else
       Result:= false;
   end;
 end;
 
-function IsQuoteLeftOrSlash(ch: WideChar): boolean; inline;
-begin
-  case ch of
-    '"', '''', '/', '\', '(':
-      Result:= true;
-    else
-      Result:= false;
-  end;
-end;
-
-procedure EditorGetDistanceToQuotes(Ed: TATSynEdit; out ALeft, ARight: integer; out AAddSlash: boolean);
+procedure EditorGetDistanceToQuotes(Ed: TATSynEdit;
+  AQuoteKind: TQuoteKind;
+  out ALeft, ARight: integer);
 var
   Caret: TATCaretItem;
   S: UnicodeString;
@@ -198,7 +241,6 @@ var
 begin
   ALeft:= 0;
   ARight:= 0;
-  AAddSlash:= true;
 
   Caret:= Ed.Carets[0];
   if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
@@ -207,11 +249,11 @@ begin
   X:= Caret.PosX+1;
 
   i:= X;
-  while (i<=Len) and not IsQuoteRight(S[i]) do Inc(i);
+  while (i<=Len) and not IsQuoteRight(AQuoteKind, S[i]) do Inc(i);
   ARight:= i-X;
 
   i:= X;
-  while (i>1) and (i<=Len) and not IsQuoteLeftOrSlash(S[i-1]) do Dec(i);
+  while (i>1) and (i<=Len) and not IsQuoteLeftOrSlash(AQuoteKind, S[i-1]) do Dec(i);
   ALeft:= Max(0, X-i);
 end;
 
@@ -220,18 +262,16 @@ end;
 procedure TAcp.DoOnGetCompleteProp(Sender: TObject;
   AContent: TStringList; out ACharsLeft, ACharsRight: integer);
   //
-  procedure GetFileNames(AResult: TStringList; const AText, AFileMask: string);
-  var
-    bAddSlash: boolean;
+  procedure GetFileNames(AResult: TStringList; AQuoteKind: TQuoteKind; const AText, AFileMask: string);
   begin
-    EditorGetDistanceToQuotes(Ed, ACharsLeft, ACharsRight, bAddSlash);
+    EditorGetDistanceToQuotes(Ed, AQuoteKind, ACharsLeft, ACharsRight);
     CalculateCompletionFilenames(AResult,
       ExtractFileDir(Ed.FileName),
       AText,
       AFileMask,
       CompletionOpsCss.PrefixDir,
       CompletionOpsCss.PrefixFile,
-      bAddSlash,
+      true, //AddSlash
       false
       );
   end;
@@ -242,6 +282,7 @@ var
   s_word: UnicodeString;
   s_tag, s_item, s_val, s_valsuffix: string;
   context: TCompletionCssContext;
+  quote: TQuoteKind;
   ok: boolean;
 begin
   AContent.Clear;
@@ -249,7 +290,7 @@ begin
   ACharsRight:= 0;
   Caret:= Ed.Carets[0];
 
-  EditorGetCssContext(Ed, Caret.PosX, Caret.PosY, context, s_tag);
+  EditorGetCssContext(Ed, Caret.PosX, Caret.PosY, context, s_tag, quote);
 
   EditorGetCurrentWord(Ed,
     Caret.PosX, Caret.PosY,
@@ -340,7 +381,7 @@ begin
 
     CtxURI:
       begin
-        GetFileNames(AContent, s_tag, CompletionOpsCss.FileMaskPictures);
+        GetFileNames(AContent, quote, s_tag, CompletionOpsCss.FileMaskPictures);
       end;
   end;
 end;
