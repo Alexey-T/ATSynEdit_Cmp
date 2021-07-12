@@ -27,7 +27,7 @@ type
     PrefixFile: string;
     LinesToLookup: integer;
     NonWordChars: UnicodeString;
-    FileMaskPictures: string;
+    FileMaskURL: string;
   end;
 
 var
@@ -383,7 +383,7 @@ begin
 
     CtxUrl:
       begin
-        GetFileNames(AContent, quote, s_tag, CompletionOpsCss.FileMaskPictures);
+        GetFileNames(AContent, quote, s_tag, CompletionOpsCss.FileMaskURL);
       end;
   end;
 end;
@@ -438,7 +438,7 @@ initialization
     PrefixFile:= 'file';
     LinesToLookup:= 50;
     NonWordChars:= '#!@.{};''"<>'; //don't include ':'
-    FileMaskPictures:= '*.png;*.gif;*.jpg;*.jpeg;*.ico';
+    FileMaskURL:= '*.png;*.gif;*.jpg;*.jpeg;*.ico;*.cur;*.svg;*.woff;*.css';
   end;
 
 finalization
