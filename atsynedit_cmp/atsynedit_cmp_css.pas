@@ -123,6 +123,8 @@ const
   cRegexAtRule = '(@[a-z\-]*)$';
   cRegexSelectors = '\w+(:+[a-z\-]*)$';
   cRegexGroup = 1; //group 1 in (..)
+
+  //group 1: quote char, group 2: URL text
   cRegexUrl = 'url\(\s*([''"]?)(' + '[\w\.,/~@!=\-\(\)\[\]]*' + ')$';
 var
   S, S2, SQuote: UnicodeString;
