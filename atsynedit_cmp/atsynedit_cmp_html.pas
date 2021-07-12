@@ -766,7 +766,6 @@ begin
   if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
   S:= Ed.Strings.Lines[Caret.PosY];
 
-  //we are inside style="..." ? call CSS completions.
   Acp.LastContext:= EditorGetHtmlContext(Ed,
     Caret.PosX,
     Caret.PosY,
@@ -775,6 +774,8 @@ begin
     S_Value,
     bClosing,
     NextChar);
+
+  //we are inside style="..." ? call CSS completions.
   if (Acp.LastContext in [ctxValues, ctxValuesQuoted]) and (S_Attr='style') then
   begin
     DoEditorCompletionCss(Ed);
