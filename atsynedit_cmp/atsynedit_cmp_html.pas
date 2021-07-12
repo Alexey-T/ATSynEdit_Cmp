@@ -152,9 +152,11 @@ type
   TAcp = class
   private
     ListResult: TStringList;
+    NeedBracketX: integer;
     procedure DoOnGetCompleteProp(Sender: TObject;
       AContent: TStringList;
       out ACharsLeft, ACharsRight: integer);
+    procedure HandleNeedLeadBracket;
     procedure InitMainLists;
   public
     Ed: TATSynEdit;
@@ -645,6 +647,47 @@ begin
   if N>=0 then
     L.Delete(N);
   L.Insert(0, Str);
+
+  HandleNeedLeadBracket;
+end;
+
+procedure TAcp.HandleNeedLeadBracket;
+var
+  Caret: TATCaretItem;
+  SLine: UnicodeString;
+  iCaret: integer;
+begin
+  if NeedBracketX=0 then exit;
+
+  for iCaret:= Ed.Carets.Count-1 downto 0 do
+  begin
+    Caret:= Ed.Carets[iCaret];
+    if Ed.Strings.IsIndexValid(Caret.PosY) then
+    begin
+      SLine:= Ed.Strings.Lines[Caret.PosY];
+      Insert('<', SLine, Caret.PosX-NeedBracketX);
+      Ed.Strings.Lines[Caret.PosY]:= SLine;
+      Caret.PosX:= Caret.PosX+1;
+    end;
+  end;
+
+  Ed.DoEventChange(Ed.Carets[0].PosY);
+  Ed.Update(true);
+end;
+
+
+procedure EditorCompletionNeedsLeadingAngleBracket2(Ed: TATSynEdit;
+  AX, AY: integer;
+  var NeedBracketX: integer);
+var
+  S: UnicodeString;
+begin
+  S:= Ed.Strings.Lines[AY];
+  if AX>Length(S) then exit;
+  while (AX>0) and IsCharWordA(S[AX]) do Dec(AX);
+  if AX=0 then exit;
+  if IsCharSpace(S[AX]) then
+    NeedBracketX:= Ed.Carets[0].PosX-AX;
 end;
 
 
@@ -697,6 +740,7 @@ var
   NextChar: char;
 begin
   Acp.Ed:= Ed;
+  Acp.NeedBracketX:= 0;
 
   if CompletionOpsHtml.Provider=nil then
     CompletionOpsHtml.Provider:= TATHtmlBasicProvider.Create(
@@ -723,6 +767,8 @@ begin
     DoEditorCompletionCss(Ed);
     exit;
   end;
+
+  EditorCompletionNeedsLeadingAngleBracket2(Ed, Caret.PosX, Caret.PosY, Acp.NeedBracketX);
 
   //insert missing '<' if completion was called without it?
   if EditorCompletionNeedsLeadingAngleBracket(Ed, S, Caret.PosX, Caret.PosY) then
