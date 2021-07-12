@@ -144,21 +144,18 @@ begin
   begin
     S2:= Copy(S, NPos+1, MaxInt);
     ATag:= SFindRegex(S2, cRegexUrl, 2);
-    if ATag<>'' then
-    begin
-      AContext:= CtxUrl;
+    AContext:= CtxUrl;
 
-      SQuote:= SFindRegex(S2, cRegexUrl, 1);
-      if SQuote='''' then
-        AQuoteKind:= qkSingle
-      else
-      if SQuote='"' then
-        AQuoteKind:= qkDouble
-      else
-        AQuoteKind:= qkNone;
+    SQuote:= SFindRegex(S2, cRegexUrl, 1);
+    if SQuote='''' then
+      AQuoteKind:= qkSingle
+    else
+    if SQuote='"' then
+      AQuoteKind:= qkDouble
+    else
+      AQuoteKind:= qkNone;
 
-      exit;
-    end;
+    exit;
   end;
 
   ATag:= SFindRegex(S, cRegexAtRule, cRegexGroup);
