@@ -147,16 +147,19 @@ begin
 end;
 
 type
+  TAcpIntegerArray = array of integer;
+
+type
   { TAcp }
 
   TAcp = class
   private
     ListResult: TStringList;
-    NeedBracketX: integer;
+    NeedBracketX: TAcpIntegerArray;
     procedure DoOnGetCompleteProp(Sender: TObject;
       AContent: TStringList;
       out ACharsLeft, ACharsRight: integer);
-    procedure HandleNeedLeadBracket;
+    procedure ApplyNeedBracketX;
     procedure InitMainLists;
   public
     Ed: TATSynEdit;
@@ -647,25 +650,24 @@ begin
   if N>=0 then
     L.Delete(N);
   L.Insert(0, Str);
-
-  HandleNeedLeadBracket;
 end;
 
-procedure TAcp.HandleNeedLeadBracket;
+procedure TAcp.ApplyNeedBracketX;
 var
   Caret: TATCaretItem;
   SLine: UnicodeString;
   iCaret: integer;
 begin
-  if NeedBracketX=0 then exit;
+  if Length(NeedBracketX)=0 then exit;
 
   for iCaret:= Ed.Carets.Count-1 downto 0 do
   begin
     Caret:= Ed.Carets[iCaret];
+    if NeedBracketX[iCaret]<0 then Continue;
     if Ed.Strings.IsIndexValid(Caret.PosY) then
     begin
       SLine:= Ed.Strings.Lines[Caret.PosY];
-      Insert('<', SLine, Caret.PosX-NeedBracketX);
+      Insert('<', SLine, NeedBracketX[iCaret]+1);
       Ed.Strings.Lines[Caret.PosY]:= SLine;
       Caret.PosX:= Caret.PosX+1;
     end;
@@ -676,18 +678,30 @@ begin
 end;
 
 
-procedure EditorCompletionNeedsLeadingAngleBracket2(Ed: TATSynEdit;
-  AX, AY: integer;
-  var NeedBracketX: integer);
+procedure EditorCompletionNeedsLeadingAngleBracketEx(Ed: TATSynEdit; var NeedBracketX: TAcpIntegerArray);
 var
+  Caret: TATCaretItem;
+  iCaret: integer;
   S: UnicodeString;
+  X: integer;
 begin
-  S:= Ed.Strings.Lines[AY];
-  if AX>Length(S) then exit;
-  while (AX>0) and IsCharWordA(S[AX]) do Dec(AX);
-  if AX=0 then exit;
-  if IsCharSpace(S[AX]) then
-    NeedBracketX:= Ed.Carets[0].PosX-AX;
+  SetLength(NeedBracketX, Ed.Carets.Count);
+  for iCaret:= 0 to Ed.Carets.Count-1 do
+  begin
+    NeedBracketX[iCaret]:= -1;
+    Caret:= Ed.Carets[iCaret];
+    if not Ed.Strings.IsIndexValid(Caret.PosY) then Continue;
+    S:= Ed.Strings.Lines[Caret.PosY];
+    if Caret.PosX>Length(S) then Continue;
+    X:= Caret.PosX;
+    if not IsCharWordA(S[X]) then Continue;
+    while (X>0) and IsCharWordA(S[X]) do Dec(X);
+    if X=0 then
+      NeedBracketX[iCaret]:= 0
+    else
+    if IsCharSpace(S[X]) then
+      NeedBracketX[iCaret]:= X;
+  end;
 end;
 
 
@@ -740,7 +754,6 @@ var
   NextChar: char;
 begin
   Acp.Ed:= Ed;
-  Acp.NeedBracketX:= 0;
 
   if CompletionOpsHtml.Provider=nil then
     CompletionOpsHtml.Provider:= TATHtmlBasicProvider.Create(
@@ -768,17 +781,23 @@ begin
     exit;
   end;
 
-  EditorCompletionNeedsLeadingAngleBracket2(Ed, Caret.PosX, Caret.PosY, Acp.NeedBracketX);
+  SetLength(Acp.NeedBracketX, 0);
+  EditorCompletionNeedsLeadingAngleBracketEx(Ed, Acp.NeedBracketX);
+  if Length(Acp.NeedBracketX)>0 then
+    Acp.ApplyNeedBracketX;
 
-  //insert missing '<' if completion was called without it?
-  if EditorCompletionNeedsLeadingAngleBracket(Ed, S, Caret.PosX, Caret.PosY) then
-  begin
-    Insert('<', S, Caret.PosX+1);
-    Ed.Strings.Lines[Caret.PosY]:= S;
-    Caret.PosX:= Caret.PosX+1;
-    Ed.Update(true);
-    Ed.DoEventChange;
-  end;
+  { //needs testing
+  else
+    //insert missing '<' if completion was called without it?
+    if EditorCompletionNeedsLeadingAngleBracket(Ed, S, Caret.PosX, Caret.PosY) then
+    begin
+      Insert('<', S, Caret.PosX+1);
+      Ed.Strings.Lines[Caret.PosY]:= S;
+      Caret.PosX:= Caret.PosX+1;
+      Ed.Update(true);
+      Ed.DoEventChange;
+    end;
+    }
 
   EditorShowCompletionListbox(Ed, @Acp.DoOnGetCompleteProp,
     nil,
