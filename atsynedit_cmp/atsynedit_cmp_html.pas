@@ -699,7 +699,7 @@ begin
     if X=0 then
       NeedBracketX[iCaret]:= 0
     else
-    if IsCharSpace(S[X]) then
+    if IsCharSpace(S[X]) or (S[X]='>') then
       NeedBracketX[iCaret]:= X;
   end;
 end;
