@@ -68,7 +68,7 @@ type
     CtxPropertyName,
     CtxPropertyValue,
     CtxSelectors,
-    CtxURI
+    CtxUrl
     );
 
 function SFindRegex(const SText, SRegex: UnicodeString; NGroup: integer): string;
@@ -123,7 +123,7 @@ const
   cRegexAtRule = '(@[a-z\-]*)$';
   cRegexSelectors = '\w+(:+[a-z\-]*)$';
   cRegexGroup = 1; //group 1 in (..)
-  cRegexUri = 'url\(\s*([''"]?)(' + '[\w\.,/~@!=\-]*' + ')$';
+  cRegexUrl = 'url\(\s*([''"]?)(' + '[\w\.,/~@!=\-\(\)\[\]]*' + ')$';
 var
   S, S2, SQuote: UnicodeString;
   NPos: integer;
@@ -141,12 +141,12 @@ begin
   if NPos>0 then
   begin
     S2:= Copy(S, NPos+1, MaxInt);
-    ATag:= SFindRegex(S2, cRegexUri, 2);
+    ATag:= SFindRegex(S2, cRegexUrl, 2);
     if ATag<>'' then
     begin
-      AContext:= CtxURI;
+      AContext:= CtxUrl;
 
-      SQuote:= SFindRegex(S2, cRegexUri, 1);
+      SQuote:= SFindRegex(S2, cRegexUrl, 1);
       if SQuote='''' then
         AQuoteKind:= qkSingle
       else
@@ -379,7 +379,7 @@ begin
         end;
       end;
 
-    CtxURI:
+    CtxUrl:
       begin
         GetFileNames(AContent, quote, s_tag, CompletionOpsCss.FileMaskPictures);
       end;
