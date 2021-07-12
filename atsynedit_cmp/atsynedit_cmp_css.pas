@@ -127,7 +127,8 @@ const
   //group 1: quote char, group 2: URL text
   cRegexUrl = 'url\(\s*([''"]?)(' + '[\w\.,/~@!=\-\(\)\[\]]*' + ')$';
 var
-  S, S2, SQuote: UnicodeString;
+  S, S2: UnicodeString;
+  SQuote: string;
   NPos: integer;
 begin
   AContext:= CtxNone;
@@ -142,11 +143,11 @@ begin
     NPos:= RPos(':url(', S);
   if NPos>0 then
   begin
+    AContext:= CtxUrl;
     S2:= Copy(S, NPos+1, MaxInt);
     ATag:= SFindRegex(S2, cRegexUrl, 2);
-    AContext:= CtxUrl;
-
     SQuote:= SFindRegex(S2, cRegexUrl, 1);
+
     if SQuote='''' then
       AQuoteKind:= qkSingle
     else
