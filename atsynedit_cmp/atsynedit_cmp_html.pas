@@ -678,29 +678,31 @@ begin
 end;
 
 
-procedure EditorCompletionNeedsLeadingAngleBracketEx(Ed: TATSynEdit; var NeedBracketX: TAcpIntegerArray);
+procedure EditorCompletionNeedsLeadBracket(Ed: TATSynEdit; var Res: TAcpIntegerArray);
 var
   Caret: TATCaretItem;
   iCaret: integer;
   S: UnicodeString;
   X: integer;
 begin
-  SetLength(NeedBracketX, Ed.Carets.Count);
+  SetLength(Res, Ed.Carets.Count);
   for iCaret:= 0 to Ed.Carets.Count-1 do
   begin
-    NeedBracketX[iCaret]:= -1;
+    Res[iCaret]:= -1;
     Caret:= Ed.Carets[iCaret];
     if not Ed.Strings.IsIndexValid(Caret.PosY) then Continue;
     S:= Ed.Strings.Lines[Caret.PosY];
-    if Caret.PosX>Length(S) then Continue;
+    if Length(S)=0 then Continue;
     X:= Caret.PosX;
+    if X<=0 then Continue;
+    if X>Length(S) then Continue;
     if not IsCharWordA(S[X]) then Continue;
     while (X>0) and IsCharWordA(S[X]) do Dec(X);
     if X=0 then
-      NeedBracketX[iCaret]:= 0
+      Res[iCaret]:= 0
     else
     if IsCharSpace(S[X]) or (S[X]='>') then
-      NeedBracketX[iCaret]:= X;
+      Res[iCaret]:= X;
   end;
 end;
 
@@ -783,7 +785,7 @@ begin
   SetLength(Acp.NeedBracketX, 0);
   if Acp.LastContext=ctxTags then
   begin
-    EditorCompletionNeedsLeadingAngleBracketEx(Ed, Acp.NeedBracketX);
+    EditorCompletionNeedsLeadBracket(Ed, Acp.NeedBracketX);
     if Length(Acp.NeedBracketX)>0 then
     begin
       Acp.ApplyNeedBracketX;
