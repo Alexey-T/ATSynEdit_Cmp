@@ -670,6 +670,7 @@ begin
       Insert('<', SLine, NeedBracketX[iCaret]+1);
       Ed.Strings.Lines[Caret.PosY]:= SLine;
       Caret.PosX:= Caret.PosX+1;
+      Ed.DoCaretsShift(iCaret+1, Caret.PosX, Caret.PosY, 1, 0, Point(0, 0));
     end;
   end;
 
