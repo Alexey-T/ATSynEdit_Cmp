@@ -658,7 +658,7 @@ var
   SLine: UnicodeString;
   iCaret: integer;
 begin
-  if Length(NeedBracketX)=0 then exit;
+  if Length(NeedBracketX)<Ed.Carets.Count then exit;
 
   for iCaret:= Ed.Carets.Count-1 downto 0 do
   begin
@@ -704,7 +704,8 @@ begin
   end;
 end;
 
-
+//TODO: delete this func
+(*
 function EditorCompletionNeedsLeadingAngleBracket(Ed: TATSynEdit;
   const S: UnicodeString;
   const AX, AY: integer): boolean;
@@ -743,13 +744,12 @@ begin
       Result:= true;
   end;
 end;
-
+*)
 
 procedure DoEditorCompletionHtml(Ed: TATSynEdit);
 var
   Caret: TATCaretItem;
   S_Tag, S_Attr, S_Value: string;
-  S: atString;
   bClosing: boolean;
   NextChar: char;
 begin
@@ -762,9 +762,7 @@ begin
 
   if Ed.Carets.Count=0 then exit;
   Caret:= Ed.Carets[0];
-
   if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
-  S:= Ed.Strings.Lines[Caret.PosY];
 
   Acp.LastContext:= EditorGetHtmlContext(Ed,
     Caret.PosX,
@@ -782,15 +780,18 @@ begin
     exit;
   end;
 
+  SetLength(Acp.NeedBracketX, 0);
   if Acp.LastContext=ctxTags then
   begin
-    SetLength(Acp.NeedBracketX, 0);
     EditorCompletionNeedsLeadingAngleBracketEx(Ed, Acp.NeedBracketX);
     if Length(Acp.NeedBracketX)>0 then
+    begin
       Acp.ApplyNeedBracketX;
+      SetLength(Acp.NeedBracketX, 0);
+    end;
   end;
 
-  { //needs testing
+  { //TODO: delete this
   else
     //insert missing '<' if completion was called without it?
     if EditorCompletionNeedsLeadingAngleBracket(Ed, S, Caret.PosX, Caret.PosY) then
