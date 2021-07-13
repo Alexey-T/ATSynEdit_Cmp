@@ -650,6 +650,8 @@ begin
   if N>=0 then
     L.Delete(N);
   L.Insert(0, Str);
+
+  Acp.ApplyNeedBracketX;
 end;
 
 procedure TAcp.ApplyNeedBracketX;
@@ -676,6 +678,8 @@ begin
 
   Ed.DoEventChange(Ed.Carets[0].PosY);
   Ed.Update(true);
+
+  SetLength(NeedBracketX, 0);
 end;
 
 
@@ -785,14 +789,7 @@ begin
 
   SetLength(Acp.NeedBracketX, 0);
   if Acp.LastContext=ctxTags then
-  begin
     EditorCompletionNeedsLeadBracket(Ed, Acp.NeedBracketX);
-    if Length(Acp.NeedBracketX)>0 then
-    begin
-      Acp.ApplyNeedBracketX;
-      SetLength(Acp.NeedBracketX, 0);
-    end;
-  end;
 
   { //TODO: delete this
   else
