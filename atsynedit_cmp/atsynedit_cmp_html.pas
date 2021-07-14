@@ -43,6 +43,7 @@ type
     PrefixEntity: string;
     MaxLinesPerTag: integer;
     NonWordChars: UnicodeString;
+    procedure InitProvider;
     function IsValidTag(const S: string; PartialAllowed: boolean): boolean;
   end;
 
@@ -388,6 +389,12 @@ end;
 
 { TATCompletionOptionsHtml }
 
+procedure TATCompletionOptionsHtml.InitProvider;
+begin
+  if Provider=nil then
+    Provider:= TATHtmlBasicProvider.Create(FilenameHtmlList, FilenameHtmlGlobals);
+end;
+
 function TATCompletionOptionsHtml.IsValidTag(const S: string; PartialAllowed: boolean): boolean;
 var
   i: integer;
@@ -396,7 +403,11 @@ begin
   if S='' then exit;
 
   if Provider=nil then
-    raise Exception.Create('HTML tags provider not inited');
+  begin
+    InitProvider;
+    if Provider=nil then
+      raise Exception.Create('HTML tags provider not inited');
+  end;
 
   if ListOfTags=nil then
   begin
@@ -801,11 +812,7 @@ var
   NextChar: char;
 begin
   Acp.Ed:= Ed;
-
-  if CompletionOpsHtml.Provider=nil then
-    CompletionOpsHtml.Provider:= TATHtmlBasicProvider.Create(
-      CompletionOpsHtml.FilenameHtmlList,
-      CompletionOpsHtml.FilenameHtmlGlobals);
+  CompletionOpsHtml.InitProvider;
 
   if Ed.Carets.Count=0 then exit;
   Caret:= Ed.Carets[0];
