@@ -5,6 +5,7 @@ License: MPL 2.0 or LGPL
 unit ATSynEdit_Cmp_HTML;
 
 {$mode objfpc}{$H+}
+{$ModeSwitch advancedrecords}
 
 interface
 
@@ -17,6 +18,9 @@ uses
 procedure DoEditorCompletionHtml(Ed: TATSynEdit);
 
 type
+
+  { TATCompletionOptionsHtml }
+
   TATCompletionOptionsHtml = record
     Provider: TATHtmlProvider;
     ListOfTags: TStringList;
@@ -39,6 +43,7 @@ type
     PrefixEntity: string;
     MaxLinesPerTag: integer;
     NonWordChars: UnicodeString;
+    function IsValidTag(const S: string; PartialAllowed: boolean): boolean;
   end;
 
 var
@@ -253,25 +258,6 @@ begin
 end;
 
 
-function IsValidTagStart(const S: string): boolean;
-var
-  L: TStringList;
-  i: integer;
-begin
-  Result:= false;
-  if S='' then exit;
-
-  L:= CompletionOpsHtml.ListOfTags;
-  if L.Find(S, i) then
-    exit(true);
-
-  //some tag begins with S?
-  for i:= 0 to L.Count-1 do
-    if strlicomp(PChar(S), PChar(L[i]), Length(S))=0 then
-      exit(true);
-end;
-
-
 function EditorGetHtmlContext(Ed: TATSynedit;
   APosX, APosY: integer;
   out ATagName, AAttrName, AValueStr: string;
@@ -346,7 +332,7 @@ begin
   Delete(S, 1, N);
 
   ATagName:= LowerCase(SFindRegex(S, cRegexTagClose, cGroupTagClose));
-  bTagValid:= IsValidTagStart(ATagName);
+  bTagValid:= CompletionOpsHtml.IsValidTag(ATagName, true);
   if bTagValid then
   begin
     ATagClosing:= true;
@@ -354,12 +340,12 @@ begin
   end;
 
   ATagName:= LowerCase(SFindRegex(S, cRegexTagOnly, cGroupTagOnly));
-  bTagValid:= IsValidTagStart(ATagName);
+  bTagValid:= CompletionOpsHtml.IsValidTag(ATagName, true);
   if bTagValid then
     exit(ctxTags);
 
   ATagName:= LowerCase(SFindRegex(S, cRegexTagPart, cGroupTagPart));
-  bTagValid:= IsValidTagStart(ATagName);
+  bTagValid:= CompletionOpsHtml.IsValidTag(ATagName, true);
   if bTagValid then
   begin
     AAttrName:= LowerCase(SFindRegex(S, cRegexAttr, cGroupAttr));
@@ -398,6 +384,35 @@ begin
     else
       Result:= ctxAttrs;
   end;
+end;
+
+{ TATCompletionOptionsHtml }
+
+function TATCompletionOptionsHtml.IsValidTag(const S: string; PartialAllowed: boolean): boolean;
+var
+  i: integer;
+begin
+  Result:= false;
+  if S='' then exit;
+
+  if Provider=nil then
+    raise Exception.Create('HTML tags provider not inited');
+
+  if ListOfTags=nil then
+  begin
+    ListOfTags:= TStringList.Create;
+    ListOfTags.Sorted:= true;
+    ListOfTags.CaseSensitive:= false;
+    Provider.GetTags(ListOfTags);
+  end;
+
+  if ListOfTags.Find(S, i) then
+    exit(true);
+
+  if PartialAllowed then
+    for i:= 0 to ListOfTags.Count-1 do
+      if strlicomp(PChar(S), PChar(ListOfTags[i]), Length(S))=0 then
+        exit(true);
 end;
 
 { TAcp }
@@ -791,15 +806,6 @@ begin
     CompletionOpsHtml.Provider:= TATHtmlBasicProvider.Create(
       CompletionOpsHtml.FilenameHtmlList,
       CompletionOpsHtml.FilenameHtmlGlobals);
-
-  with CompletionOpsHtml do
-    if ListOfTags=nil then
-    begin
-      ListOfTags:= TStringList.Create;
-      ListOfTags.Sorted:= true;
-      ListOfTags.CaseSensitive:= false;
-      Provider.GetTags(ListOfTags);
-    end;
 
   if Ed.Carets.Count=0 then exit;
   Caret:= Ed.Carets[0];
