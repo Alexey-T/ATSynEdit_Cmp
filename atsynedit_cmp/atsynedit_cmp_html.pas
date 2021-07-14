@@ -22,8 +22,10 @@ type
   { TATCompletionOptionsHtml }
 
   TATCompletionOptionsHtml = record
-    Provider: TATHtmlProvider;
+  private
     ListOfTags: TStringList;
+  public
+    Provider: TATHtmlProvider;
     FilenameHtmlList: string; //from CudaText: data/autocompletespec/html_list.ini
     FilenameHtmlGlobals: string; //from CudaText: data/autocompletespec/html_globals.ini
     FilenameHtmlEntities: string; //from CudaText: data/autocompletespec/html_entities.ini
