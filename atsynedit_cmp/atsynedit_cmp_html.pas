@@ -9,6 +9,7 @@ unit ATSynEdit_Cmp_HTML;
 interface
 
 uses
+  Classes,
   ATStringProc_Separator,
   ATSynEdit,
   ATSynEdit_Cmp_HTML_Provider;
@@ -18,6 +19,7 @@ procedure DoEditorCompletionHtml(Ed: TATSynEdit);
 type
   TATCompletionOptionsHtml = record
     Provider: TATHtmlProvider;
+    ListOfTags: TStringList;
     FilenameHtmlList: string; //from CudaText: data/autocompletespec/html_list.ini
     FilenameHtmlGlobals: string; //from CudaText: data/autocompletespec/html_globals.ini
     FilenameHtmlEntities: string; //from CudaText: data/autocompletespec/html_entities.ini
@@ -45,7 +47,7 @@ var
 implementation
 
 uses
-  SysUtils, Classes, Graphics, StrUtils,
+  SysUtils, Graphics, StrUtils,
   ATStringProc,
   ATSynEdit_Carets,
   ATSynEdit_RegExpr,
@@ -250,6 +252,26 @@ begin
     end;
 end;
 
+
+function IsValidTagStart(const S: string): boolean;
+var
+  L: TStringList;
+  i: integer;
+begin
+  Result:= false;
+  if S='' then exit;
+
+  L:= CompletionOpsHtml.ListOfTags;
+  if L.Find(S, i) then
+    exit(true);
+
+  //some tag begins with S?
+  for i:= 0 to L.Count-1 do
+    if strlicomp(PChar(S), PChar(L[i]), Length(S))=0 then
+      exit(true);
+end;
+
+
 function EditorGetHtmlContext(Ed: TATSynedit;
   APosX, APosY: integer;
   out ATagName, AAttrName, AValueStr: string;
@@ -259,7 +281,7 @@ const
   //regex to catch tag name at line start
   cRegexTagPart = '^\w+\b';
   cRegexTagOnly = '^\w*$';
-  cRegexTagClose = '^/\w*$';
+  cRegexTagClose = '^/(\w*)$';
   //character class for all chars inside quotes
   cRegexChars = '[\s\w,\.:;\-\+\*\?=\(\)\[\]\{\}/\\\|~`\^\$&%\#@!\n]';
   //regex to catch attrib name, followed by "=" and not-closed quote, only at line end
@@ -268,11 +290,12 @@ const
   //regex group
   cGroupTagPart = 0;
   cGroupTagOnly = 0;
-  cGroupTagClose = 0;
+  cGroupTagClose = 1;
   cGroupAttr = 1;
 var
   S: UnicodeString;
   NPrev, N: integer;
+  bTagValid: boolean;
   ch: WideChar;
 begin
   ATagName:= '';
@@ -281,6 +304,7 @@ begin
   ATagClosing:= false;
   ACharAfter:= ' ';
   Result:= ctxNone;
+  bTagValid:= false;
 
   //get str before caret
   S:= Ed.Strings.LineSub(APosY, 1, APosX);
@@ -322,18 +346,21 @@ begin
   Delete(S, 1, N);
 
   ATagName:= LowerCase(SFindRegex(S, cRegexTagClose, cGroupTagClose));
-  if ATagName<>'' then
+  bTagValid:= IsValidTagStart(ATagName);
+  if bTagValid then
   begin
     ATagClosing:= true;
     exit(ctxTags);
   end;
 
   ATagName:= LowerCase(SFindRegex(S, cRegexTagOnly, cGroupTagOnly));
-  if ATagName<>'' then
+  bTagValid:= IsValidTagStart(ATagName);
+  if bTagValid then
     exit(ctxTags);
 
   ATagName:= LowerCase(SFindRegex(S, cRegexTagPart, cGroupTagPart));
-  if ATagName<>'' then
+  bTagValid:= IsValidTagStart(ATagName);
+  if bTagValid then
   begin
     AAttrName:= LowerCase(SFindRegex(S, cRegexAttr, cGroupAttr));
     if AAttrName<>'' then
@@ -370,9 +397,7 @@ begin
     end
     else
       Result:= ctxAttrs;
-  end
-  else
-    Result:= ctxTags;
+  end;
 end;
 
 { TAcp }
@@ -767,6 +792,15 @@ begin
       CompletionOpsHtml.FilenameHtmlList,
       CompletionOpsHtml.FilenameHtmlGlobals);
 
+  with CompletionOpsHtml do
+    if ListOfTags=nil then
+    begin
+      ListOfTags:= TStringList.Create;
+      ListOfTags.Sorted:= true;
+      ListOfTags.CaseSensitive:= false;
+      Provider.GetTags(ListOfTags);
+    end;
+
   if Ed.Carets.Count=0 then exit;
   Caret:= Ed.Carets[0];
   if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
@@ -820,6 +854,7 @@ initialization
   with CompletionOpsHtml do
   begin
     Provider:= nil;
+    ListOfTags:= nil;
     FilenameHtmlList:= '';
     FilenameHtmlGlobals:= '';
     FilenameHtmlEntities:= '';
@@ -844,8 +879,12 @@ initialization
 finalization
 
   with CompletionOpsHtml do
+  begin
+    if Assigned(ListOfTags) then
+      FreeAndNil(ListOfTags);
     if Assigned(Provider) then
       FreeAndNil(Provider);
+  end;
 
   FreeAndNil(Acp);
 
