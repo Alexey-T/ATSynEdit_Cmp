@@ -46,6 +46,7 @@ uses
 type
   TQuoteKind = (qkNone, qkSingle, qkDouble);
 
+type
   { TAcp }
 
   TAcp = class
@@ -53,6 +54,7 @@ type
     ListSel: TStringList; //CSS at-rules (@) and pseudo elements (:)
     procedure DoOnGetCompleteProp(Sender: TObject; AContent: TStringList;
       out ACharsLeft, ACharsRight: integer);
+    procedure DoOnChoose(Sender: TObject; const ASnippetId: string; ASnippetIndex: integer);
   public
     Ed: TATSynEdit;
     constructor Create; virtual;
@@ -386,6 +388,25 @@ begin
   end;
 end;
 
+procedure TAcp.DoOnChoose(Sender: TObject; const ASnippetId: string;
+  ASnippetIndex: integer);
+var
+  Caret: TATCaretItem;
+  S: UnicodeString;
+begin
+  Caret:= Ed.Carets[0];
+  if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
+  S:= Ed.Strings.Lines[Caret.PosY];
+  if S='' then exit;
+  if S[Length(S)]<>';' then
+  begin
+    S+= ';';
+    Ed.Strings.Lines[Caret.PosY]:= S;
+    Ed.DoEventChange(Caret.PosY);
+    Ed.Update;
+  end;
+end;
+
 constructor TAcp.Create;
 begin
   inherited;
@@ -416,7 +437,10 @@ begin
       Acp.ListSel.LoadFromFile(CompletionOpsCss.FilenameCssSelectors);
   end;
 
-  EditorShowCompletionListbox(AEdit, @Acp.DoOnGetCompleteProp);
+  EditorShowCompletionListbox(AEdit,
+    @Acp.DoOnGetCompleteProp,
+    nil,
+    @Acp.DoOnChoose);
 end;
 
 initialization
