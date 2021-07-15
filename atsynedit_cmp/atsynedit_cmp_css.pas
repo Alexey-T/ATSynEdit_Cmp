@@ -482,7 +482,9 @@ initialization
     PrefixDir:= 'folder';
     PrefixFile:= 'file';
     LinesToLookup:= 50;
-    NonWordChars:= '#!@.{};''"<>'; //don't include ':'
+    NonWordChars:= '#@.{};''"<>';
+      //don't include ':'
+      //don't include '!' because we need to complete '!important' thing
     AppendSemicolon:= true;
     FileMaskURL:= '*.png;*.gif;*.jpg;*.jpeg;*.ico;*.cur;*.svg;*.woff;*.css';
   end;
