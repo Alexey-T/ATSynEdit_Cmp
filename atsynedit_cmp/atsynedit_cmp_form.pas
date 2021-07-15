@@ -90,8 +90,14 @@ type
     { public declarations }
     property Editor: TATSynEdit read FEdit write FEdit;
     property OnGetProp: TATCompletionPropEvent read FOnGetProp write FOnGetProp;
+
+    //OnResult must handle: insertion of final result (and anything after insertion)
+    //if OnResult is set, OnChoose won't be called
     property OnResult: TATCompletionResultEvent read FOnResult write FOnResult;
+
+    //OnChoose must handle: moment _after_ insertion of final result
     property OnChoose: TATCompletionResultEvent read FOnChoose write FOnChoose;
+
     property SnippetId: string read FSnippetId write FSnippetId;
     property SelectedIndex: integer read FSelectedIndex write FSelectedIndex;
   end;
