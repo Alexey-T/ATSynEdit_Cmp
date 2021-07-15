@@ -115,6 +115,18 @@ begin
   end;
 end;
 
+function GetQuoteKind(const S: string): TQuoteKind;
+begin
+  case S of
+    '''':
+      Result:= qkSingle;
+    '"':
+      Result:= qkDouble;
+    else
+      Result:= qkNone;
+  end;
+end;
+
 procedure EditorGetCssContext(Ed: TATSynEdit; APosX, APosY: integer;
   out AContext: TCompletionCssContext; out ATag: string; out AQuoteKind: TQuoteKind);
 const
@@ -127,7 +139,8 @@ const
   cRegexGroup = 1; //group 1 in (..)
 
   //group 1: quote char, group 2: URL text
-  cRegexUrl = 'url\(\s*([''"]?)(' + '[\w\.,/~@!=\-\(\)\[\]]*' + ')$';
+  cRegexUrl =      'url\(\s*([''"]?)(' + '[\w\.,/~@!=\-\(\)\[\]]*' + ')$';
+  cRegexUrlEmpty = 'url\(\s*(''|"|)$';
 var
   S, S2: UnicodeString;
   SQuote: string;
@@ -145,20 +158,26 @@ begin
     NPos:= RPos(':url(', S);
   if NPos>0 then
   begin
-    AContext:= CtxUrl;
     S2:= Copy(S, NPos+1, MaxInt);
+
+    //empty URL before caret?
+    if SFindRegex(S2, cRegexUrlEmpty, 0)<>'' then
+    begin
+      AContext:= CtxUrl;
+      SQuote:= SFindRegex(S2, cRegexUrlEmpty, 1);
+      AQuoteKind:= GetQuoteKind(SQuote);
+      exit;
+    end;
+
+    //not empty URL?
     ATag:= SFindRegex(S2, cRegexUrl, 2);
-    SQuote:= SFindRegex(S2, cRegexUrl, 1);
-
-    if SQuote='''' then
-      AQuoteKind:= qkSingle
-    else
-    if SQuote='"' then
-      AQuoteKind:= qkDouble
-    else
-      AQuoteKind:= qkNone;
-
-    exit;
+    if ATag<>'' then
+    begin
+      AContext:= CtxUrl;
+      SQuote:= SFindRegex(S2, cRegexUrl, 1);
+      AQuoteKind:= GetQuoteKind(SQuote);
+      exit;
+    end;
   end;
 
   ATag:= SFindRegex(S, cRegexAtRule, cRegexGroup);
