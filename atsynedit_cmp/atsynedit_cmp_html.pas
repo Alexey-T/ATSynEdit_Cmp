@@ -296,7 +296,12 @@ begin
   bTagValid:= false;
 
   //get str before caret
+  if APosX>Ed.Strings.LinesLen[APosY] then exit;
   S:= Ed.Strings.LineSub(APosY, 1, APosX);
+  if Trim(S)='' then exit;
+
+  if S[APosX]='<' then
+    exit(ctxTags);
 
   //detect HTML entity like &name;
   if (APosX>0) and (APosX<=Ed.Strings.LinesLen[APosY]) then
@@ -470,6 +475,7 @@ begin
 
   Caret:= Ed.Carets[0];
   if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
+  if Caret.PosX>Ed.Strings.LinesLen[Caret.PosY] then exit;
 
   Context:= EditorGetHtmlContext(Ed,
     Caret.PosX,
