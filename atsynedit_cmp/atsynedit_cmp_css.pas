@@ -27,6 +27,7 @@ type
     PrefixFile: string;
     LinesToLookup: integer;
     NonWordChars: UnicodeString;
+    AppendSemicolon: boolean;
     FileMaskURL: string;
   end;
 
@@ -413,16 +414,19 @@ var
   Caret: TATCaretItem;
   S: UnicodeString;
 begin
-  Caret:= Ed.Carets[0];
-  if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
-  S:= Ed.Strings.Lines[Caret.PosY];
-  if S='' then exit;
-  if S[Length(S)]<>';' then
+  if CompletionOpsCss.AppendSemicolon then
   begin
-    S+= ';';
-    Ed.Strings.Lines[Caret.PosY]:= S;
-    Ed.DoEventChange(Caret.PosY);
-    Ed.Update;
+    Caret:= Ed.Carets[0];
+    if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
+    S:= Ed.Strings.Lines[Caret.PosY];
+    if S='' then exit;
+    if S[Length(S)]<>';' then
+    begin
+      S+= ';';
+      Ed.Strings.Lines[Caret.PosY]:= S;
+      Ed.DoEventChange(Caret.PosY);
+      Ed.Update;
+    end;
   end;
 end;
 
@@ -479,6 +483,7 @@ initialization
     PrefixFile:= 'file';
     LinesToLookup:= 50;
     NonWordChars:= '#!@.{};''"<>'; //don't include ':'
+    AppendSemicolon:= true;
     FileMaskURL:= '*.png;*.gif;*.jpg;*.jpeg;*.ico;*.cur;*.svg;*.woff;*.css';
   end;
 
