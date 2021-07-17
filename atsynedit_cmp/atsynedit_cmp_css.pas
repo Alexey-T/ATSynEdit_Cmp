@@ -497,6 +497,7 @@ begin
 end;
 
 procedure TAcp.FindCustomProps(L: TStringList; AMaxLine: integer);
+// Docs: https://developer.mozilla.org/en-US/docs/Web/CSS/--*
 const
   cRegexVar = '^\s*(\-\-[a-z][\w\-]*)\s*:.+$';
   cRegexVarGroup = 1;
