@@ -499,6 +499,7 @@ end;
 procedure TAcp.FindCustomProps(L: TStringList; AMaxLine: integer);
 const
   cRegexVar = '^\s*(\-\-[a-z][\w\-]*)\s*:.+$';
+  cRegexVarGroup = 1;
 var
   S: UnicodeString;
   SId: string;
@@ -514,7 +515,7 @@ begin
     S:= Ed.Strings.Lines[iLine];
     N:= Pos('--', S);
     if N=0 then Continue;
-    SId:= SFindRegex(S, cRegexVar, 1);
+    SId:= SFindRegex(S, cRegexVar, cRegexVarGroup);
     if SId<>'' then
       L.Add(SId);
   end;
