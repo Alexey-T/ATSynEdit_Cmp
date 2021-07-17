@@ -57,7 +57,7 @@ type
     procedure DoOnGetCompleteProp(Sender: TObject; AContent: TStringList;
       out ACharsLeft, ACharsRight: integer);
     procedure DoOnChoose(Sender: TObject; const ASnippetId: string; ASnippetIndex: integer);
-    procedure FindAllCustomProps(L: TStringList; AMaxLine: integer);
+    procedure FindCustomProps(L: TStringList; AMaxLine: integer);
   public
     Ed: TATSynEdit;
     constructor Create; virtual;
@@ -445,7 +445,7 @@ begin
 
         L:= TStringList.Create;
         try
-          FindAllCustomProps(L, Caret.PosY);
+          FindCustomProps(L, Caret.PosY-1);
           for s_item in L do
           begin
             if s_tag<>'' then
@@ -496,34 +496,13 @@ begin
   inherited;
 end;
 
-procedure TAcp.FindAllCustomProps(L: TStringList; AMaxLine: integer);
-  //
-  function _IsCharSpace(ch: WideString): boolean;
-  begin
-    case ch of
-      ' ', #9:
-        Result:= true;
-      else
-        Result:= false;
-    end;
-  end;
-  //
-  function _IsCharId(ch: WideChar): boolean;
-  begin
-    case ch of
-      'a'..'z',
-      'A'..'Z',
-      '0'..'9',
-      '_', '-':
-        Result:= true;
-      else
-        Result:= false;
-    end;
-  end;
-
+procedure TAcp.FindCustomProps(L: TStringList; AMaxLine: integer);
+const
+  cRegexVar = '^\s*(\-\-[a-z][\w\-]*)\s*:.+$';
 var
-  S, SId: UnicodeString;
-  NStart, NEnd, iLine: integer;
+  S: UnicodeString;
+  SId: string;
+  N, iLine: integer;
 begin
   L.Clear;
   L.Sorted:= true;
@@ -533,16 +512,11 @@ begin
   for iLine:= 0 to Min(Ed.Strings.Count-1, AMaxLine) do
   begin
     S:= Ed.Strings.Lines[iLine];
-    NStart:= Pos('--', S);
-    if NStart=0 then Continue;
-    if (NStart>1) and not _IsCharSpace(S[NStart-1]) then Continue;
-    NEnd:= NStart+2;
-    if NEnd>Length(S) then Continue;
-    while (NEnd<=Length(S)) and _IsCharId(S[NEnd]) do
-      Inc(NEnd);
-    if S[NEnd]<>':' then Continue;
-    SId:= Copy(S, NStart, NEnd-NStart);
-    L.Add(SId);
+    N:= Pos('--', S);
+    if N=0 then Continue;
+    SId:= SFindRegex(S, cRegexVar, 1);
+    if SId<>'' then
+      L.Add(SId);
   end;
 end;
 
