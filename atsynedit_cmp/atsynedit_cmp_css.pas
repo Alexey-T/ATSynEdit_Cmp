@@ -21,6 +21,7 @@ type
     FilenameCssColors: string; //from CudaText: data/autocompletespec/css_colors.ini
     FilenameCssSelectors: string; //from CudaText: data/autocompletespec/css_sel.ini
     PrefixProp: string;
+    PrefixVar: string;
     PrefixAtRule: string;
     PrefixPseudo: string;
     PrefixDir: string;
@@ -56,6 +57,7 @@ type
     procedure DoOnGetCompleteProp(Sender: TObject; AContent: TStringList;
       out ACharsLeft, ACharsRight: integer);
     procedure DoOnChoose(Sender: TObject; const ASnippetId: string; ASnippetIndex: integer);
+    procedure FindAllCustomProps(L: TStringList; AMaxLine: integer);
   public
     Ed: TATSynEdit;
     constructor Create; virtual;
@@ -71,7 +73,8 @@ type
     CtxPropertyName,
     CtxPropertyValue,
     CtxSelectors,
-    CtxUrl
+    CtxUrl,
+    CtxVar
     );
 
 function SFindRegex(const SText, SRegex: UnicodeString; NGroup: integer): string;
@@ -142,6 +145,8 @@ const
   //group 1: quote char, group 2: URL text
   cRegexUrl =      'url\(\s*([''"]?)(' + '[\w\.,/~@!=\-\(\)\[\]]*' + ')$';
   cRegexUrlEmpty = 'url\(\s*(''|"|)$';
+
+  cRegexVar = 'var\(\s*([\w\-]*)$';
 var
   S, S2: UnicodeString;
   SQuote: string;
@@ -152,6 +157,21 @@ begin
   AQuoteKind:= qkDouble;
 
   S:= Ed.Strings.LineSub(APosY, 1, APosX);
+
+  //detect 'var()' context
+  NPos:= RPos(' var(', S);
+  if NPos=0 then
+    NPos:= RPos(':var(', S);
+  if NPos>0 then
+  begin
+    S2:= Copy(S, NPos+1, MaxInt);
+    if SFindRegex(S2, cRegexVar, 0)<>'' then
+    begin
+      ATag:= SFindRegex(S2, cRegexVar, 1);
+      AContext:= CtxVar;
+      exit;
+    end;
+  end;
 
   //detect 'url()' context
   NPos:= RPos(' url(', S);
@@ -301,7 +321,7 @@ procedure TAcp.DoOnGetCompleteProp(Sender: TObject;
 var
   Caret: TATCaretItem;
   L: TStringList;
-  s_word: UnicodeString;
+  s_word, s_NonWordChars: UnicodeString;
   s_tag, s_item, s_val, s_valsuffix: string;
   context: TCompletionCssContext;
   quote: TQuoteKind;
@@ -314,9 +334,13 @@ begin
 
   EditorGetCssContext(Ed, Caret.PosX, Caret.PosY, context, s_tag, quote);
 
+  s_NonWordChars:= CompletionOpsCss.NonWordChars;
+  if context=CtxVar then
+    s_NonWordChars+= '()';
+
   EditorGetCurrentWord(Ed,
     Caret.PosX, Caret.PosY,
-    CompletionOpsCss.NonWordChars,
+    s_NonWordChars,
     s_word,
     ACharsLeft,
     ACharsRight);
@@ -405,6 +429,36 @@ begin
       begin
         GetFileNames(AContent, quote, s_tag, CompletionOpsCss.FileMaskURL);
       end;
+
+    CtxVar:
+      begin
+        case Length(s_tag) of
+          1:
+            begin
+              if not StartsStr('-', s_tag) then exit;
+            end;
+          2..MaxInt:
+            begin
+              if not StartsStr('--', s_tag) then exit;
+            end;
+        end;
+
+        L:= TStringList.Create;
+        try
+          FindAllCustomProps(L, Caret.PosY);
+          for s_item in L do
+          begin
+            if s_tag<>'' then
+            begin
+              ok:= StartsText(s_tag, s_item);
+              if not ok then Continue;
+            end;
+            AContent.Add(CompletionOpsCss.PrefixVar+'|'+s_item);
+          end;
+        finally
+          FreeAndNil(L);
+        end;
+      end;
   end;
 end;
 
@@ -442,6 +496,57 @@ begin
   inherited;
 end;
 
+procedure TAcp.FindAllCustomProps(L: TStringList; AMaxLine: integer);
+  //
+  function _IsCharSpace(ch: WideString): boolean;
+  begin
+    case ch of
+      ' ', #9:
+        Result:= true;
+      else
+        Result:= false;
+    end;
+  end;
+  //
+  function _IsCharId(ch: WideChar): boolean;
+  begin
+    case ch of
+      'a'..'z',
+      'A'..'Z',
+      '0'..'9',
+      '_', '-':
+        Result:= true;
+      else
+        Result:= false;
+    end;
+  end;
+
+var
+  S, SId: UnicodeString;
+  NStart, NEnd, iLine: integer;
+begin
+  L.Clear;
+  L.Sorted:= true;
+  L.CaseSensitive:= true;
+
+  //TODO: consider CSS comments
+  for iLine:= 0 to Min(Ed.Strings.Count-1, AMaxLine) do
+  begin
+    S:= Ed.Strings.Lines[iLine];
+    NStart:= Pos('--', S);
+    if NStart=0 then Continue;
+    if (NStart>1) and not _IsCharSpace(S[NStart-1]) then Continue;
+    NEnd:= NStart+2;
+    if NEnd>Length(S) then Continue;
+    while (NEnd<=Length(S)) and _IsCharId(S[NEnd]) do
+      Inc(NEnd);
+    if S[NEnd]<>':' then Continue;
+    SId:= Copy(S, NStart, NEnd-NStart);
+    L.Add(SId);
+  end;
+end;
+
+//-----------------------------
 procedure DoEditorCompletionCss(AEdit: TATSynEdit);
 begin
   Acp.Ed:= AEdit;
@@ -477,6 +582,7 @@ initialization
     FilenameCssColors:= '';
     FilenameCssSelectors:= '';
     PrefixProp:= 'css';
+    PrefixVar:= 'var';
     PrefixAtRule:= 'at-rule';
     PrefixPseudo:= 'pseudo';
     PrefixDir:= 'folder';
