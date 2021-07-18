@@ -11,6 +11,7 @@ interface
 
 uses
   Classes,
+  ATStrings,
   ATStringProc_Separator,
   ATSynEdit,
   ATSynEdit_Cmp_HTML_Provider;
@@ -282,6 +283,7 @@ const
   cGroupTagClose = 1;
   cGroupAttr = 1;
 var
+  St: TATStrings;
   S: UnicodeString;
   NPrev, N: integer;
   bTagValid: boolean;
@@ -294,17 +296,18 @@ begin
   ACharAfter:= ' ';
   Result:= ctxNone;
   bTagValid:= false;
+  St:= Ed.Strings;
 
   //get str before caret
-  if APosX>Ed.Strings.LinesLen[APosY] then exit;
-  S:= Ed.Strings.LineSub(APosY, 1, APosX);
+  if APosX>St.LinesLen[APosY] then exit;
+  S:= St.LineSub(APosY, 1, APosX);
   if Trim(S)='' then exit;
 
   if S[APosX]='<' then
     exit(ctxTags);
 
   //detect HTML entity like &name;
-  if (APosX>0) and (APosX<=Ed.Strings.LinesLen[APosY]) then
+  if (APosX>0) and (APosX<=St.LinesLen[APosY]) then
   begin
     N:= Length(S);
     while (N>0) and IsCharWordInIdentifier(S[N]) do
@@ -316,7 +319,7 @@ begin
   //detect char after caret and next wordchars
   N:= APosX;
   repeat
-    ch:= Ed.Strings.LineCharAt(APosY, N);
+    ch:= St.LineCharAt(APosY, N);
     if not IsCharWordA(ch) then
     begin
       ACharAfter:= ch;
@@ -330,7 +333,7 @@ begin
   begin
     NPrev:= Max(0, APosY-CompletionOpsHtml.MaxLinesPerTag);
     for N:= APosY-1 downto NPrev do
-      S:= Ed.Strings.Lines[N]+' '+S;
+      S:= St.Lines[N]+' '+S;
   end;
 
   //cut string before last "<" or ">" char
@@ -455,6 +458,7 @@ procedure TAcp.DoOnGetCompleteProp(Sender: TObject;
   end;
   //
 var
+  St: TATStrings;
   Caret: TATCaretItem;
   Context: TCompletionHtmlContext;
   EdLine: UnicodeString;
@@ -472,10 +476,11 @@ begin
   ACharsLeft:= 0;
   ACharsRight:= 0;
   ListResult.Clear;
+  St:= Ed.Strings;
 
   Caret:= Ed.Carets[0];
-  if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
-  if Caret.PosX>Ed.Strings.LinesLen[Caret.PosY] then exit;
+  if not St.IsIndexValid(Caret.PosY) then exit;
+  if Caret.PosX>St.LinesLen[Caret.PosY] then exit;
 
   Context:= EditorGetHtmlContext(Ed,
     Caret.PosX,
@@ -595,7 +600,7 @@ begin
 
     ctxEntity:
       begin
-        EdLine:= Ed.Strings.Lines[Caret.PosY];
+        EdLine:= St.Lines[Caret.PosY];
         i:= Caret.PosX+ACharsRight+1;
         if i<=Length(EdLine) then
         begin
