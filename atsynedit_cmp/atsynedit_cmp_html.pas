@@ -309,13 +309,15 @@ const
   cRegexAttr = '\b([\w\-]+)\s*\=\s*([''"]' + cRegexChars + '*)?$';
   cGroupAttr = 1;
   //regex to catch CSS after 'style='
-  cRegexStyle1 = '\bstyle\s*=\s*"([^"]*)"';
-  cRegexStyle2 = '\bstyle\s*=\s*''([^'']*)''';
+  cRegexStyles: array[0..1] of UnicodeString = (
+    '\bstyle\s*=\s*"([^"]*)"',
+    '\bstyle\s*=\s*''([^'']*)'''
+    );
   cGroupStyle = 1;
 var
   St: TATStrings;
   S: UnicodeString;
-  NPrev, N, NPos, NLen: integer;
+  NPrev, N, NPos, NLen, i: integer;
   bTagValid: boolean;
   ch: WideChar;
 begin
@@ -331,23 +333,19 @@ begin
 
   //detect caret inside style="..." or style='...'
   S:= St.Lines[APosY];
-  N:= 1;
-  repeat
-    SFindRegexPos(S, cRegexStyle1, cGroupStyle, N, NPos, NLen);
-    if NPos<0 then Break;
-    if (NPos<=APosX+1) and (APosX+1<=NPos+NLen) then
-      exit(ctxCssStyle);
-    N:= NPos+NLen;
-  until false;
+  if Trim(S)='' then exit;
 
-  N:= 1;
-  repeat
-    SFindRegexPos(S, cRegexStyle2, cGroupStyle, N, NPos, NLen);
-    if NPos<0 then Break;
-    if (NPos<=APosX+1) and (APosX+1<=NPos+NLen) then
-      exit(ctxCssStyle);
-    N:= NPos+NLen;
-  until false;
+  for i:= Low(cRegexStyles) to High(cRegexStyles) do
+  begin
+    N:= 1;
+    repeat
+      SFindRegexPos(S, cRegexStyles[i], cGroupStyle, N, NPos, NLen);
+      if NPos<0 then Break;
+      if (NPos<=APosX+1) and (APosX+1<=NPos+NLen) then
+        exit(ctxCssStyle);
+      N:= NPos+NLen;
+    until false;
+  end;
 
   //get str before caret
   S:= St.LineSub(APosY, 1, APosX);
