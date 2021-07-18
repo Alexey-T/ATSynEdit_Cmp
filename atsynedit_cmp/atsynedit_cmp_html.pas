@@ -73,6 +73,7 @@ type
     ctxAttrs,
     ctxValues,
     ctxValuesQuoted,
+    ctxCssStyle,
     ctxEntity,
     ctxValueHref,
     ctxValueLinkHref,
@@ -222,7 +223,7 @@ begin
   Result:= strcomp(PChar(S1), PChar(S2));
 end;
 
-function SFindRegex(const AText, ARegex: string; AGroup: integer): string;
+function SFindRegex(const AText, ARegex: UnicodeString; AGroup: integer): string;
 var
   R: TRegExpr;
 begin
@@ -243,7 +244,7 @@ begin
   end;
 end;
 
-procedure SFindRegexPos(const AText, ARegex: string; AGroup: integer; out APos, ALen: integer);
+procedure SFindRegexPos(const AText, ARegex: UnicodeString; AGroup: integer; AFromPos: integer; out APos, ALen: integer);
 var
   R: TRegExpr;
 begin
@@ -258,7 +259,7 @@ begin
     R.Expression:= ARegex;
     R.InputString:= AText;
 
-    if R.ExecPos(1) then
+    if R.ExecPos(AFromPos) then
     begin
       APos:= R.MatchPos[AGroup];
       ALen:= R.MatchLen[AGroup];
@@ -296,25 +297,25 @@ function EditorGetHtmlContext(Ed: TATSynedit;
 const
   //regex to catch tag name at line start
   cRegexTagPart = '^\w+\b';
+  cGroupTagPart = 0;
   cRegexTagOnly = '^\w*$';
+  cGroupTagOnly = 0;
   cRegexTagClose = '^/(\w*)$';
+  cGroupTagClose = 1;
   //character class for all chars inside quotes
   cRegexChars = '[\s\w,\.:;\-\+\*\?=\(\)\[\]\{\}/\\\|~`\^\$&%\#@!\n]';
   //regex to catch attrib name, followed by "=" and not-closed quote, only at line end
   //this regex has $ at end so it's found just before the caret
   cRegexAttr = '\b([\w\-]+)\s*\=\s*([''"]' + cRegexChars + '*)?$';
+  cGroupAttr = 1;
   //regex to catch CSS after 'style='
   cRegexStyle1 = '\bstyle\s*=\s*"([^"]*)"';
   cRegexStyle2 = '\bstyle\s*=\s*''([^'']*)''';
-  //regex group
-  cGroupTagPart = 0;
-  cGroupTagOnly = 0;
-  cGroupTagClose = 1;
-  cGroupAttr = 1;
+  cGroupStyle = 1;
 var
   St: TATStrings;
   S: UnicodeString;
-  NPrev, N: integer;
+  NPrev, N, NPos, NLen: integer;
   bTagValid: boolean;
   ch: WideChar;
 begin
@@ -326,9 +327,29 @@ begin
   Result:= ctxNone;
   bTagValid:= false;
   St:= Ed.Strings;
+  if APosX>St.LinesLen[APosY] then exit;
+
+  //detect caret inside style="..." or style='...'
+  S:= St.Lines[APosY];
+  N:= 1;
+  repeat
+    SFindRegexPos(S, cRegexStyle1, cGroupStyle, N, NPos, NLen);
+    if NPos<0 then Break;
+    if (NPos<=APosX+1) and (APosX+1<=NPos+NLen) then
+      exit(ctxCssStyle);
+    N:= NPos+NLen;
+  until false;
+
+  N:= 1;
+  repeat
+    SFindRegexPos(S, cRegexStyle2, cGroupStyle, N, NPos, NLen);
+    if NPos<0 then Break;
+    if (NPos<=APosX+1) and (APosX+1<=NPos+NLen) then
+      exit(ctxCssStyle);
+    N:= NPos+NLen;
+  until false;
 
   //get str before caret
-  if APosX>St.LinesLen[APosY] then exit;
   S:= St.LineSub(APosY, 1, APosX);
   if Trim(S)='' then exit;
 
