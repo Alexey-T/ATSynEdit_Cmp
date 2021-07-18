@@ -222,7 +222,7 @@ begin
   Result:= strcomp(PChar(S1), PChar(S2));
 end;
 
-function SFindRegex(const SText, SRegex: string; NGroup: integer): string;
+function SFindRegex(const AText, ARegex: string; AGroup: integer): string;
 var
   R: TRegExpr;
 begin
@@ -233,15 +233,41 @@ begin
     R.ModifierM:= true;
     R.ModifierI:= true;
 
-    R.Expression:= SRegex;
-    R.InputString:= SText;
+    R.Expression:= ARegex;
+    R.InputString:= AText;
 
     if R.ExecPos(1) then
-      Result:= Copy(SText, R.MatchPos[NGroup], R.MatchLen[NGroup]);
+      Result:= Copy(AText, R.MatchPos[AGroup], R.MatchLen[AGroup]);
   finally
     R.Free;
   end;
 end;
+
+procedure SFindRegexPos(const AText, ARegex: string; AGroup: integer; out APos, ALen: integer);
+var
+  R: TRegExpr;
+begin
+  APos:= -1;
+  ALen:= 0;
+  R:= TRegExpr.Create;
+  try
+    R.ModifierS:= false;
+    R.ModifierM:= true;
+    R.ModifierI:= true;
+
+    R.Expression:= ARegex;
+    R.InputString:= AText;
+
+    if R.ExecPos(1) then
+    begin
+      APos:= R.MatchPos[AGroup];
+      ALen:= R.MatchLen[AGroup];
+    end;
+  finally
+    R.Free;
+  end;
+end;
+
 
 function _StringEndsWithUnclosedQuote(const S: string; out AValueStr: string): boolean;
 var
@@ -277,6 +303,9 @@ const
   //regex to catch attrib name, followed by "=" and not-closed quote, only at line end
   //this regex has $ at end so it's found just before the caret
   cRegexAttr = '\b([\w\-]+)\s*\=\s*([''"]' + cRegexChars + '*)?$';
+  //regex to catch CSS after 'style='
+  cRegexStyle1 = '\bstyle\s*=\s*"([^"]*)"';
+  cRegexStyle2 = '\bstyle\s*=\s*''([^'']*)''';
   //regex group
   cGroupTagPart = 0;
   cGroupTagOnly = 0;
