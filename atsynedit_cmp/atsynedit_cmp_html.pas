@@ -891,7 +891,7 @@ begin
     NextChar);
 
   //we are inside style="..." ? call CSS completions.
-  if (Acp.LastContext in [ctxValues, ctxValuesQuoted]) and (S_Attr='style') then
+  if Acp.LastContext=ctxCssStyle then
   begin
     DoEditorCompletionCss(Ed);
     exit;
