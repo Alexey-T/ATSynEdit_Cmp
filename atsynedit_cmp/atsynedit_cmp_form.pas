@@ -526,14 +526,17 @@ end;
 procedure TFormATSynEditComplete.DoResult;
 var
   Str: string;
-  WithBracket: boolean;
+  bWithBracket: boolean;
 begin
+  Str:= '';
+  bWithBracket:= false;
+
   if Assigned(FOnResult) then
     FOnResult(Self, FSnippetId, List.ItemIndex)
   else
   begin
-    GetResultText(Str, WithBracket);
-    DoReplaceTo(Str, WithBracket);
+    GetResultText(Str, bWithBracket);
+    DoReplaceTo(Str, bWithBracket);
 
     if Assigned(FOnChoose) then
       FOnChoose(Self, Str, List.ItemIndex);
