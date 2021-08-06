@@ -15,7 +15,7 @@ object FormATSynEditComplete: TFormATSynEditComplete
   OnKeyDown = FormKeyDown
   OnShow = FormShow
   OnUTF8KeyPress = FormUTF8KeyPress
-  LCLVersion = '2.1.0.0'
+  LCLVersion = '2.3.0.0'
   object List: TATListbox
     Left = 4
     Height = 232
