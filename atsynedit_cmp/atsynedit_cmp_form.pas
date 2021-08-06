@@ -359,7 +359,6 @@ end;
 procedure TFormATSynEditComplete.FormUTF8KeyPress(Sender: TObject;
   var UTF8Key: TUTF8Char);
 var
-  Str: atString;
   bCommit, bClose: boolean;
 begin
   inherited;
@@ -382,9 +381,10 @@ begin
   if bCommit then
     DoResult;
 
-  Str:= UTF8Decode(UTF8Key);
-  FEdit.DoCommand(cCommand_TextInsert, Str);
-  DoUpdate;
+  FEdit.DoCommand(cCommand_TextInsert, UTF8Decode(UTF8Key));
+
+  if not bClose then
+    DoUpdate;
 
   if bCommit or bClose then
     Close;
