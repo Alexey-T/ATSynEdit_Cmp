@@ -383,11 +383,10 @@ begin
 
   FEdit.DoCommand(cCommand_TextInsert, UTF8Decode(UTF8Key));
 
-  if not bCloseChar then
-    DoUpdate;
-
   if bCommitChar or bCloseChar then
-    Close;
+    Close
+  else
+    DoUpdate;
 
   UTF8Key:= '';
 end;
