@@ -335,7 +335,7 @@ begin
 
   if (key=VK_LEFT) and (shift=[]) then
   begin
-    Editor.DoCommand(cCommand_KeyLeft, '');
+    Editor.DoCommand(cCommand_KeyLeft, cInvokeHotkey);
     DoUpdate;
     key:= 0;
     exit
@@ -343,7 +343,7 @@ begin
 
   if (key=VK_RIGHT) and (shift=[]) then
   begin
-    Editor.DoCommand(cCommand_KeyRight, '');
+    Editor.DoCommand(cCommand_KeyRight, cInvokeHotkey);
     DoUpdate;
     key:= 0;
     exit
@@ -366,7 +366,7 @@ begin
   //backsp
   if (UTF8Key=#8) then
   begin
-    FEdit.DoCommand(cCommand_KeyBackspace, '');
+    FEdit.DoCommand(cCommand_KeyBackspace, cInvokeHotkey);
     DoUpdate;
     UTF8Key:= '';
     exit;
@@ -381,7 +381,7 @@ begin
   if bCommitChar then
     DoResult;
 
-  FEdit.DoCommand(cCommand_TextInsert, UTF8Decode(UTF8Key));
+  FEdit.DoCommand(cCommand_TextInsert, cInvokeHotkey, UTF8Decode(UTF8Key));
 
   if bCommitChar or bCloseChar then
     Close
@@ -543,7 +543,7 @@ begin
 
   //for HTML: if inserted 'value=""' we must move caret lefter
   if SEndsWith(Str, '=""') then
-    Editor.DoCommand(cCommand_KeyLeft);
+    Editor.DoCommand(cCommand_KeyLeft, cInvokeInternal);
 
   if SEndsWith(Str, CompletionOps.TrailingCharToShowAgain) then
   begin
