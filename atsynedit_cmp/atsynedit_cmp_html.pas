@@ -25,12 +25,14 @@ type
   TATCompletionOptionsHtml = record
   private
     ListOfTags: TStringList;
+    ListOfBoolAttr: TStringList;
   public
     Provider: TATHtmlProvider;
     FilenameHtmlList: string; //from CudaText: data/autocompletespec/html_list.ini
     FilenameHtmlGlobals: string; //from CudaText: data/autocompletespec/html_globals.ini
     FilenameHtmlEntities: string; //from CudaText: data/autocompletespec/html_entities.ini
     FilenameHtmlMediaTypes: string; //from CudaText: data/autocompletespec/html_mediatypes.ini
+    FilenameHtmlBooleanAttribs: string; //from CudaText: data/autocompletespec/html_boolattr.ini
     FileMaskHREF: string;
     FileMaskLinkHREF: string;
     FileMaskPictures: string;
@@ -49,6 +51,7 @@ type
     NonWordChars: UnicodeString;
     procedure InitProvider;
     function IsValidTag(const S: string; PartialAllowed: boolean): boolean;
+    function IsBooleanAttrib(const S: string): boolean;
   end;
 
 var
@@ -66,37 +69,6 @@ uses
   ATSynEdit_Cmp_Filenames,
   Dialogs,
   Math;
-
-const
-  // https://meiert.com/en/blog/boolean-attributes-of-html/
-  cBooleanProps: array of string = (
-    'allowfullscreen',
-    'allowpaymentrequest',
-    'async',
-    'autofocus',
-    'autoplay',
-    'checked',
-    'controls',
-    'default',
-    'defer',
-    'disabled',
-    'formnovalidate',
-    'hidden',
-    'ismap',
-    'itemscope',
-    'loop',
-    'multiple',
-    'muted',
-    'nomodule',
-    'novalidate',
-    'open',
-    'playsinline',
-    'readonly',
-    'required',
-    'reversed',
-    'selected',
-    'truespeed'
-    );
 
 type
   TCompletionHtmlContext = (
@@ -482,7 +454,11 @@ end;
 procedure TATCompletionOptionsHtml.InitProvider;
 begin
   if Provider=nil then
-    Provider:= TATHtmlBasicProvider.Create(FilenameHtmlList, FilenameHtmlGlobals, FilenameHtmlMediaTypes);
+    Provider:= TATHtmlBasicProvider.Create(
+      FilenameHtmlList,
+      FilenameHtmlGlobals,
+      FilenameHtmlMediaTypes
+      );
 end;
 
 function TATCompletionOptionsHtml.IsValidTag(const S: string; PartialAllowed: boolean): boolean;
@@ -514,6 +490,18 @@ begin
     for i:= 0 to ListOfTags.Count-1 do
       if strlicomp(PChar(S), PChar(ListOfTags[i]), Length(S))=0 then
         exit(true);
+end;
+
+function TATCompletionOptionsHtml.IsBooleanAttrib(const S: string): boolean;
+begin
+  if ListOfBoolAttr=nil then
+  begin
+    ListOfBoolAttr:= TStringList.Create;
+    ListOfBoolAttr.Sorted:= true;
+    if FileExists(FilenameHtmlBooleanAttribs) then
+      ListOfBoolAttr.LoadFromFile(FilenameHtmlBooleanAttribs);
+  end;
+  Result:= ListOfBoolAttr.IndexOf(S)>=0;
 end;
 
 { TAcp }
@@ -643,7 +631,7 @@ begin
           begin
             s_equalfinal:= s_equalchar;
             // https://meiert.com/en/blog/boolean-attributes-of-html/
-            if s_item in cBooleanProps then
+            if CompletionOpsHtml.IsBooleanAttrib(s_item) then
               s_equalfinal:= '';
 
             if s_word<>'' then
@@ -973,6 +961,7 @@ initialization
   begin
     Provider:= nil;
     ListOfTags:= nil;
+    ListOfBoolAttr:= nil;
     FilenameHtmlList:= '';
     FilenameHtmlGlobals:= '';
     FilenameHtmlEntities:= '';
@@ -1000,6 +989,8 @@ finalization
 
   with CompletionOpsHtml do
   begin
+    if Assigned(ListOfBoolAttr) then
+      FreeAndNil(ListOfBoolAttr);
     if Assigned(ListOfTags) then
       FreeAndNil(ListOfTags);
     if Assigned(Provider) then
