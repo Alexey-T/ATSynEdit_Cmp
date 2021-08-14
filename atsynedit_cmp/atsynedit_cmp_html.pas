@@ -67,6 +67,7 @@ uses
   Math;
 
 const
+  // https://meiert.com/en/blog/boolean-attributes-of-html/
   cBooleanProps: array of string = (
     'allowfullscreen',
     'allowpaymentrequest',
@@ -640,7 +641,7 @@ begin
           for s_item in L do
           begin
             s_equalfinal:= s_equalchar;
-            //support 'boolean' properties (without ="")
+            // https://meiert.com/en/blog/boolean-attributes-of-html/
             if s_item in cBooleanProps then
               s_equalfinal:= '';
 
