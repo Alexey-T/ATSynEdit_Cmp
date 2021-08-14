@@ -23,8 +23,9 @@ type
   private
     ListAll: TStringList;
     ListGlobals: TStringList;
+    ListMimeTypes: TStringList;
   public
-    constructor Create(const AFilenameList, AFilenameGlobals: string);
+    constructor Create(const AFilenameList, AFilenameGlobals, AFilenameMimeTypes: string);
     destructor Destroy; override;
     procedure GetTags(L: TStringList); override;
     procedure GetTagProps(const ATag: string; L: TStringList); override;
@@ -38,19 +39,38 @@ uses
   ATStringProc,
   ATStringProc_Separator;
 
+function IsTagWithMimeType(const ATag: string): boolean;
+begin
+  case ATag of
+    'a',
+    'embed',
+    'link',
+    'object',
+    'script',
+    'source',
+    'style':
+      Result:= true;
+    else
+      Result:= false;
+  end;
+end;
+
 { TATHtmlBasicProvider }
 
-constructor TATHtmlBasicProvider.Create(const AFilenameList, AFilenameGlobals: string);
+constructor TATHtmlBasicProvider.Create(const AFilenameList, AFilenameGlobals, AFilenameMimeTypes: string);
 var
   i: integer;
 begin
   ListAll:= TStringList.Create;
   ListGlobals:= TStringList.Create;
+  ListMimeTypes:= TStringList.Create;
 
   if FileExists(AFilenameList) then
     ListAll.LoadFromFile(AFilenameList);
   if FileExists(AFilenameGlobals) then
     ListGlobals.LoadFromFile(AFilenameGlobals);
+  if FileExists(AFilenameMimeTypes) then
+    ListMimeTypes.LoadFromFile(AFilenameMimeTypes);
 
   for i:= ListAll.Count-1 downto 0 do
     if ListAll[i]='' then
@@ -59,10 +79,15 @@ begin
   for i:= ListGlobals.Count-1 downto 0 do
     if ListGlobals[i]='' then
       ListGlobals.Delete(i);
+
+  for i:= ListMimeTypes.Count-1 downto 0 do
+    if ListMimeTypes[i]='' then
+      ListMimeTypes.Delete(i);
 end;
 
 destructor TATHtmlBasicProvider.Destroy;
 begin
+  FreeAndNil(ListMimeTypes);
   FreeAndNil(ListGlobals);
   FreeAndNil(ListAll);
   inherited Destroy;
@@ -136,6 +161,12 @@ var
 begin
   L.Clear;
   L.Sorted:= true;
+
+  if (AProp='type') and IsTagWithMimeType(ATag) then
+  begin
+    L.AddStrings(ListMimeTypes);
+    exit;
+  end;
 
   for SItem in ListGlobals do
     if AddFromData(SItem) then

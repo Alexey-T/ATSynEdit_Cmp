@@ -30,6 +30,7 @@ type
     FilenameHtmlList: string; //from CudaText: data/autocompletespec/html_list.ini
     FilenameHtmlGlobals: string; //from CudaText: data/autocompletespec/html_globals.ini
     FilenameHtmlEntities: string; //from CudaText: data/autocompletespec/html_entities.ini
+    FilenameHtmlMimeTypes: string; //from CudaText: data/autocompletespec/html_mimetypes.ini
     FileMaskHREF: string;
     FileMaskLinkHREF: string;
     FileMaskPictures: string;
@@ -481,7 +482,7 @@ end;
 procedure TATCompletionOptionsHtml.InitProvider;
 begin
   if Provider=nil then
-    Provider:= TATHtmlBasicProvider.Create(FilenameHtmlList, FilenameHtmlGlobals);
+    Provider:= TATHtmlBasicProvider.Create(FilenameHtmlList, FilenameHtmlGlobals, FilenameHtmlMimeTypes);
 end;
 
 function TATCompletionOptionsHtml.IsValidTag(const S: string; PartialAllowed: boolean): boolean;
@@ -676,7 +677,14 @@ begin
         try
           CompletionOpsHtml.Provider.GetTagPropValues(s_tag, s_attr, L);
           for s_value in L do
+          begin
+            if s_word<>'' then
+            begin
+              ok:= StartsText(s_word, s_value);
+              if not ok then Continue;
+            end;
             ListResult.Add(s_attr+' '+CompletionOpsHtml.PrefixValue+'|'+s_quote+s_value+s_quote+#1+s_space);
+          end;
         finally
           FreeAndNil(L);
         end;
@@ -983,7 +991,9 @@ initialization
     PrefixFile:= 'file';
     PrefixEntity:= 'entity';
     MaxLinesPerTag:= 40;
-    NonWordChars:= '+*=/\()[]{}<>"''.,:;~?!@#$%^&|`…'; // '-' is word char
+    NonWordChars:= '*=\()[]{}<>"'',:;~?!@#$%^&|`…';
+      // '-' is word char
+      // '/' and '+' and '.' -- word char for type='application/exe+name.some'
   end;
 
 finalization
