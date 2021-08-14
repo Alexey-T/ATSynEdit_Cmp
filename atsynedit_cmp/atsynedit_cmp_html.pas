@@ -30,7 +30,7 @@ type
     FilenameHtmlList: string; //from CudaText: data/autocompletespec/html_list.ini
     FilenameHtmlGlobals: string; //from CudaText: data/autocompletespec/html_globals.ini
     FilenameHtmlEntities: string; //from CudaText: data/autocompletespec/html_entities.ini
-    FilenameHtmlMimeTypes: string; //from CudaText: data/autocompletespec/html_mimetypes.ini
+    FilenameHtmlMediaTypes: string; //from CudaText: data/autocompletespec/html_mediatypes.ini
     FileMaskHREF: string;
     FileMaskLinkHREF: string;
     FileMaskPictures: string;
@@ -482,7 +482,7 @@ end;
 procedure TATCompletionOptionsHtml.InitProvider;
 begin
   if Provider=nil then
-    Provider:= TATHtmlBasicProvider.Create(FilenameHtmlList, FilenameHtmlGlobals, FilenameHtmlMimeTypes);
+    Provider:= TATHtmlBasicProvider.Create(FilenameHtmlList, FilenameHtmlGlobals, FilenameHtmlMediaTypes);
 end;
 
 function TATCompletionOptionsHtml.IsValidTag(const S: string; PartialAllowed: boolean): boolean;

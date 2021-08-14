@@ -23,9 +23,9 @@ type
   private
     ListAll: TStringList;
     ListGlobals: TStringList;
-    ListMimeTypes: TStringList;
+    ListMediaTypes: TStringList;
   public
-    constructor Create(const AFilenameList, AFilenameGlobals, AFilenameMimeTypes: string);
+    constructor Create(const AFilenameList, AFilenameGlobals, AFilenameMediaTypes: string);
     destructor Destroy; override;
     procedure GetTags(L: TStringList); override;
     procedure GetTagProps(const ATag: string; L: TStringList); override;
@@ -66,11 +66,11 @@ end;
 
 { TATHtmlBasicProvider }
 
-constructor TATHtmlBasicProvider.Create(const AFilenameList, AFilenameGlobals, AFilenameMimeTypes: string);
+constructor TATHtmlBasicProvider.Create(const AFilenameList, AFilenameGlobals, AFilenameMediaTypes: string);
 begin
   ListAll:= TStringList.Create;
   ListGlobals:= TStringList.Create;
-  ListMimeTypes:= TStringList.Create;
+  ListMediaTypes:= TStringList.Create;
 
   if FileExists(AFilenameList) then
   begin
@@ -84,16 +84,16 @@ begin
     StripEmptyFromList(ListGlobals);
   end;
 
-  if FileExists(AFilenameMimeTypes) then
+  if FileExists(AFilenameMediaTypes) then
   begin
-    ListMimeTypes.LoadFromFile(AFilenameMimeTypes);
-    StripEmptyFromList(ListMimeTypes);
+    ListMediaTypes.LoadFromFile(AFilenameMediaTypes);
+    StripEmptyFromList(ListMediaTypes);
   end;
 end;
 
 destructor TATHtmlBasicProvider.Destroy;
 begin
-  FreeAndNil(ListMimeTypes);
+  FreeAndNil(ListMediaTypes);
   FreeAndNil(ListGlobals);
   FreeAndNil(ListAll);
   inherited Destroy;
@@ -170,7 +170,7 @@ begin
 
   if (AProp='type') and IsTagWithMimeType(ATag) then
   begin
-    L.AddStrings(ListMimeTypes);
+    L.AddStrings(ListMediaTypes);
     exit;
   end;
 
