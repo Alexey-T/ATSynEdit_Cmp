@@ -55,34 +55,40 @@ begin
   end;
 end;
 
+procedure StripEmptyFromList(L: TStringList);
+var
+  i: integer;
+begin
+  for i:= L.Count-1 downto 0 do
+    if L[i]='' then
+      L.Delete(i);
+end;
+
 { TATHtmlBasicProvider }
 
 constructor TATHtmlBasicProvider.Create(const AFilenameList, AFilenameGlobals, AFilenameMimeTypes: string);
-var
-  i: integer;
 begin
   ListAll:= TStringList.Create;
   ListGlobals:= TStringList.Create;
   ListMimeTypes:= TStringList.Create;
 
   if FileExists(AFilenameList) then
+  begin
     ListAll.LoadFromFile(AFilenameList);
+    StripEmptyFromList(ListAll);
+  end;
+
   if FileExists(AFilenameGlobals) then
+  begin
     ListGlobals.LoadFromFile(AFilenameGlobals);
+    StripEmptyFromList(ListGlobals);
+  end;
+
   if FileExists(AFilenameMimeTypes) then
+  begin
     ListMimeTypes.LoadFromFile(AFilenameMimeTypes);
-
-  for i:= ListAll.Count-1 downto 0 do
-    if ListAll[i]='' then
-      ListAll.Delete(i);
-
-  for i:= ListGlobals.Count-1 downto 0 do
-    if ListGlobals[i]='' then
-      ListGlobals.Delete(i);
-
-  for i:= ListMimeTypes.Count-1 downto 0 do
-    if ListMimeTypes[i]='' then
-      ListMimeTypes.Delete(i);
+    StripEmptyFromList(ListMimeTypes);
+  end;
 end;
 
 destructor TATHtmlBasicProvider.Destroy;
