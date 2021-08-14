@@ -66,6 +66,36 @@ uses
   Dialogs,
   Math;
 
+const
+  cBooleanProps: array of string = (
+    'allowfullscreen',
+    'allowpaymentrequest',
+    'async',
+    'autofocus',
+    'autoplay',
+    'checked',
+    'controls',
+    'default',
+    'defer',
+    'disabled',
+    'formnovalidate',
+    'hidden',
+    'ismap',
+    'itemscope',
+    'loop',
+    'multiple',
+    'muted',
+    'nomodule',
+    'novalidate',
+    'open',
+    'playsinline',
+    'readonly',
+    'required',
+    'reversed',
+    'selected',
+    'truespeed'
+    );
+
 type
   TCompletionHtmlContext = (
     ctxNone,
@@ -513,7 +543,7 @@ var
   s_word: atString;
   s_tag, s_attr, s_item, s_value,
   s_tag_bracket, s_tag_close: string;
-  s_quote, s_space, s_equalchar: string;
+  s_quote, s_space, s_equalchar, s_equalfinal: string;
   ok, bClosing: boolean;
   NextChar: char;
   L: TStringList;
@@ -609,13 +639,18 @@ begin
           //keep only items which begin with s_word
           for s_item in L do
           begin
+            s_equalfinal:= s_equalchar;
+            //support 'boolean' properties (without ="")
+            if s_item in cBooleanProps then
+              s_equalfinal:= '';
+
             if s_word<>'' then
             begin
               ok:= StartsText(s_word, s_item);
               if not ok then Continue;
             end;
 
-            ListResult.Add(s_tag+' '+CompletionOpsHtml.PrefixAttrib+'|'+s_item+#1+s_equalchar);
+            ListResult.Add(s_tag+' '+CompletionOpsHtml.PrefixAttrib+'|'+s_item+#1+s_equalfinal);
           end;
         finally
           FreeAndNil(L);
