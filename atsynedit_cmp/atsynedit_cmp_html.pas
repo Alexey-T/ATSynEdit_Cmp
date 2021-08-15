@@ -25,14 +25,12 @@ type
   TATCompletionOptionsHtml = record
   private
     ListOfTags: TStringList;
-    ListOfBoolAttr: TStringList;
   public
     Provider: TATHtmlProvider;
     FilenameHtmlList: string; //from CudaText: data/autocompletespec/html_list.ini
     FilenameHtmlGlobals: string; //from CudaText: data/autocompletespec/html_globals.ini
     FilenameHtmlEntities: string; //from CudaText: data/autocompletespec/html_entities.ini
     FilenameHtmlMediaTypes: string; //from CudaText: data/autocompletespec/html_mediatypes.ini
-    FilenameHtmlBooleanAttribs: string; //from CudaText: data/autocompletespec/html_boolattr.ini
     FileMaskHREF: string;
     FileMaskLinkHREF: string;
     FileMaskPictures: string;
@@ -494,14 +492,37 @@ end;
 
 function TATCompletionOptionsHtml.IsBooleanAttrib(const S: string): boolean;
 begin
-  if ListOfBoolAttr=nil then
-  begin
-    ListOfBoolAttr:= TStringList.Create;
-    ListOfBoolAttr.Sorted:= true;
-    if FileExists(FilenameHtmlBooleanAttribs) then
-      ListOfBoolAttr.LoadFromFile(FilenameHtmlBooleanAttribs);
+  case S of
+    'allowfullscreen',
+    'allowpaymentrequest',
+    'async',
+    'autofocus',
+    'autoplay',
+    'checked',
+    'controls',
+    'default',
+    'defer',
+    'disabled',
+    'formnovalidate',
+    'hidden',
+    'ismap',
+    'itemscope',
+    'loop',
+    'multiple',
+    'muted',
+    'nomodule',
+    'novalidate',
+    'open',
+    'playsinline',
+    'readonly',
+    'required',
+    'reversed',
+    'selected',
+    'truespeed':
+      Result:= true;
+    else
+      Result:= false;
   end;
-  Result:= ListOfBoolAttr.IndexOf(S)>=0;
 end;
 
 { TAcp }
@@ -961,7 +982,6 @@ initialization
   begin
     Provider:= nil;
     ListOfTags:= nil;
-    ListOfBoolAttr:= nil;
     FilenameHtmlList:= '';
     FilenameHtmlGlobals:= '';
     FilenameHtmlEntities:= '';
@@ -989,8 +1009,6 @@ finalization
 
   with CompletionOpsHtml do
   begin
-    if Assigned(ListOfBoolAttr) then
-      FreeAndNil(ListOfBoolAttr);
     if Assigned(ListOfTags) then
       FreeAndNil(ListOfTags);
     if Assigned(Provider) then
