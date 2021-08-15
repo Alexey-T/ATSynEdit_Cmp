@@ -55,6 +55,9 @@ type
 var
   CompletionOpsHtml: TATCompletionOptionsHtml;
 
+function IsTagNeedsClosingTag(const S: string): boolean;
+
+
 implementation
 
 uses
