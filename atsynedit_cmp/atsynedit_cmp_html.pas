@@ -591,6 +591,13 @@ begin
     ACharsLeft,
     ACharsRight);
 
+  // '/' is a word-char, so strip it specially here
+  if StartsStr('/', s_word) then
+  begin
+    Delete(s_word, 1, 1);
+    Dec(ACharsLeft);
+  end;
+
   case Context of
     ctxTags:
       begin
