@@ -359,6 +359,9 @@ begin
   if S[APosX]='<' then
     exit(ctxTags);
 
+  if (APosX-1>0) and (S[APosX-1]='<') and (S[APosX]='/') then
+    exit(ctxTags);
+
   //detect HTML entity like &name;
   if (APosX>0) and (APosX<=St.LinesLen[APosY]) then
   begin
