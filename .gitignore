@@ -2,3 +2,5 @@ lib/
 *.exe
 *.o
 *.a
+*.lps
+project1
