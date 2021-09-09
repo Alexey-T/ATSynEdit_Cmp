@@ -27,12 +27,18 @@ type
   TATCompletionResultEvent = procedure (Sender: TObject;
     const ASnippetId: string; ASnippetIndex: integer) of object;
 
-//AContent is a list of strings. Each string is '|'-separated items.
-//Usually item_0 is prefix to show,
-//        item_1 is actual text (inserted on Enter),
-//        item_2..etc are only to show.
-//e.g. 'func|Func1|(param1, param2)'+#13+'var|Var1'+#13+'var|Var2'
-//Item for text can have suffixes after #1: text+#1+suffix_before_caret+#1+suffix_after_caret
+{
+AContent is a list of strings. Each string is '|'-separated items.
+Usually item_0 is prefix to show,
+        item_1 is actual text (inserted on Enter),
+        item_2, item_3 etc are only to show in listbox.
+e.g. 'func|FuncOne|'
+     'func|FuncTwo|(param1, param2)'#9'Function help'
+     'var|VarName1|'
+     'var|VarName2|'#9'Some description'
+Also item_1 can have suffixes after chr(1): text+#1+suffix_before_caret+#1+suffix_after_caret.
+Also you can append #9'Text' to show a description in a tooltip out of the listbox.
+}
 
 procedure EditorShowCompletionListbox(AEd: TATSynEdit;
   AOnGetProp: TATCompletionPropEvent;
