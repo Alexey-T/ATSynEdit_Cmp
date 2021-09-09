@@ -27,7 +27,7 @@ type
   TATCompletionResultEvent = procedure (Sender: TObject;
     const ASnippetId: string; ASnippetIndex: integer) of object;
 
-//AText is #13-separated strings, each string is '|'-separated items.
+//AContent is a list of strings. Each string is '|'-separated items.
 //Usually item_0 is prefix to show,
 //        item_1 is actual text (inserted on Enter),
 //        item_2..etc are only to show.
