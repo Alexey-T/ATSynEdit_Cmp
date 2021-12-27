@@ -442,7 +442,7 @@ begin
         if (ATagName='video') and (AAttrName='src') then
           Result:= ctxValueVideoSrc
         else
-        if (ATagName='source') and (AAttrName='src') then
+        if (ATagName='source') and ((AAttrName='src') or (AAttrName='srcset')) then
           Result:= ctxValueSourceSrc;
       end
       else
