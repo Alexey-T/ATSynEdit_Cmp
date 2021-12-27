@@ -143,7 +143,7 @@ const
   cRegexGroup = 1; //group 1 in (..)
 
   //group 1: quote char, group 2: URL text
-  cRegexUrl =      'url\(\s*([''"]?)(' + '[\w\.,/~@!=\-\(\)\[\]]*' + ')$';
+  cRegexUrl =      'url\(\s*([''"]?)(' + '[\w\.%,/~@!=\-\(\)\[\]]*' + ')$';
   cRegexUrlEmpty = 'url\(\s*(''|"|)$';
 
   cRegexVar = 'var\(\s*([\w\-]*)$';
@@ -314,7 +314,7 @@ procedure TAcp.DoOnGetCompleteProp(Sender: TObject;
       CompletionOpsCss.PrefixDir,
       CompletionOpsCss.PrefixFile,
       true, //AddSlash
-      false
+      true //URL encode
       );
   end;
   //
