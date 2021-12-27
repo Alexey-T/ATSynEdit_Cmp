@@ -8,19 +8,18 @@ unit ATSynEdit_Cmp_Filenames;
 
 interface
 
-uses Classes;
+uses
+  SysUtils,
+  FileUtil,
+  Classes,
+  URIParser,
+  ATStringProc;
 
 procedure CalculateCompletionFilenames(AResult: TStringList;
   const ACurDir, AText, AFileMask,
   APrefixDir, APrefixFile: string; AddDirSlash, AURIEncode: boolean);
 
 implementation
-
-uses
-  SysUtils,
-  URIParser,
-  ATStringProc,
-  FileUtil;
 
 const
   GenDelims = [':', '/', '?', '#', '[', ']', '@'];
@@ -58,6 +57,11 @@ begin
       P^ := s[i];
     Inc(P);
   end;
+end;
+
+function EscapeWebFilename(const s: String): String;
+begin
+  Result:= Escape(s, ValidPathChars);
 end;
 
 function IsValueFilename(const S: string): boolean;
@@ -134,9 +138,9 @@ begin
 
     for SItem in L do
     begin
-      SItemShort:= ExtractFileName(SItem);
+      SItemShort:= MaybeEscape(ExtractFileName(SItem));
       if (SFileName='') or SBeginsWith(SItemShort, SFileName) then
-        AResult.Add(APrefixFile+'|'+MaybeEscape(SItemShort));
+        AResult.Add(APrefixFile+'|'+SItemShort);
     end;
   finally
     FreeAndNil(L);

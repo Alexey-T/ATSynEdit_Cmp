@@ -548,7 +548,7 @@ procedure TAcp.DoOnGetCompleteProp(Sender: TObject;
       CompletionOpsHtml.PrefixDir,
       CompletionOpsHtml.PrefixFile,
       bAddSlash,
-      false
+      true{URL encode}
       );
   end;
   //
