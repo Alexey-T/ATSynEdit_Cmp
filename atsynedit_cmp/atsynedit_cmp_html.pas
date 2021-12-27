@@ -993,7 +993,7 @@ initialization
     FilenameHtmlEntities:= '';
     FileMaskHREF:= AllFilesMask;
     FileMaskLinkHREF:= '*.css';
-    FileMaskPictures:= '*.png;*.gif;*.jpg;*.jpeg;*.ico';
+    FileMaskPictures:= '*.png;*.gif;*.jpg;*.jpeg;*.ico;*.webp;*.avif';
     FileMaskScript:= '*.js';
     FileMaskFrame:= '*.htm;*.html;*.php*;*.asp;*.aspx';
     FileMaskAudio:= '*.mp3;*.ogg;*.wav';
