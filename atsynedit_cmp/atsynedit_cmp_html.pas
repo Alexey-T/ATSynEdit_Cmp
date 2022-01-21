@@ -853,7 +853,7 @@ begin
   Ed.DoEventChange(Ed.Carets[0].PosY);
   Ed.Update(true);
 
-  SetLength(NeedBracketX, 0);
+  NeedBracketX:= nil;
 end;
 
 
