@@ -23,6 +23,18 @@ uses
   ATSynEdit_Carets,
   ATSynEdit_Cmp_Form;
 
+procedure SReplaceAllPercentChars(var S: string);
+var
+  i: Integer;
+begin
+  for i:= $20 to $2F do
+    SReplaceAll(S, '%'+IntToHex(i, 2), Chr(i));
+
+  i:= $7C;
+  SReplaceAll(S, '%'+IntToHex(i, 2), Chr(i));
+end;
+
+
 type
   { TAcp }
 
