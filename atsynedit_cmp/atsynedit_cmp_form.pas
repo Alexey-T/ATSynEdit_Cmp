@@ -257,6 +257,10 @@ procedure TFormATSynEditComplete.FormClose(Sender: TObject;
 begin
   DoHintHide;
   CloseAction:= caHide;
+
+  //force focus to editor, fix CudaText issue #4111
+  if FEdit.Visible and FEdit.Enabled and FEdit.CanFocus then
+    FEdit.SetFocus;
 end;
 
 procedure TFormATSynEditComplete.FormDestroy(Sender: TObject);
