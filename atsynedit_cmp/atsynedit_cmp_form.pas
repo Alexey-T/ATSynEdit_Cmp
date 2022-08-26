@@ -418,13 +418,15 @@ end;
 
 procedure TFormATSynEditComplete.GetResultText(out AText: string; out AWithBracket: boolean);
 var
+  N: integer;
   SDesc: string;
 begin
   AText:= '';
-  if List.ItemIndex>=0 then
+  N:= List.ItemIndex;
+  if (N>=0) and (N<List.Count) then
   begin
-    AText:= GetItemText(SList[List.ItemIndex], CompletionOps.IndexOfText);
-    SDesc:= GetItemText(SList[List.ItemIndex], CompletionOps.IndexOfDesc);
+    AText:= GetItemText(SList[N], CompletionOps.IndexOfText);
+    SDesc:= GetItemText(SList[N], CompletionOps.IndexOfDesc);
 
     AWithBracket:=
       CompletionOps.AppendOpeningBracket and
@@ -467,6 +469,7 @@ var
   SLongItem, SItem, SHint: string;
   NSize, i: integer;
 begin
+  if (AIndex<0) or (AIndex>=SList.Count) then exit;
   SLongItem:= SList[AIndex];
 
   if AIndex=List.ItemIndex then
