@@ -855,7 +855,8 @@ begin
     end;
   end;
 
-  Ed.DoEventChange(Ed.Carets[0].PosY);
+  if Ed.Carets.Count>0 then
+    Ed.DoEventChange(Ed.Carets[0].PosY);
   Ed.Update(true);
 
   NeedBracketX:= nil;
