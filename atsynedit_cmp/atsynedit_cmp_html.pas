@@ -120,6 +120,7 @@ begin
   ARight:= 0;
   AAddSlash:= true;
 
+  if Ed.Carets.Count=0 then exit;
   Caret:= Ed.Carets[0];
   if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
   S:= Ed.Strings.Lines[Caret.PosY];
@@ -334,6 +335,7 @@ begin
   Result:= ctxNone;
   bTagValid:= false;
   St:= Ed.Strings;
+  if not St.IsIndexValid(APosY) then exit;
   if APosX>St.LinesLen[APosY] then exit;
 
   //detect caret inside style="..." or style='...'
@@ -576,6 +578,7 @@ begin
   ListResult.Clear;
   St:= Ed.Strings;
 
+  if Ed.Carets.Count=0 then exit;
   Caret:= Ed.Carets[0];
   if not St.IsIndexValid(Caret.PosY) then exit;
   if Caret.PosX>St.LinesLen[Caret.PosY] then exit;
@@ -830,21 +833,23 @@ end;
 
 procedure TAcp.ApplyNeedBracketX;
 var
+  St: TATStrings;
   Caret: TATCaretItem;
   SLine: UnicodeString;
   iCaret: integer;
 begin
   if Length(NeedBracketX)<Ed.Carets.Count then exit;
+  St:= Ed.Strings;
 
   for iCaret:= Ed.Carets.Count-1 downto 0 do
   begin
     Caret:= Ed.Carets[iCaret];
     if NeedBracketX[iCaret]<0 then Continue;
-    if Ed.Strings.IsIndexValid(Caret.PosY) then
+    if St.IsIndexValid(Caret.PosY) then
     begin
-      SLine:= Ed.Strings.Lines[Caret.PosY];
+      SLine:= St.Lines[Caret.PosY];
       Insert('<', SLine, NeedBracketX[iCaret]+1);
-      Ed.Strings.Lines[Caret.PosY]:= SLine;
+      St.Lines[Caret.PosY]:= SLine;
       Caret.PosX:= Caret.PosX+1;
       Ed.UpdateCaretsAndMarkersOnEditing(iCaret+1, Caret.PosX, Caret.PosY, 1, 0, Point(0, 0));
     end;
