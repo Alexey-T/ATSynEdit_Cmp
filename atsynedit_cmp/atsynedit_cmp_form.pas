@@ -271,7 +271,7 @@ end;
 procedure TFormATSynEditComplete.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  if (key=vk_up) and (shift=[]) then
+  if (Key=VK_UP) and (Shift=[]) then
   begin
     if List.ItemIndex>0 then
       List.ItemIndex:= List.ItemIndex-1
@@ -282,11 +282,11 @@ begin
       cudCloseForm:
         Close;
     end;
-    key:= 0;
+    Key:= 0;
     exit
   end;
 
-  if (key=vk_down) and (shift=[]) then
+  if (Key=VK_DOWN) and (Shift=[]) then
   begin
     if List.ItemIndex<List.ItemCount-1 then
       List.ItemIndex:= List.ItemIndex+1
@@ -297,65 +297,65 @@ begin
       cudCloseForm:
         Close;
     end;
-    key:= 0;
+    Key:= 0;
     exit
   end;
 
-  if (key=VK_PRIOR) and (shift=[]) then
+  if (Key=VK_PRIOR) and (Shift=[]) then
   begin
     List.ItemIndex:= Max(0, List.ItemIndex-List.VisibleItems);
-    key:= 0;
+    Key:= 0;
     exit
   end;
 
-  if (key=VK_NEXT) and (shift=[]) then
+  if (Key=VK_NEXT) and (Shift=[]) then
   begin
     List.ItemIndex:= Min(List.Itemcount-1, List.ItemIndex+List.VisibleItems);
-    key:= 0;
+    Key:= 0;
     exit
   end;
 
-  if (key=vk_home) then
+  if (Key=VK_HOME) then
   begin
     List.ItemIndex:= 0;
-    key:= 0;
+    Key:= 0;
     exit
   end;
 
-  if (key=vk_end) then
+  if (Key=VK_END) then
   begin
     List.ItemIndex:= List.ItemCount-1;
-    key:= 0;
+    Key:= 0;
     exit
   end;
 
-  if (key=VK_ESCAPE) then
+  if (Key=VK_ESCAPE) then
   begin
     Close;
-    key:= 0;
+    Key:= 0;
     exit
   end;
 
-  if (key=VK_RETURN) or (key=VK_TAB) then
+  if (Key=VK_RETURN) or (Key=VK_TAB) then
   begin
     DoResult;
-    key:= 0;
+    Key:= 0;
     exit
   end;
 
-  if (key=VK_LEFT) and (shift=[]) then
+  if (Key=VK_LEFT) and (Shift=[]) then
   begin
     Editor.DoCommand(cCommand_KeyLeft, cInvokeHotkey);
     DoUpdate;
-    key:= 0;
+    Key:= 0;
     exit
   end;
 
-  if (key=VK_RIGHT) and (shift=[]) then
+  if (Key=VK_RIGHT) and (Shift=[]) then
   begin
     Editor.DoCommand(cCommand_KeyRight, cInvokeHotkey);
     DoUpdate;
-    key:= 0;
+    Key:= 0;
     exit
   end;
 end;
@@ -423,7 +423,7 @@ var
 begin
   AText:= '';
   N:= List.ItemIndex;
-  if (N>=0) and (N<List.Count) then
+  if (N>=0) and (N<SList.Count) then
   begin
     AText:= GetItemText(SList[N], CompletionOps.IndexOfText);
     SDesc:= GetItemText(SList[N], CompletionOps.IndexOfDesc);
