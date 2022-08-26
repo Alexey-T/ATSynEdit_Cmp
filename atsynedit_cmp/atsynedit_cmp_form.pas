@@ -422,6 +422,8 @@ var
   SDesc: string;
 begin
   AText:= '';
+  AWithBracket:= false;
+
   N:= List.ItemIndex;
   if (N>=0) and (N<SList.Count) then
   begin
