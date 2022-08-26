@@ -566,7 +566,7 @@ var
   s_tag, s_attr, s_item, s_value,
   s_tag_bracket, s_tag_close: string;
   s_quote, s_space, s_equalchar, s_equalfinal: string;
-  ok, bClosing: boolean;
+  ok, bTagClosing: boolean;
   NextChar: char;
   L: TStringList;
   i: integer;
@@ -589,7 +589,7 @@ begin
     s_tag,
     s_attr,
     s_value,
-    bClosing,
+    bTagClosing,
     NextChar);
 
   EditorGetCurrentWord(Ed,
@@ -612,13 +612,13 @@ begin
             s_item:= L[i];
 
             //special handle of some tags: a, img, link...
-            if s_item='a' then
+            if (s_item='a') and not bTagClosing then
               s_item:= 'a'#1' href="'#1'"></a>'
             else
-            if s_item='img' then
+            if (s_item='img') and not bTagClosing then
               s_item:= 'img'#1' src="'#1'">'
             else
-            if s_item='link' then
+            if (s_item='link') and not bTagClosing then
               s_item:= 'link'#1' rel="stylesheet" type="text/css" href="'#1'">'
             else
             begin
@@ -628,7 +628,7 @@ begin
               if NextChar<>'>' then
               begin
                 s_tag_bracket:= '>';
-                if not bClosing and IsTagNeedsClosingTag(s_item) then
+                if not bTagClosing and IsTagNeedsClosingTag(s_item) then
                   s_tag_close:= #1'</'+s_item+'>';
               end;
               s_item:= s_item+#1+s_tag_bracket+s_tag_close;
