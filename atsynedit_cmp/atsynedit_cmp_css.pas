@@ -9,6 +9,7 @@ unit ATSynEdit_Cmp_CSS;
 interface
 
 uses
+  ATStrings,
   ATSynEdit,
   ATSynEdit_Cmp_CSS_Provider;
 
@@ -100,13 +101,16 @@ end;
 
 function EditorGetCaretInCurlyBrackets(Ed: TATSynEdit; APosX, APosY: integer): boolean;
 var
+  St: TATStrings;
   S: UnicodeString;
   X, Y: integer;
 begin
   Result:= false;
+  St:= Ed.Strings;
   for Y:= APosY downto Max(0, APosY-CompletionOpsCss.LinesToLookup) do
   begin
-    S:= Ed.Strings.Lines[Y];
+    if not St.IsIndexValid(Y) then Continue;
+    S:= St.Lines[Y];
     if Y=APosY then
       Delete(S, APosX+1, MaxInt);
     for X:= Length(S) downto 1 do
@@ -465,19 +469,22 @@ end;
 procedure TAcp.DoOnChoose(Sender: TObject; const ASnippetId: string;
   ASnippetIndex: integer);
 var
+  St: TATStrings;
   Caret: TATCaretItem;
   S: UnicodeString;
 begin
+  St:= Ed.Strings;
   if CompletionOpsCss.AppendSemicolon then
   begin
+    if Ed.Carets.Count=0 then exit;
     Caret:= Ed.Carets[0];
-    if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
-    S:= Ed.Strings.Lines[Caret.PosY];
+    if not St.IsIndexValid(Caret.PosY) then exit;
+    S:= St.Lines[Caret.PosY];
     if S='' then exit;
     if S[Length(S)]<>';' then
     begin
       S+= ';';
-      Ed.Strings.Lines[Caret.PosY]:= S;
+      St.Lines[Caret.PosY]:= S;
       Ed.DoEventChange(Caret.PosY);
       Ed.Update;
     end;
