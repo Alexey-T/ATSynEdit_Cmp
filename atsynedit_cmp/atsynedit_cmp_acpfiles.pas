@@ -219,9 +219,16 @@ begin
 
   for n:= 0 to ListAcpText.Count-1 do
   begin
-    s_type:= ListAcpType[n];
-    s_text:= ListAcpText[n];
-    s_desc:= ListAcpDesc[n];
+    s_type:= '';
+    s_text:= '';
+    s_desc:= '';
+
+    if n<ListAcpType.Count then
+      s_type:= ListAcpType[n];
+    if n<ListAcpText.Count then
+      s_text:= ListAcpText[n];
+    if n<ListAcpDesc.Count then
+      s_desc:= ListAcpDesc[n];
 
     if s_word<>'' then
     begin
