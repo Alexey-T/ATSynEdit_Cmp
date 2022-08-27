@@ -25,13 +25,10 @@ uses
 
 procedure SReplaceAllPercentChars(var S: string);
 var
-  i: Integer;
+  i: byte;
 begin
-  for i:= $20 to $2F do
+  for i in [$20..$2F, ord('|')] do
     SReplaceAll(S, '%'+IntToHex(i, 2), Chr(i));
-
-  i:= $7C;
-  SReplaceAll(S, '%'+IntToHex(i, 2), Chr(i));
 end;
 
 
