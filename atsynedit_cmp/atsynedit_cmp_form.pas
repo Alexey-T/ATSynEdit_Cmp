@@ -10,7 +10,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics,
-  Dialogs,
+  Dialogs, ExtCtrls,
   LclProc, LclType,
   ATSynEdit,
   ATSynEdit_Carets,
@@ -70,6 +70,7 @@ type
       const ARect: TRect);
   private
     { private declarations }
+    FTimerClosing: TTimer;
     SList: TStringlist;
     FOnGetProp: TATCompletionPropEvent;
     FOnResult: TATCompletionResultEvent;
@@ -92,6 +93,7 @@ type
     procedure GetResultText(out AText: string; out AWithBracket: boolean);
     procedure EditorOptionsSave;
     procedure EditorOptionsRestore;
+    procedure TimerClosingTimer(Sender: TObject);
   public
     { public declarations }
     property Editor: TATSynEdit read FEdit write FEdit;
@@ -141,6 +143,7 @@ type
     HintSizeX: integer;
     TextIndent0: integer;
     TextIndent: integer;
+    ClosingTimerInverval: integer;
   end;
 
 var
@@ -464,6 +467,12 @@ begin
   end;
 end;
 
+procedure TFormATSynEditComplete.TimerClosingTimer(Sender: TObject);
+begin
+  FTimerClosing.Enabled:= false;
+  Close;
+end;
+
 procedure TFormATSynEditComplete.ListDrawItem(Sender: TObject; C: TCanvas;
   AIndex: integer; const ARect: TRect);
 var
@@ -580,9 +589,21 @@ begin
 
   if SList.Count=0 then
   begin
-    Close;
+    //instead of 'Close' run the timer, to avoid hiding/showing when user presses Left/Right arrow in editor
+    if FTimerClosing=nil then
+    begin
+      FTimerClosing:= TTimer.Create(Self);
+      FTimerClosing.Interval:= CompletionOps.ClosingTimerInverval;
+      FTimerClosing.OnTimer:= @TimerClosingTimer;
+    end;
+    FTimerClosing.Enabled:= false;
+    FTimerClosing.Enabled:= true;
+
     exit
   end;
+
+  if Assigned(FTimerClosing) then
+    FTimerClosing.Enabled:= false;
 
   if SList.Count=1 then
     if CompletionOps.CommitIfSingleItem then
@@ -710,6 +731,7 @@ initialization
     HintSizeX:= 400;
     TextIndent0:= 4;
     TextIndent:= 8;
+    ClosingTimerInverval:= 300;
   end;
 
 finalization
