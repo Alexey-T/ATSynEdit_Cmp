@@ -149,12 +149,12 @@ type
 var
   CompletionOps: TATCompletionOptions;
 
+var
+  FormComplete: TFormATSynEditComplete = nil;
+
 implementation
 
 {$R *.lfm}
-
-var
-  FormComplete: TFormATSynEditComplete = nil;
 
 procedure EditorShowCompletionListbox(AEd: TATSynEdit;
   AOnGetProp: TATCompletionPropEvent;
