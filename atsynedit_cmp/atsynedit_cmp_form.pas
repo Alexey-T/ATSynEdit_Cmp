@@ -149,12 +149,19 @@ type
 var
   CompletionOps: TATCompletionOptions;
 
-var
-  FormComplete: TFormATSynEditComplete = nil;
+function IsAutocompletionFormVisible: boolean;
 
 implementation
 
 {$R *.lfm}
+
+var
+  FormComplete: TFormATSynEditComplete = nil;
+
+function IsAutocompletionFormVisible: boolean;
+begin
+  Result:= Assigned(FormComplete) and FormComplete.Visible;
+end;
 
 procedure EditorShowCompletionListbox(AEd: TATSynEdit;
   AOnGetProp: TATCompletionPropEvent;
