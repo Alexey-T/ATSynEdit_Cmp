@@ -144,6 +144,7 @@ type
     TextIndent0: integer;
     TextIndent: integer;
     ClosingTimerInverval: integer;
+    ShortcutForAutocomplete: TShortCut;
   end;
 
 var
@@ -364,6 +365,13 @@ begin
   if (Key=VK_RIGHT) and (Shift=[]) then
   begin
     Editor.DoCommand(cCommand_KeyRight, cInvokeHotkey);
+    DoUpdate;
+    Key:= 0;
+    exit
+  end;
+
+  if KeyToShortCut(Key, Shift)=CompletionOps.ShortcutForAutocomplete then
+  begin
     DoUpdate;
     Key:= 0;
     exit
@@ -739,6 +747,7 @@ initialization
     TextIndent0:= 4;
     TextIndent:= 8;
     ClosingTimerInverval:= 300;
+    ShortcutForAutocomplete:= KeyToShortCut(VK_SPACE, [ssCtrl]);
   end;
 
 finalization
