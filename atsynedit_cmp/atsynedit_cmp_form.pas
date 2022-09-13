@@ -196,7 +196,7 @@ var
   Pos, Shift, PosAfter: TPoint;
   StrText, Str1, Str2, StrToInsert: atString;
   Sep: TATStringSeparator;
-  i: integer;
+  iCaret: integer;
 begin
   if AStr='' then exit;
   if Editor.Carets.Count=0 then exit;
@@ -209,9 +209,9 @@ begin
   //must support multi-carets, for HTML
   Editor.Strings.BeginUndoGroup;
   try
-    for i:= 0 to Editor.Carets.Count-1 do
+    for iCaret:= 0 to Editor.Carets.Count-1 do
     begin
-      Caret:= Editor.Carets[i];
+      Caret:= Editor.Carets[iCaret];
       Pos.X:= Caret.PosX;
       Pos.Y:= Caret.PosY;
 
@@ -232,7 +232,7 @@ begin
       Editor.Strings.TextInsert(Pos.X, Pos.Y, StrToInsert, false, Shift, PosAfter);
 
       //adjust markers/attrs
-      Editor.UpdateCaretsAndMarkersOnEditing(i, Pos.X, Pos.Y,
+      Editor.UpdateCaretsAndMarkersOnEditing(iCaret, Pos.X, Pos.Y,
         Length(StrToInsert) - FCharsLeft-FCharsRight, 0,
         PosAfter
         );
