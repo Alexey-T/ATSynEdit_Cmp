@@ -232,7 +232,7 @@ begin
       Editor.Strings.TextInsert(Pos.X, Pos.Y, StrToInsert, false, Shift, PosAfter);
 
       //adjust markers/attrs
-      Editor.UpdateCaretsAndMarkersOnEditing(iCaret, Pos.X, Pos.Y,
+      Editor.UpdateCaretsAndMarkersOnEditing(iCaret+1, Pos.X, Pos.Y,
         Length(StrToInsert) - FCharsLeft-FCharsRight, 0,
         PosAfter
         );
