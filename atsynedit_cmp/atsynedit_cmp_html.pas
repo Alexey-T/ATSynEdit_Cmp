@@ -851,7 +851,11 @@ begin
       Insert('<', SLine, NeedBracketX[iCaret]+1);
       St.Lines[Caret.PosY]:= SLine;
       Caret.PosX:= Caret.PosX+1;
-      Ed.UpdateCaretsAndMarkersOnEditing(iCaret+1, Caret.PosX, Caret.PosY, 1, 0, Point(0, 0));
+      Ed.UpdateCaretsAndMarkersOnEditing(iCaret+1,
+        Point(Caret.PosX, Caret.PosY),
+        Point(Caret.PosX, Caret.PosY),
+        Point(1, 0),
+        Point(0, 0));
     end;
   end;
 

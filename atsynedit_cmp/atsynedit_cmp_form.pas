@@ -232,8 +232,10 @@ begin
       Editor.Strings.TextInsert(Pos.X, Pos.Y, StrToInsert, false, Shift, PosAfter);
 
       //adjust markers/attrs
-      Editor.UpdateCaretsAndMarkersOnEditing(iCaret+1, Pos.X, Pos.Y,
-        Length(StrToInsert) - FCharsLeft-FCharsRight, 0,
+      Editor.UpdateCaretsAndMarkersOnEditing(iCaret+1,
+        Pos,
+        Pos,
+        Point(Length(StrToInsert) - FCharsLeft-FCharsRight, 0),
         PosAfter
         );
 
