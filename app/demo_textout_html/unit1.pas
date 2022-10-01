@@ -33,7 +33,8 @@ type
     AtrChar: Widechar;
     AtrBold,
     AtrItalic,
-    AtrUnder: boolean;
+    AtrUnder,
+    AtrStrike: boolean;
   end;
 
 procedure CanvasTextOutWithHTML(C: TCanvas; X, Y: integer; const Text: string);
@@ -44,6 +45,7 @@ procedure CanvasTextOutWithHTML(C: TCanvas; X, Y: integer; const Text: string);
     if Atr.AtrBold then Include(Result, fsBold);
     if Atr.AtrItalic then Include(Result, fsItalic);
     if Atr.AtrUnder then Include(Result, fsUnderline);
+    if Atr.AtrStrike then Include(Result, fsStrikeOut);
   end;
   //
   function AtrSameStyles(var A1, A2: TCanvasCharAttr): boolean;
@@ -51,7 +53,8 @@ procedure CanvasTextOutWithHTML(C: TCanvas; X, Y: integer; const Text: string);
     Result:=
       (A1.AtrBold=A2.AtrBold) and
       (A1.AtrItalic=A2.AtrItalic) and
-      (A1.AtrUnder=A2.AtrUnder);
+      (A1.AtrUnder=A2.AtrUnder) and
+      (A1.AtrStrike=A2.AtrStrike);
   end;
   //
 const
@@ -62,7 +65,7 @@ var
   SWide, STag, SFragment: UnicodeString;
   ch: Widechar;
   NLen: integer;
-  bBold, bItalic, bUnder, bTagClosing: boolean;
+  bBold, bItalic, bUnder, bStrike, bTagClosing: boolean;
   PosX: integer;
   i, j: integer;
 begin
@@ -73,6 +76,7 @@ begin
   bBold:= false;
   bItalic:= false;
   bUnder:= false;
+  bStrike:= false;
   bTagClosing:= false;
   NLen:= Length(SWide);
 
@@ -110,6 +114,10 @@ begin
           begin
             bUnder:= not bTagClosing;
           end;
+        's':
+          begin
+            bStrike:= not bTagClosing;
+          end;
       end;
       i:= j;
     end
@@ -125,6 +133,7 @@ begin
         AtrBold:= bBold;
         AtrItalic:= bItalic;
         AtrUnder:= bUnder;
+        AtrStrike:= bStrike;
       end;
     end;
   until false;
