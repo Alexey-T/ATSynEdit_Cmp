@@ -13,7 +13,7 @@
     <Description Value="Auto-completion for ATSynEdit. General form with listbox, and helpers for: HTML, CSS, file:///, CudaText acp files."/>
     <License Value="MPL 2.0, LGPL"/>
     <Version Major="2"/>
-    <Files Count="8">
+    <Files Count="9">
       <Item1>
         <Filename Value="atsynedit_cmp_filenames.pas"/>
         <UnitName Value="ATSynEdit_Cmp_Filenames"/>
@@ -46,6 +46,10 @@
         <Filename Value="atsynedit_cmp_html_provider.pas"/>
         <UnitName Value="ATSynEdit_Cmp_HTML_Provider"/>
       </Item8>
+      <Item9>
+        <Filename Value="atsynedit_cmp_renderhtml.pas"/>
+        <UnitName Value="ATSynEdit_Cmp_RenderHTML"/>
+      </Item9>
     </Files>
     <CompatibilityMode Value="True"/>
     <RequiredPkgs Count="2">
