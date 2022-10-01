@@ -50,10 +50,10 @@ var
   Atr: array of TCharAtr;
   AtrLen: integer;
   SWide, STag, SFragment: UnicodeString;
+  SFragmentA: string;
   ch: Widechar;
   NLen: integer;
   bBold, bItalic, bUnder, bStrike, bTagClosing: boolean;
-  PosX: integer;
   i, j: integer;
 begin
   if Text='' then exit;
@@ -126,7 +126,6 @@ begin
   until false;
 
   if AtrLen=0 then exit;
-  PosX:= X;
   SFragment:= '';
 
   for i:= 0 to AtrLen-1 do
@@ -137,14 +136,15 @@ begin
     else
     begin
       C.Font.Style:= AtrToFontStyles(Atr[i-1]);
-      C.TextOut(PosX, Y, SFragment);
-      Inc(PosX, C.TextWidth(SFragment));
+      SFragmentA:= UTF8Encode(SFragment);
+      C.TextOut(X, Y, SFragmentA);
+      Inc(X, C.TextWidth(SFragmentA));
       SFragment:= ch;
     end;
   end;
 
   C.Font.Style:= AtrToFontStyles(Atr[AtrLen-1]);
-  C.TextOut(PosX, Y, SFragment);
+  C.TextOut(X, Y, SFragment);
 end;
 
 end.
