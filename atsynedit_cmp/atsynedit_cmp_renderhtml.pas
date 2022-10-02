@@ -136,6 +136,8 @@ var
   ch: Widechar;
   i: integer;
 begin
+  C.Brush.Style:= bsClear;
+
   CalcAtrArray(Text, Atr, AtrLen);
   if AtrLen=0 then exit;
   SFragment:= '';

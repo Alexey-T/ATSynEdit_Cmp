@@ -37,8 +37,7 @@ procedure TForm1.FormPaint(Sender: TObject);
 begin
   Canvas.Font.Name:= 'default';
   Canvas.Font.Size:= 12;
-  Canvas.Brush.Style:= bsClear;
-  CanvasTextOutWithHTML(Canvas, 20, 80, Edit1.Text);
+  CanvasTextOutHTML(Canvas, 20, 80, Edit1.Text);
 end;
 
 procedure TForm1.Edit1Change(Sender: TObject);
