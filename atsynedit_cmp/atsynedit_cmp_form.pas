@@ -494,9 +494,17 @@ end;
 procedure _TextOut(C: TCanvas; X, Y: integer; const Text: string);
 begin
   if SBeginsWith(Text, '<html>') then
-    CanvasTextOutWithHTML(C, X, Y, Text)
+    CanvasTextOutHTML(C, X, Y, Text)
   else
     C.TextOut(X, Y, Text);
+end;
+
+function _TextWidth(C: TCanvas; const Text: string): integer;
+begin
+  if SBeginsWith(Text, '<html>') then
+    Result:= CanvasTextWidthHTML(C, Text)
+  else
+    Result:= C.TextWidth(Text);
 end;
 
 procedure TFormATSynEditComplete.ListDrawItem(Sender: TObject; C: TCanvas;
@@ -530,7 +538,7 @@ begin
     //prefix
     C.Font.Color:= CompletionOps.ColorFontPrefix;
     _TextOut(C,
-      ARect.Left+List.ClientWidth-List.Canvas.TextWidth(SHint)-CompletionOps.TextIndent0,
+      ARect.Left+List.ClientWidth-_TextWidth(List.Canvas, SHint)-CompletionOps.TextIndent0,
       ARect.Top,
       SHint
       );
@@ -580,7 +588,7 @@ begin
       ARect.Top,
       SItem
       );
-    Inc(NSize, C.TextWidth(SItem)+CompletionOps.TextIndent);
+    Inc(NSize, _TextWidth(C, SItem)+CompletionOps.TextIndent);
   end;
 end;
 

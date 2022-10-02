@@ -11,8 +11,8 @@ interface
 uses
   Classes, SysUtils, Graphics;
 
-procedure CanvasTextOutWithHTML(C: TCanvas; X, Y: integer; const Text: string);
-function CanvasTextWidthWithHTML(C: TCanvas; const Text: string): integer;
+procedure CanvasTextOutHTML(C: TCanvas; X, Y: integer; const Text: string);
+function CanvasTextWidthHTML(C: TCanvas; const Text: string): integer;
 
 implementation
 
@@ -27,6 +27,8 @@ type
     AtrUnder,
     AtrStrike: boolean;
   end;
+
+  TCharAtrArray = array of TCharAtr;
 
 function AtrToFontStyles(const Atr: TCharAtr): TFontStyles;
 begin
@@ -46,20 +48,18 @@ begin
     (A1.AtrStrike=A2.AtrStrike);
 end;
 
-procedure CanvasTextOutWithHTML(C: TCanvas; X, Y: integer; const Text: string);
+procedure CalcAtrArray(const Text: string; out Atr: TCharAtrArray; out AtrLen: integer);
 var
-  Atr: array of TCharAtr;
-  AtrLen: integer;
-  SWide, STag, SFragment: UnicodeString;
-  SFragmentA: string;
-  ch: Widechar;
+  SWide, STag: UnicodeString;
   NLen: integer;
   bBold, bItalic, bUnder, bStrike, bTagClosing: boolean;
   i, j: integer;
 begin
-  if Text='' then exit;
-  SWide:= UTF8Decode(Text);
   AtrLen:= 0;
+  SetLength(Atr, 0);
+  if Text='' then exit;
+
+  SWide:= UTF8Decode(Text);
   SetLength(Atr, CapacityDelta);
   bBold:= false;
   bItalic:= false;
@@ -125,7 +125,18 @@ begin
       end;
     end;
   until false;
+end;
 
+procedure CanvasTextOutHTML(C: TCanvas; X, Y: integer; const Text: string);
+var
+  AtrLen: integer;
+  Atr: TCharAtrArray;
+  SFragment: UnicodeString;
+  SFragmentA: string;
+  ch: Widechar;
+  i: integer;
+begin
+  CalcAtrArray(Text, Atr, AtrLen);
   if AtrLen=0 then exit;
   SFragment:= '';
 
@@ -145,14 +156,46 @@ begin
   end;
 
   C.Font.Style:= AtrToFontStyles(Atr[AtrLen-1]);
-  C.TextOut(X, Y, SFragment);
+  SFragmentA:= UTF8Encode(SFragment);
+  C.TextOut(X, Y, SFragmentA);
 
   C.Font.Style:= [];
 end;
 
-function CanvasTextWidthWithHTML(C: TCanvas; const Text: string): integer;
+function CanvasTextWidthHTML(C: TCanvas; const Text: string): integer;
+var
+  AtrLen: integer;
+  Atr: TCharAtrArray;
+  SFragment: UnicodeString;
+  SFragmentA: string;
+  ch: Widechar;
+  i: integer;
 begin
   Result:= 0;
+
+  CalcAtrArray(Text, Atr, AtrLen);
+  if AtrLen=0 then exit;
+  SFragment:= '';
+
+  for i:= 0 to AtrLen-1 do
+  begin
+    ch:= Atr[i].AtrChar;
+    if (i=0) or AtrSameStyles(Atr[i], Atr[i-1]) then
+      SFragment+= ch
+    else
+    begin
+      C.Font.Style:= AtrToFontStyles(Atr[i-1]);
+      SFragmentA:= UTF8Encode(SFragment);
+      Inc(Result, C.TextWidth(SFragmentA));
+      SFragment:= ch;
+    end;
+  end;
+
+  C.Font.Style:= AtrToFontStyles(Atr[AtrLen-1]);
+  SFragmentA:= UTF8Encode(SFragment);
+  Inc(Result, C.TextWidth(SFragmentA));
+
+  C.Font.Style:= [];
 end;
 
 end.
