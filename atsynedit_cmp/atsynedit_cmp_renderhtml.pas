@@ -12,8 +12,12 @@ uses
   Classes, SysUtils, Graphics;
 
 procedure CanvasTextOutWithHTML(C: TCanvas; X, Y: integer; const Text: string);
+function CanvasTextWidthWithHTML(C: TCanvas; const Text: string): integer;
 
 implementation
+
+const
+  CapacityDelta = 40;
 
 type
   TCharAtr = record
@@ -24,28 +28,25 @@ type
     AtrStrike: boolean;
   end;
 
+function AtrToFontStyles(const Atr: TCharAtr): TFontStyles;
+begin
+  Result:= [];
+  if Atr.AtrBold then Include(Result, fsBold);
+  if Atr.AtrItalic then Include(Result, fsItalic);
+  if Atr.AtrUnder then Include(Result, fsUnderline);
+  if Atr.AtrStrike then Include(Result, fsStrikeOut);
+end;
+
+function AtrSameStyles(const A1, A2: TCharAtr): boolean;
+begin
+  Result:=
+    (A1.AtrBold=A2.AtrBold) and
+    (A1.AtrItalic=A2.AtrItalic) and
+    (A1.AtrUnder=A2.AtrUnder) and
+    (A1.AtrStrike=A2.AtrStrike);
+end;
+
 procedure CanvasTextOutWithHTML(C: TCanvas; X, Y: integer; const Text: string);
-  //
-  function AtrToFontStyles(const Atr: TCharAtr): TFontStyles;
-  begin
-    Result:= [];
-    if Atr.AtrBold then Include(Result, fsBold);
-    if Atr.AtrItalic then Include(Result, fsItalic);
-    if Atr.AtrUnder then Include(Result, fsUnderline);
-    if Atr.AtrStrike then Include(Result, fsStrikeOut);
-  end;
-  //
-  function AtrSameStyles(const A1, A2: TCharAtr): boolean;
-  begin
-    Result:=
-      (A1.AtrBold=A2.AtrBold) and
-      (A1.AtrItalic=A2.AtrItalic) and
-      (A1.AtrUnder=A2.AtrUnder) and
-      (A1.AtrStrike=A2.AtrStrike);
-  end;
-  //
-const
-  CapacityDelta = 40;
 var
   Atr: array of TCharAtr;
   AtrLen: integer;
@@ -147,6 +148,11 @@ begin
   C.TextOut(X, Y, SFragment);
 
   C.Font.Style:= [];
+end;
+
+function CanvasTextWidthWithHTML(C: TCanvas; const Text: string): integer;
+begin
+  Result:= 0;
 end;
 
 end.
