@@ -15,6 +15,7 @@ uses
   ATSynEdit,
   ATSynEdit_Carets,
   ATSynEdit_Commands,
+  ATSynEdit_Cmp_RenderHTML,
   ATStringProc,
   ATStringProc_Separator,
   ATListbox,
@@ -490,6 +491,14 @@ begin
   Close;
 end;
 
+procedure _TextOut(C: TCanvas; X, Y: integer; const Text: string);
+begin
+  if SBeginsWith(Text, '<html>') then
+    CanvasTextOutWithHTML(C, X, Y, Text)
+  else
+    C.TextOut(X, Y, Text);
+end;
+
 procedure TFormATSynEditComplete.ListDrawItem(Sender: TObject; C: TCanvas;
   AIndex: integer; const ARect: TRect);
 var
@@ -520,11 +529,19 @@ begin
 
     //prefix
     C.Font.Color:= CompletionOps.ColorFontPrefix;
-    C.TextOut(ARect.Left+List.ClientWidth-List.Canvas.TextWidth(SHint)-CompletionOps.TextIndent0, ARect.Top, SHint);
+    _TextOut(C,
+      ARect.Left+List.ClientWidth-List.Canvas.TextWidth(SHint)-CompletionOps.TextIndent0,
+      ARect.Top,
+      SHint
+      );
 
     //text
     C.Font.Color:= ATFlatTheme.ColorFontListbox;
-    C.TextOut(ARect.Left+CompletionOps.TextIndent0, ARect.Top, SItem);
+    _TextOut(C,
+      ARect.Left+CompletionOps.TextIndent0,
+      ARect.Top,
+      SItem
+      );
 
     exit;
   end;
@@ -558,7 +575,11 @@ begin
     else
       C.Font.Color:= CompletionOps.ColorFontPrefix;
 
-    C.TextOut(ARect.Left+NSize, ARect.Top, SItem);
+    _TextOut(C,
+      ARect.Left+NSize,
+      ARect.Top,
+      SItem
+      );
     Inc(NSize, C.TextWidth(SItem)+CompletionOps.TextIndent);
   end;
 end;

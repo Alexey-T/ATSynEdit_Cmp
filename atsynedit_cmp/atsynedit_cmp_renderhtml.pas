@@ -145,6 +145,8 @@ begin
 
   C.Font.Style:= AtrToFontStyles(Atr[AtrLen-1]);
   C.TextOut(X, Y, SFragment);
+
+  C.Font.Style:= [];
 end;
 
 end.
