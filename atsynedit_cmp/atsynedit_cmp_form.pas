@@ -146,8 +146,10 @@ type
     TextIndent: integer;
     ClosingTimerInverval: integer;
     ShortcutForAutocomplete: TShortCut;
-    SignatureHTML: string;
   end;
+
+const
+  CompletionSignatureHTML = '<html>';
 
 var
   CompletionOps: TATCompletionOptions;
@@ -494,7 +496,7 @@ end;
 
 procedure _TextOut(C: TCanvas; X, Y: integer; const Text: string);
 begin
-  if SBeginsWith(Text, CompletionOps.SignatureHTML) then
+  if SBeginsWith(Text, CompletionSignatureHTML) then
     CanvasTextOutHTML(C, X, Y, Text)
   else
     C.TextOut(X, Y, Text);
@@ -502,7 +504,7 @@ end;
 
 function _TextWidth(C: TCanvas; const Text: string): integer;
 begin
-  if SBeginsWith(Text, CompletionOps.SignatureHTML) then
+  if SBeginsWith(Text, CompletionSignatureHTML) then
     Result:= CanvasTextWidthHTML(C, Text)
   else
     Result:= C.TextWidth(Text);
@@ -780,7 +782,6 @@ initialization
     TextIndent:= 8;
     ClosingTimerInverval:= 300;
     ShortcutForAutocomplete:= KeyToShortCut(VK_SPACE, [ssCtrl]);
-    SignatureHTML:= '<html>';
   end;
 
 finalization
