@@ -136,11 +136,10 @@ var
   ch: Widechar;
   i: integer;
 begin
-  C.Brush.Style:= bsClear;
-
   CalcAtrArray(Text, Atr, AtrLen);
   if AtrLen=0 then exit;
   SFragment:= '';
+  C.Brush.Style:= bsClear; //fix overlapping of fragments
 
   for i:= 0 to AtrLen-1 do
   begin
