@@ -155,9 +155,12 @@ begin
     end;
   end;
 
-  C.Font.Style:= AtrToFontStyles(Atr[AtrLen-1]);
-  SFragmentA:= UTF8Encode(SFragment);
-  C.TextOut(X, Y, SFragmentA);
+  if SFragment<>'' then
+  begin
+    C.Font.Style:= AtrToFontStyles(Atr[AtrLen-1]);
+    SFragmentA:= UTF8Encode(SFragment);
+    C.TextOut(X, Y, SFragmentA);
+  end;
 
   C.Font.Style:= [];
 end;
@@ -191,9 +194,12 @@ begin
     end;
   end;
 
-  C.Font.Style:= AtrToFontStyles(Atr[AtrLen-1]);
-  SFragmentA:= UTF8Encode(SFragment);
-  Inc(Result, C.TextWidth(SFragmentA));
+  if SFragment<>'' then
+  begin
+    C.Font.Style:= AtrToFontStyles(Atr[AtrLen-1]);
+    SFragmentA:= UTF8Encode(SFragment);
+    Inc(Result, C.TextWidth(SFragmentA));
+  end;
 
   C.Font.Style:= [];
 end;
