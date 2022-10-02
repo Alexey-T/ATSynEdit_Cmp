@@ -497,7 +497,7 @@ end;
 procedure _TextOut(C: TCanvas; X, Y: integer; const Text: string);
 begin
   if SBeginsWith(Text, CompletionSignatureHTML) then
-    CanvasTextOutHTML(C, X, Y, Text)
+    CanvasTextOutHTML(C, X, Y, Copy(Text, Length(CompletionSignatureHTML)+1, MaxInt))
   else
     C.TextOut(X, Y, Text);
 end;
@@ -505,7 +505,7 @@ end;
 function _TextWidth(C: TCanvas; const Text: string): integer;
 begin
   if SBeginsWith(Text, CompletionSignatureHTML) then
-    Result:= CanvasTextWidthHTML(C, Text)
+    Result:= CanvasTextWidthHTML(C, Copy(Text, Length(CompletionSignatureHTML)+1, MaxInt))
   else
     Result:= C.TextWidth(Text);
 end;
