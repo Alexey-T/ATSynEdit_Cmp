@@ -9,13 +9,14 @@ unit ATSynEdit_Cmp_RenderHTML;
 interface
 
 uses
-  Classes, SysUtils, Graphics;
+  Graphics;
 
 procedure CanvasTextOutHTML(C: TCanvas; X, Y: integer; const Text: string);
 function CanvasTextWidthHTML(C: TCanvas; const Text: string): integer;
 
 implementation
 
+//realloc dyn-array by Delta elements at once
 const
   CapacityDelta = 40;
 
