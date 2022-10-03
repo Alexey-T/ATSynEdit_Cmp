@@ -541,7 +541,7 @@ begin
     //prefix
     C.Font.Color:= CompletionOps.ColorFontPrefix;
     _TextOut(C,
-      ARect.Left+List.ClientWidth-_TextWidth(List.Canvas, SHint)-CompletionOps.TextIndent0,
+      ARect.Left+List.ClientWidth-_TextWidth(C, SHint)-CompletionOps.TextIndent0,
       ARect.Top,
       SHint
       );
