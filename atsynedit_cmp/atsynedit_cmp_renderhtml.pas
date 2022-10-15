@@ -61,24 +61,48 @@ begin
     (A1.AtrColor=A2.AtrColor);
 end;
 
+function HexCodeToInt(N: integer): integer;
+begin
+  case N of
+    ord('0')..ord('9'):
+      Result:= N-Ord('0');
+    ord('a')..ord('f'):
+      Result:= N-Ord('a')+10;
+    ord('A')..ord('F'):
+      Result:= N-Ord('A')+10;
+    else
+      Result:= 0;
+  end;
+end;
+
 function _SimpleHtmlColorToColor(const S: string): TColor;
 var
-  i: integer;
+  NLen, i: integer;
+  N1, N2, N3: integer;
 begin
-  Assert(Length(S)=6, 'Color token len must be 6, but it is '+IntToStr(Length(S)));
+  Result:= clNone;
+  NLen:= Length(S);
 
-  if Length(S)<>6 then
-    exit(clNone);
-
-  for i:= 1 to Length(S) do
+  for i:= 1 to NLen do
     if not (S[i] in ['0'..'9', 'a'..'f', 'A'..'F']) then
-      exit(clNone);
+      exit;
 
-  Result:= RGBToColor(
-    StrToIntDef('$'+Copy(S, 1, 2), 0),
-    StrToIntDef('$'+Copy(S, 3, 2), 0),
-    StrToIntDef('$'+Copy(S, 5, 2), 0)
-    );
+  case NLen of
+    6, 8:
+      begin
+        N1:= HexCodeToInt(ord(S[1]))*16 + HexCodeToInt(ord(S[2]));
+        N2:= HexCodeToInt(ord(S[3]))*16 + HexCodeToInt(ord(S[4]));
+        N3:= HexCodeToInt(ord(S[5]))*16 + HexCodeToInt(ord(S[6]));
+        Result:= RGBToColor(N1, N2, N3);
+      end;
+    3, 4:
+      begin
+        N1:= HexCodeToInt(ord(S[1]))*17;
+        N2:= HexCodeToInt(ord(S[2]))*17;
+        N3:= HexCodeToInt(ord(S[3]))*17;
+        Result:= RGBToColor(N1, N2, N3);
+      end;
+  end;
 end;
 
 procedure CalcAtrArray(const Text: string; out Atr: TCharAtrArray; out AtrLen: integer);
