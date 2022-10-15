@@ -147,6 +147,8 @@ type
     TextIndent: integer;
     ClosingTimerInverval: integer;
     ShortcutForAutocomplete: TShortCut;
+    ShortcutForDeleteWordPrev: TShortCut;
+    ShortcutForDeleteWordNext: TShortCut;
   end;
 
 const
@@ -286,8 +288,9 @@ begin
   SList.Free;
 end;
 
-procedure TFormATSynEditComplete.FormKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TFormATSynEditComplete.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+var
+  NKey: TShortCut;
 begin
   if (Key=VK_CONTROL) or
     (Key=VK_SHIFT) or
@@ -381,8 +384,10 @@ begin
     exit
   end;
 
+  NKey:= KeyToShortCut(Key, Shift);
+
   //Ctrl+BackSpace
-  if (Key=VK_BACK) and (Shift=[ssCtrl]) then
+  if NKey=CompletionOps.ShortcutForDeleteWordPrev then
   begin
     Editor.DoCommand(cCommand_TextDeleteWordPrev, cInvokeHotkey);
     DoUpdate;
@@ -391,7 +396,7 @@ begin
   end;
 
   //Ctrl+Delete
-  if (Key=VK_DELETE) and (Shift=[ssCtrl]) then
+  if NKey=CompletionOps.ShortcutForDeleteWordNext then
   begin
     Editor.DoCommand(cCommand_TextDeleteWordNext, cInvokeHotkey);
     DoUpdate;
@@ -399,7 +404,7 @@ begin
     exit;
   end;
 
-  if KeyToShortCut(Key, Shift)=CompletionOps.ShortcutForAutocomplete then
+  if NKey=CompletionOps.ShortcutForAutocomplete then
   begin
     DoUpdate;
     Key:= 0;
