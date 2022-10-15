@@ -814,7 +814,9 @@ initialization
     TextIndentRightCol:= 0; //we add ' ' to right col to emulate right indent
     TextIndent:= 8;
     ClosingTimerInverval:= 300;
-    ShortcutForAutocomplete:= KeyToShortCut(VK_SPACE, [ssCtrl]);
+    ShortcutForAutocomplete:= 0;
+    ShortcutForDeleteWordPrev:= 0;
+    ShortcutForDeleteWordNext:= 0;
   end;
 
 finalization
