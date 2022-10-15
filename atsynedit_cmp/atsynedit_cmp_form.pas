@@ -552,6 +552,7 @@ begin
 
     //prefix
     C.Font.Color:= CompletionOps.ColorFontPrefix;
+    SHint+= ' ';
     _TextOut(C,
       ARect.Left+List.ClientWidth-_TextWidth(C, SHint)-CompletionOps.TextIndentRightCol,
       ARect.Top,
@@ -783,7 +784,7 @@ initialization
     FormSizeY:= 200;
     HintSizeX:= 400;
     TextIndentLeftCol:= 3;
-    TextIndentRightCol:= 0; //better 0 to hide overlapping from left HTML column
+    TextIndentRightCol:= 0; //we add ' ' to right col to emulate right indent
     TextIndent:= 8;
     ClosingTimerInverval:= 300;
     ShortcutForAutocomplete:= KeyToShortCut(VK_SPACE, [ssCtrl]);
