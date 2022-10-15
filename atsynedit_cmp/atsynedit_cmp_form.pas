@@ -289,6 +289,10 @@ end;
 procedure TFormATSynEditComplete.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
+  if (Key=VK_CONTROL) or
+    (Key=VK_SHIFT) or
+    (Key=VK_MENU) then exit;
+
   if (Key=VK_UP) and (Shift=[]) then
   begin
     if List.ItemIndex>0 then
@@ -375,6 +379,24 @@ begin
     DoUpdate;
     Key:= 0;
     exit
+  end;
+
+  //Ctrl+BackSpace
+  if (Key=VK_BACK) and (Shift=[ssCtrl]) then
+  begin
+    Editor.DoCommand(cCommand_TextDeleteWordPrev, cInvokeHotkey);
+    DoUpdate;
+    Key:= 0;
+    exit;
+  end;
+
+  //Ctrl+Delete
+  if (Key=VK_DELETE) and (Shift=[ssCtrl]) then
+  begin
+    Editor.DoCommand(cCommand_TextDeleteWordNext, cInvokeHotkey);
+    DoUpdate;
+    Key:= 0;
+    exit;
   end;
 
   if KeyToShortCut(Key, Shift)=CompletionOps.ShortcutForAutocomplete then
