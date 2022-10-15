@@ -16,6 +16,9 @@ function CanvasTextWidthHTML(C: TCanvas; const Text: string): integer;
 
 implementation
 
+uses
+  SysUtils, StrUtils;
+
 //realloc dyn-array by Delta elements at once
 const
   CapacityDelta = 40;
@@ -27,6 +30,7 @@ type
     AtrItalic,
     AtrUnder,
     AtrStrike: boolean;
+    AtrColor: TColor;
   end;
 
   TCharAtrArray = array of TCharAtr;
@@ -40,13 +44,41 @@ begin
   if Atr.AtrStrike then Include(Result, fsStrikeOut);
 end;
 
+function AtrToFontColor(const Atr: TCharAtr; DefColor: TColor): TColor;
+begin
+  Result:= Atr.AtrColor;
+  if Result=clNone then
+    Result:= DefColor;
+end;
+
 function AtrSameStyles(const A1, A2: TCharAtr): boolean;
 begin
   Result:=
     (A1.AtrBold=A2.AtrBold) and
     (A1.AtrItalic=A2.AtrItalic) and
     (A1.AtrUnder=A2.AtrUnder) and
-    (A1.AtrStrike=A2.AtrStrike);
+    (A1.AtrStrike=A2.AtrStrike) and
+    (A1.AtrColor=A2.AtrColor);
+end;
+
+function _SimpleHtmlColorToColor(const S: string): TColor;
+var
+  i: integer;
+begin
+  Assert(Length(S)=6, 'Color token len must be 6, but it is '+IntToStr(Length(S)));
+
+  if Length(S)<>6 then
+    exit(clNone);
+
+  for i:= 1 to Length(S) do
+    if not (S[i] in ['0'..'9', 'a'..'f', 'A'..'F']) then
+      exit(clNone);
+
+  Result:= RGBToColor(
+    StrToIntDef('$'+Copy(S, 1, 2), 0),
+    StrToIntDef('$'+Copy(S, 3, 2), 0),
+    StrToIntDef('$'+Copy(S, 5, 2), 0)
+    );
 end;
 
 procedure CalcAtrArray(const Text: string; out Atr: TCharAtrArray; out AtrLen: integer);
@@ -54,7 +86,8 @@ var
   SWide, STag: UnicodeString;
   NLen: integer;
   bBold, bItalic, bUnder, bStrike, bTagClosing: boolean;
-  i, j: integer;
+  NColor: TColor;
+  i, j, NCharPos: integer;
 begin
   AtrLen:= 0;
   SetLength(Atr, 0);
@@ -67,6 +100,7 @@ begin
   bUnder:= false;
   bStrike:= false;
   bTagClosing:= false;
+  NColor:= clNone;
   NLen:= Length(SWide);
 
   i:= 0;
@@ -90,6 +124,18 @@ begin
         STag:= Copy(SWide, i+1, j-i-1);
       end;
 
+      if not bTagClosing and StartsStr('font color="#', STag) and EndsStr('"', STag) then
+      begin
+        NCharPos:= Pos('#', STag);
+        STag:= Copy(STag, NCharPos+1, Length(STag)-NCharPos-1);
+        NColor:= _SimpleHtmlColorToColor(STag);
+      end
+      else
+      if bTagClosing and (STag='font') then
+      begin
+        NColor:= clNone;
+      end
+      else
       case STag of
         'b':
           begin
@@ -123,6 +169,7 @@ begin
         AtrItalic:= bItalic;
         AtrUnder:= bUnder;
         AtrStrike:= bStrike;
+        AtrColor:= NColor;
       end;
     end;
   until false;
@@ -134,6 +181,7 @@ var
   Atr: TCharAtrArray;
   SFragment: UnicodeString;
   SFragmentA: string;
+  NDefColor: TColor;
   ch: Widechar;
   i: integer;
 begin
@@ -141,6 +189,7 @@ begin
   if AtrLen=0 then exit;
   SFragment:= '';
   C.Brush.Style:= bsClear; //fix overlapping of fragments
+  NDefColor:= C.Font.Color;
 
   for i:= 0 to AtrLen-1 do
   begin
@@ -150,6 +199,7 @@ begin
     else
     begin
       C.Font.Style:= AtrToFontStyles(Atr[i-1]);
+      C.Font.Color:= AtrToFontColor(Atr[i-1], NDefColor);
       SFragmentA:= UTF8Encode(SFragment);
       C.TextOut(X, Y, SFragmentA);
       Inc(X, C.TextWidth(SFragmentA));
@@ -160,11 +210,13 @@ begin
   if SFragment<>'' then
   begin
     C.Font.Style:= AtrToFontStyles(Atr[AtrLen-1]);
+    C.Font.Color:= AtrToFontColor(Atr[AtrLen-1], NDefColor);
     SFragmentA:= UTF8Encode(SFragment);
     C.TextOut(X, Y, SFragmentA);
   end;
 
   C.Font.Style:= [];
+  C.Font.Color:= NDefColor;
 end;
 
 function CanvasTextWidthHTML(C: TCanvas; const Text: string): integer;

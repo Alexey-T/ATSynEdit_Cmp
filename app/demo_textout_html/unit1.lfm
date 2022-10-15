@@ -10,12 +10,12 @@ object Form1: TForm1
   Position = poScreenCenter
   LCLVersion = '2.3.0.0'
   object Edit1: TEdit
-    Left = 15
-    Height = 26
+    Left = 7
+    Height = 27
     Top = 5
-    Width = 472
+    Width = 689
     OnChange = Edit1Change
     TabOrder = 0
-    Text = 'aa<b>bb</b><i>II</i>aa<b><i>BIBI</i></b>end.'
+    Text = 'aa<font color="#00ff00">color</font><b>bb</b><i>II</i>aa<b><i>BIBI</i></b>end.'
   end
 end
