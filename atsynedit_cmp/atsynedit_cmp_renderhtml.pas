@@ -75,7 +75,7 @@ begin
   end;
 end;
 
-function _SimpleHtmlColorToColor(const S: string): TColor;
+function HtmlTokenToColor(const S: string): TColor;
 var
   NLen, i: integer;
   N1, N2, N3: integer;
@@ -152,7 +152,7 @@ begin
       begin
         NCharPos:= Pos('#', STag);
         STag:= Copy(STag, NCharPos+1, Length(STag)-NCharPos-1);
-        NColor:= _SimpleHtmlColorToColor(STag);
+        NColor:= HtmlTokenToColor(STag);
       end
       else
       if bTagClosing and (STag='font') then
