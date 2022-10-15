@@ -385,6 +385,7 @@ begin
   end;
 
   NKey:= KeyToShortCut(Key, Shift);
+  if NKey=0 then exit;
 
   //Ctrl+BackSpace
   if NKey=CompletionOps.ShortcutForDeleteWordPrev then
@@ -404,6 +405,7 @@ begin
     exit;
   end;
 
+  //Ctrl+Space (currently don't work)
   if NKey=CompletionOps.ShortcutForAutocomplete then
   begin
     DoUpdate;
