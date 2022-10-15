@@ -142,7 +142,8 @@ type
     FormSizeX: integer;
     FormSizeY: integer;
     HintSizeX: integer;
-    TextIndent0: integer;
+    TextIndentLeftCol: integer;
+    TextIndentRightCol: integer;
     TextIndent: integer;
     ClosingTimerInverval: integer;
     ShortcutForAutocomplete: TShortCut;
@@ -544,7 +545,7 @@ begin
     //text
     C.Font.Color:= ATFlatTheme.ColorFontListbox;
     _TextOut(C,
-      ARect.Left+CompletionOps.TextIndent0,
+      ARect.Left+CompletionOps.TextIndentLeftCol,
       ARect.Top,
       SItem
       );
@@ -552,7 +553,7 @@ begin
     //prefix
     C.Font.Color:= CompletionOps.ColorFontPrefix;
     _TextOut(C,
-      ARect.Left+List.ClientWidth-_TextWidth(C, SHint)-CompletionOps.TextIndent0,
+      ARect.Left+List.ClientWidth-_TextWidth(C, SHint)-CompletionOps.TextIndentRightCol,
       ARect.Top,
       SHint
       );
@@ -571,7 +572,7 @@ begin
       DoHintShow(SHint);
   end;
 
-  NSize:= CompletionOps.TextIndent0;
+  NSize:= CompletionOps.TextIndentLeftCol;
 
   Sep.Init(SLongItem, CompletionOps.ColumnsSep);
   for i:= 0 to cCompletionColumnCount-1 do
@@ -781,7 +782,8 @@ initialization
     FormSizeX:= 500;
     FormSizeY:= 200;
     HintSizeX:= 400;
-    TextIndent0:= 4;
+    TextIndentLeftCol:= 3;
+    TextIndentRightCol:= 0; //better 0 to hide overlapping from left HTML column
     TextIndent:= 8;
     ClosingTimerInverval:= 300;
     ShortcutForAutocomplete:= KeyToShortCut(VK_SPACE, [ssCtrl]);
