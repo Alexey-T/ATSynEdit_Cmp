@@ -499,7 +499,10 @@ begin
   if SBeginsWith(Text, CompletionSignatureHTML) then
     CanvasTextOutHTML(C, X, Y, Copy(Text, Length(CompletionSignatureHTML)+1, MaxInt))
   else
+  begin
+    C.Brush.Style:= bsSolid;
     C.TextOut(X, Y, Text);
+  end;
 end;
 
 function _TextWidth(C: TCanvas; const Text: string): integer;
@@ -538,20 +541,20 @@ begin
     Sep.GetItemStr(SItem);
     Sep.GetItemStr(SHint);
 
-    //prefix
-    C.Font.Color:= CompletionOps.ColorFontPrefix;
-    _TextOut(C,
-      ARect.Left+List.ClientWidth-_TextWidth(C, SHint)-CompletionOps.TextIndent0,
-      ARect.Top,
-      SHint
-      );
-
     //text
     C.Font.Color:= ATFlatTheme.ColorFontListbox;
     _TextOut(C,
       ARect.Left+CompletionOps.TextIndent0,
       ARect.Top,
       SItem
+      );
+
+    //prefix
+    C.Font.Color:= CompletionOps.ColorFontPrefix;
+    _TextOut(C,
+      ARect.Left+List.ClientWidth-_TextWidth(C, SHint)-CompletionOps.TextIndent0,
+      ARect.Top,
+      SHint
       );
 
     exit;
