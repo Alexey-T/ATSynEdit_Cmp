@@ -105,6 +105,16 @@ begin
   end;
 end;
 
+function _Unicode_StartsStr(const Sub, S: UnicodeString): boolean;
+begin
+  Result:= (Length(S)>=Length(Sub)) and (Copy(S, 1, Length(Sub))=Sub);
+end;
+
+function _Unicode_EndsStr(const Sub, S: UnicodeString): boolean;
+begin
+  Result:= (Length(S)>=Length(Sub)) and (Copy(S, Length(S)-Length(Sub)+1, Length(Sub))=Sub);
+end;
+
 procedure CalcAtrArray(const Text: string; out Atr: TCharAtrArray; out AtrLen: integer);
 var
   SWide, STag: UnicodeString;
@@ -149,7 +159,7 @@ begin
           STag:= Copy(SWide, i+1, j-i-1);
       end;
 
-      if not bTagClosing and StartsStr('font color="#', STag) and EndsStr('"', STag) then
+      if not bTagClosing and _Unicode_StartsStr('font color="#', STag) and _Unicode_EndsStr('"', STag) then
       begin
         bTagKnown:= true;
         NCharPos:= Pos('#', STag);
