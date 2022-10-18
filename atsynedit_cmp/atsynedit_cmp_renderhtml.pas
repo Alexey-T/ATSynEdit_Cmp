@@ -109,7 +109,7 @@ procedure CalcAtrArray(const Text: string; out Atr: TCharAtrArray; out AtrLen: i
 var
   SWide, STag: UnicodeString;
   NLen: integer;
-  bBold, bItalic, bUnder, bStrike, bTagClosing: boolean;
+  bBold, bItalic, bUnder, bStrike, bTagClosing, bTagKnown: boolean;
   NColor: TColor;
   i, j, NCharPos: integer;
 begin
@@ -138,6 +138,7 @@ begin
       j:= i+1;
       while (j<=NLen) and (SWide[j]<>'>') do Inc(j);
       if j>NLen then Break;
+      bTagKnown:= false;
       bTagClosing:= SWide[i+1]='/';
       if bTagClosing then
       begin
@@ -150,6 +151,7 @@ begin
 
       if not bTagClosing and StartsStr('font color="#', STag) and EndsStr('"', STag) then
       begin
+        bTagKnown:= true;
         NCharPos:= Pos('#', STag);
         STag:= Copy(STag, NCharPos+1, Length(STag)-NCharPos-1);
         NColor:= HtmlTokenToColor(STag);
@@ -157,44 +159,52 @@ begin
       else
       if bTagClosing and (STag='font') then
       begin
+        bTagKnown:= true;
         NColor:= clNone;
       end
       else
       case STag of
         'b':
           begin
+            bTagKnown:= true;
             bBold:= not bTagClosing;
           end;
         'i':
           begin
+            bTagKnown:= true;
             bItalic:= not bTagClosing;
           end;
         'u':
           begin
+            bTagKnown:= true;
             bUnder:= not bTagClosing;
           end;
         's':
           begin
+            bTagKnown:= true;
             bStrike:= not bTagClosing;
           end;
       end;
-      i:= j;
-    end
-    else
-    begin
-      //text out of tags
-      if AtrLen>=Length(Atr) then
-        SetLength(Atr, Length(Atr)+CapacityDelta);
-      Inc(AtrLen);
-      with Atr[AtrLen-1] do
+
+      if bTagKnown then
       begin
-        AtrChar:= SWide[i];
-        AtrBold:= bBold;
-        AtrItalic:= bItalic;
-        AtrUnder:= bUnder;
-        AtrStrike:= bStrike;
-        AtrColor:= NColor;
+        i:= j;
+        Continue;
       end;
+    end;
+
+    //text out of tags
+    if AtrLen>=Length(Atr) then
+      SetLength(Atr, Length(Atr)+CapacityDelta);
+    Inc(AtrLen);
+    with Atr[AtrLen-1] do
+    begin
+      AtrChar:= SWide[i];
+      AtrBold:= bBold;
+      AtrItalic:= bItalic;
+      AtrUnder:= bUnder;
+      AtrStrike:= bStrike;
+      AtrColor:= NColor;
     end;
   until false;
 end;
