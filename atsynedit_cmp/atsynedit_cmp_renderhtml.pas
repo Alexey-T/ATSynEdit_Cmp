@@ -135,18 +135,18 @@ begin
     //tag is found
     if SWide[i]='<' then
     begin
+      bTagKnown:= false;
+      bTagClosing:= false;
+      STag:= '';
       j:= i+1;
       while (j<=NLen) and (SWide[j]<>'>') do Inc(j);
-      if j>NLen then Break;
-      bTagKnown:= false;
-      bTagClosing:= SWide[i+1]='/';
-      if bTagClosing then
+      if j<=NLen then
       begin
-        STag:= Copy(SWide, i+2, j-i-2);
-      end
-      else
-      begin
-        STag:= Copy(SWide, i+1, j-i-1);
+        bTagClosing:= SWide[i+1]='/';
+        if bTagClosing then
+          STag:= Copy(SWide, i+2, j-i-2)
+        else
+          STag:= Copy(SWide, i+1, j-i-1);
       end;
 
       if not bTagClosing and StartsStr('font color="#', STag) and EndsStr('"', STag) then
