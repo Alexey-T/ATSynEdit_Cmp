@@ -250,7 +250,7 @@ begin
     FreeAndNil(ColorStack);
 end;
 
-procedure CanvasTextOutHTML(C: TCanvas; X, Y: integer; const Text: string);
+procedure CanvasProcessHTML(C: TCanvas; X, Y: integer; const Text: string; DoTextOut: boolean; out TextWidth: integer);
 var
   AtrLen: integer;
   Atr: TCharAtrArray;
@@ -258,8 +258,9 @@ var
   SFragmentA: string;
   NDefColor: TColor;
   ch: Widechar;
-  i: integer;
+  NWidth, i: integer;
 begin
+  TextWidth:= 0;
   CalcAtrArray(Text, Atr, AtrLen);
   if AtrLen=0 then exit;
   SFragment:= '';
@@ -276,8 +277,11 @@ begin
       C.Font.Style:= AtrToFontStyles(Atr[i-1]);
       C.Font.Color:= AtrToFontColor(Atr[i-1], NDefColor);
       SFragmentA:= UTF8Encode(SFragment);
-      C.TextOut(X, Y, SFragmentA);
-      Inc(X, C.TextWidth(SFragmentA));
+      if DoTextOut then
+        C.TextOut(X, Y, SFragmentA);
+      NWidth:= C.TextWidth(SFragmentA);
+      Inc(X, NWidth);
+      Inc(TextWidth, NWidth);
       SFragment:= ch;
     end;
   end;
@@ -287,50 +291,27 @@ begin
     C.Font.Style:= AtrToFontStyles(Atr[AtrLen-1]);
     C.Font.Color:= AtrToFontColor(Atr[AtrLen-1], NDefColor);
     SFragmentA:= UTF8Encode(SFragment);
-    C.TextOut(X, Y, SFragmentA);
+    if DoTextOut then
+      C.TextOut(X, Y, SFragmentA);
+    NWidth:= C.TextWidth(SFragmentA);
+    Inc(X, NWidth);
+    Inc(TextWidth, NWidth);
   end;
 
   C.Font.Style:= [];
   C.Font.Color:= NDefColor;
 end;
 
-function CanvasTextWidthHTML(C: TCanvas; const Text: string): integer;
+procedure CanvasTextOutHTML(C: TCanvas; X, Y: integer; const Text: string);
 var
-  AtrLen: integer;
-  Atr: TCharAtrArray;
-  SFragment: UnicodeString;
-  SFragmentA: string;
-  ch: Widechar;
-  i: integer;
+  NWidth: integer;
 begin
-  Result:= 0;
+  CanvasProcessHTML(C, X, Y, Text, true, NWidth);
+end;
 
-  CalcAtrArray(Text, Atr, AtrLen);
-  if AtrLen=0 then exit;
-  SFragment:= '';
-
-  for i:= 0 to AtrLen-1 do
-  begin
-    ch:= Atr[i].AtrChar;
-    if (i=0) or AtrSameStyles(Atr[i], Atr[i-1]) then
-      SFragment+= ch
-    else
-    begin
-      C.Font.Style:= AtrToFontStyles(Atr[i-1]);
-      SFragmentA:= UTF8Encode(SFragment);
-      Inc(Result, C.TextWidth(SFragmentA));
-      SFragment:= ch;
-    end;
-  end;
-
-  if SFragment<>'' then
-  begin
-    C.Font.Style:= AtrToFontStyles(Atr[AtrLen-1]);
-    SFragmentA:= UTF8Encode(SFragment);
-    Inc(Result, C.TextWidth(SFragmentA));
-  end;
-
-  C.Font.Style:= [];
+function CanvasTextWidthHTML(C: TCanvas; const Text: string): integer;
+begin
+  CanvasProcessHTML(C, 0, 0, Text, false, Result);
 end;
 
 end.
