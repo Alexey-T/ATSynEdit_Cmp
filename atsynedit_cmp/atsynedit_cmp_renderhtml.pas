@@ -17,7 +17,11 @@ function CanvasTextWidthHTML(C: TCanvas; const Text: string): integer;
 implementation
 
 uses
-  SysUtils, StrUtils;
+  SysUtils, StrUtils,
+  gstack;
+
+type
+  TMyColorStack = specialize TStack<TColor>;
 
 //realloc dyn-array by Delta elements at once
 const
@@ -128,16 +132,18 @@ end;
 
 procedure CalcAtrArray(const Text: string; out Atr: TCharAtrArray; out AtrLen: integer);
 var
+  ColorStack: TMyColorStack;
   SWide, STag: UnicodeString;
   NLen: integer;
   bBold, bItalic, bUnder, bStrike, bTagClosing, bTagKnown: boolean;
-  NColor, NColorPrev: TColor;
+  NColor: TColor;
   i, j, NCharPos: integer;
 begin
   AtrLen:= 0;
   SetLength(Atr, 0);
   if Text='' then exit;
 
+  ColorStack:= nil;
   SWide:= UTF8Decode(Text);
   SetLength(Atr, CapacityDelta);
   bBold:= false;
@@ -146,7 +152,6 @@ begin
   bStrike:= false;
   bTagClosing:= false;
   NColor:= clNone;
-  NColorPrev:= clNone;
   NLen:= Length(SWide);
 
   i:= 0;
@@ -176,14 +181,24 @@ begin
         bTagKnown:= true;
         NCharPos:= Pos('#', STag);
         STag:= Copy(STag, NCharPos+1, Length(STag)-NCharPos-1);
-        NColorPrev:= NColor;
+
+        if not Assigned(ColorStack) then
+          ColorStack:= TMyColorStack.Create;
+        ColorStack.Push(NColor);
+
         NColor:= HtmlTokenToColor(STag);
       end
       else
       if bTagClosing and (STag='font') then
       begin
         bTagKnown:= true;
-        NColor:= NColorPrev;
+        if Assigned(ColorStack) and not ColorStack.IsEmpty() then
+        begin
+          NColor:= ColorStack.Top;
+          ColorStack.Pop;
+        end
+        else
+          NColor:= clNone;
       end
       else
       case STag of
@@ -230,6 +245,9 @@ begin
       AtrColor:= NColor;
     end;
   until false;
+
+  if Assigned(ColorStack) then
+    FreeAndNil(ColorStack);
 end;
 
 procedure CanvasTextOutHTML(C: TCanvas; X, Y: integer; const Text: string);
