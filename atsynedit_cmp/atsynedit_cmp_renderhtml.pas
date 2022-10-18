@@ -75,7 +75,19 @@ begin
   end;
 end;
 
-function HtmlTokenToColor(const S: string): TColor;
+function _IsHexDigitCode(N: integer): boolean;
+begin
+  case N of
+    Ord('0')..Ord('9'),
+    Ord('a')..Ord('f'),
+    Ord('A')..Ord('F'):
+      Result:= true;
+    else
+      Result:= false;
+  end;
+end;
+
+function HtmlTokenToColor(const S: UnicodeString): TColor;
 var
   NLen, i: integer;
   N1, N2, N3: integer;
@@ -84,8 +96,7 @@ begin
   NLen:= Length(S);
 
   for i:= 1 to NLen do
-    if not (S[i] in ['0'..'9', 'a'..'f', 'A'..'F']) then
-      exit;
+    if not _IsHexDigitCode(Ord(S[i])) then exit;
 
   case NLen of
     6, 8:
@@ -120,7 +131,7 @@ var
   SWide, STag: UnicodeString;
   NLen: integer;
   bBold, bItalic, bUnder, bStrike, bTagClosing, bTagKnown: boolean;
-  NColor: TColor;
+  NColor, NColorPrev: TColor;
   i, j, NCharPos: integer;
 begin
   AtrLen:= 0;
@@ -135,6 +146,7 @@ begin
   bStrike:= false;
   bTagClosing:= false;
   NColor:= clNone;
+  NColorPrev:= clNone;
   NLen:= Length(SWide);
 
   i:= 0;
@@ -164,13 +176,14 @@ begin
         bTagKnown:= true;
         NCharPos:= Pos('#', STag);
         STag:= Copy(STag, NCharPos+1, Length(STag)-NCharPos-1);
+        NColorPrev:= NColor;
         NColor:= HtmlTokenToColor(STag);
       end
       else
       if bTagClosing and (STag='font') then
       begin
         bTagKnown:= true;
-        NColor:= clNone;
+        NColor:= NColorPrev;
       end
       else
       case STag of
