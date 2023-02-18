@@ -140,7 +140,7 @@ var
   i, j, NCharPos: integer;
 begin
   AtrLen:= 0;
-  SetLength(Atr, 0);
+  Atr:= nil;
   if Text='' then exit;
 
   ColorStack:= nil;

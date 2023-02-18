@@ -22,7 +22,7 @@ procedure CalculateCompletionFilenames(AResult: TStringList;
 implementation
 
 const
-  GenDelims = [':', '/', '?', '#', '[', ']', '@'];
+  //GenDelims = [':', '/', '?', '#', '[', ']', '@'];
   SubDelims = ['!', '$', '&', '''', '(', ')', '*', '+', ',', ';', '='];
   ALPHA = ['A'..'Z', 'a'..'z'];
   DIGIT = ['0'..'9'];
