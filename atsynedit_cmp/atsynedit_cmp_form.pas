@@ -341,28 +341,28 @@ begin
     exit
   end;
 
-  if (Key=VK_HOME) then
+  if (Key=VK_HOME) and (Shift=[]) then
   begin
     List.ItemIndex:= 0;
     Key:= 0;
     exit
   end;
 
-  if (Key=VK_END) then
+  if (Key=VK_END) and (Shift=[]) then
   begin
     List.ItemIndex:= List.ItemCount-1;
     Key:= 0;
     exit
   end;
 
-  if (Key=VK_ESCAPE) then
+  if (Key=VK_ESCAPE) and (Shift=[]) then
   begin
     Close;
     Key:= 0;
     exit
   end;
 
-  if (Key=VK_RETURN) or (Key=VK_TAB) then
+  if ((Key=VK_RETURN) or (Key=VK_TAB)) and (Shift=[]) then
   begin
     DoResult;
     Key:= 0;
