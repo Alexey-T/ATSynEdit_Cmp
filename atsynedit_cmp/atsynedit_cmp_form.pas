@@ -295,7 +295,7 @@ end;
 
 procedure TFormATSynEditComplete.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
-  NKey: TShortCut;
+  NShortCut: TShortCut;
 begin
   if (Key=VK_CONTROL) or
     (Key=VK_SHIFT) or
@@ -389,11 +389,11 @@ begin
     exit
   end;
 
-  NKey:= KeyToShortCut(Key, Shift);
-  if NKey=0 then exit;
+  NShortCut:= KeyToShortCut(Key, Shift);
+  if NShortCut=0 then exit;
 
   //Ctrl+BackSpace
-  if NKey=CompletionOps.ShortcutForDeleteWordPrev then
+  if NShortCut=CompletionOps.ShortcutForDeleteWordPrev then
   begin
     Editor.DoCommand(cCommand_TextDeleteWordPrev, cInvokeHotkey);
     DoUpdate;
@@ -402,7 +402,7 @@ begin
   end;
 
   //Ctrl+Delete
-  if NKey=CompletionOps.ShortcutForDeleteWordNext then
+  if NShortCut=CompletionOps.ShortcutForDeleteWordNext then
   begin
     Editor.DoCommand(cCommand_TextDeleteWordNext, cInvokeHotkey);
     DoUpdate;
@@ -411,7 +411,7 @@ begin
   end;
 
   //Shift+Left
-  if NKey=CompletionOps.ShortcutForSelectLeft then
+  if NShortCut=CompletionOps.ShortcutForSelectLeft then
   begin
     Close;
     Editor.DoCommand(cCommand_KeyLeft_Sel, cInvokeHotkey);
@@ -419,7 +419,7 @@ begin
     exit;
   end;
   //Shift+Right
-  if NKey=CompletionOps.ShortcutForSelectRight then
+  if NShortCut=CompletionOps.ShortcutForSelectRight then
   begin
     Close;
     Editor.DoCommand(cCommand_KeyRight_Sel, cInvokeHotkey);
@@ -428,7 +428,7 @@ begin
   end;
 
   //Ctrl+Tab
-  if NKey=CompletionOps.ShortcutForSwitchTab then
+  if NShortCut=CompletionOps.ShortcutForSwitchTab then
   begin
     Close;
     Editor.DoCommand(CompletionOps.CommandForShitchTab, cInvokeHotkey);
@@ -437,7 +437,7 @@ begin
   end;
 
   //Ctrl+Space (currently don't work)
-  if NKey=CompletionOps.ShortcutForAutocomplete then
+  if NShortCut=CompletionOps.ShortcutForAutocomplete then
   begin
     DoUpdate;
     Key:= 0;
