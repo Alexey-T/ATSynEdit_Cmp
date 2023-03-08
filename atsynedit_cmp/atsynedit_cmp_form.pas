@@ -151,6 +151,8 @@ type
     ShortcutForDeleteWordNext: TShortCut;
     ShortcutForSelectLeft: TShortCut;
     ShortcutForSelectRight: TShortCut;
+    ShortcutForSelectHome: TShortCut;
+    ShortcutForSelectEnd: TShortCut;
     ShortcutForSwitchTab: TShortCut;
     CommandForShitchTab: integer;
   end;
@@ -423,6 +425,23 @@ begin
   begin
     Close;
     Editor.DoCommand(cCommand_KeyRight_Sel, cInvokeHotkey);
+    Key:= 0;
+    exit;
+  end;
+
+  //Shift+Home
+  if NShortCut=CompletionOps.ShortcutForSelectHome then
+  begin
+    Close;
+    Editor.DoCommand(cCommand_KeyHome_Sel, cInvokeHotkey);
+    Key:= 0;
+    exit;
+  end;
+  //Shift+End
+  if NShortCut=CompletionOps.ShortcutForSelectEnd then
+  begin
+    Close;
+    Editor.DoCommand(cCommand_KeyEnd_Sel, cInvokeHotkey);
     Key:= 0;
     exit;
   end;
