@@ -149,6 +149,10 @@ type
     ShortcutForAutocomplete: TShortCut;
     ShortcutForDeleteWordPrev: TShortCut;
     ShortcutForDeleteWordNext: TShortCut;
+    ShortcutForSelectLeft: TShortCut;
+    ShortcutForSelectRight: TShortCut;
+    ShortcutForSwitchTab: TShortCut;
+    CommandForShitchTab: integer;
   end;
 
 const
@@ -336,7 +340,7 @@ begin
 
   if (Key=VK_NEXT) and (Shift=[]) then
   begin
-    List.ItemIndex:= Min(List.Itemcount-1, List.ItemIndex+List.VisibleItems);
+    List.ItemIndex:= Min(List.ItemCount-1, List.ItemIndex+List.VisibleItems);
     Key:= 0;
     exit
   end;
@@ -402,6 +406,32 @@ begin
   begin
     Editor.DoCommand(cCommand_TextDeleteWordNext, cInvokeHotkey);
     DoUpdate;
+    Key:= 0;
+    exit;
+  end;
+
+  //Shift+Left
+  if NKey=CompletionOps.ShortcutForSelectLeft then
+  begin
+    Editor.DoCommand(cCommand_KeyLeft_Sel, cInvokeHotkey);
+    DoUpdate;
+    Key:= 0;
+    exit;
+  end;
+  //Shift+Right
+  if NKey=CompletionOps.ShortcutForSelectRight then
+  begin
+    Editor.DoCommand(cCommand_KeyRight_Sel, cInvokeHotkey);
+    DoUpdate;
+    Key:= 0;
+    exit;
+  end;
+
+  //Ctrl+Tab
+  if NKey=CompletionOps.ShortcutForSwitchTab then
+  begin
+    Close;
+    Editor.DoCommand(CompletionOps.CommandForShitchTab, cInvokeHotkey);
     Key:= 0;
     exit;
   end;
