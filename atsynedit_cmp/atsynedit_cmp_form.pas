@@ -712,8 +712,10 @@ begin
 
   RectMon:= Screen.MonitorFromPoint(P).WorkareaRect;
 
+  List.UpdateItemHeight;
+  NewFormHeight:= Min(CompletionOps.FormMaxVisibleItems, List.ItemCount)*List.ItemHeight + 2*List.BorderSpacing.Around + 1;
+
   //check that form fits on the bottom
-  NewFormHeight:= Min(CompletionOps.FormMaxVisibleItems, List.ItemCount)*List.ItemHeight + 2*List.BorderSpacing.Around + 2;
   if P.Y+NewFormHeight>= RectMon.Bottom then
   begin
     NewY:= P.Y-Editor.TextCharSize.y-NewFormHeight;
