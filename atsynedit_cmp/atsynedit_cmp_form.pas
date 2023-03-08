@@ -413,16 +413,16 @@ begin
   //Shift+Left
   if NKey=CompletionOps.ShortcutForSelectLeft then
   begin
+    Close;
     Editor.DoCommand(cCommand_KeyLeft_Sel, cInvokeHotkey);
-    DoUpdate;
     Key:= 0;
     exit;
   end;
   //Shift+Right
   if NKey=CompletionOps.ShortcutForSelectRight then
   begin
+    Close;
     Editor.DoCommand(cCommand_KeyRight_Sel, cInvokeHotkey);
-    DoUpdate;
     Key:= 0;
     exit;
   end;
