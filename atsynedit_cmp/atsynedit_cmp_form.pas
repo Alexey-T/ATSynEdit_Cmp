@@ -139,9 +139,9 @@ type
     ListSort: boolean;
     UpDownAtEdge: TATCompletionUpDownAtEdge;
     BorderSize: integer;
-    FormSizeX: integer;
-    FormSizeY: integer;
-    HintSizeX: integer;
+    FormWidth: integer;
+    FormMaxVisibleItems: integer;
+    HintWidth: integer;
     TextIndentLeftCol: integer;
     TextIndentRightCol: integer;
     TextIndent: integer;
@@ -665,7 +665,7 @@ procedure TFormATSynEditComplete.DoUpdate;
 var
   P: TPoint;
   RectMon: TRect;
-  NewY: integer;
+  NewY, NewFormHeight: integer;
 begin
   SList.Clear;
   if Assigned(FOnGetProp) then
@@ -713,9 +713,10 @@ begin
   RectMon:= Screen.MonitorFromPoint(P).WorkareaRect;
 
   //check that form fits on the bottom
-  if P.Y+CompletionOps.FormSizeY>= RectMon.Bottom then
+  NewFormHeight:= Min(CompletionOps.FormMaxVisibleItems, List.ItemCount)*List.ItemHeight + 2*List.BorderSpacing.Around + 2;
+  if P.Y+NewFormHeight>= RectMon.Bottom then
   begin
-    NewY:= P.Y-Editor.TextCharSize.y-CompletionOps.FormSizeY;
+    NewY:= P.Y-Editor.TextCharSize.y-NewFormHeight;
     if NewY>=RectMon.Top then
       P.Y:= NewY;
   end;
@@ -723,12 +724,12 @@ begin
   EditorOptionsSave;
 
   //check that form fits on the right
-  P.X:= Max(RectMon.Left, Min(P.X, RectMon.Right-CompletionOps.FormSizeX));
+  P.X:= Max(RectMon.Left, Min(P.X, RectMon.Right-CompletionOps.FormWidth));
 
   if Application.MainForm.FormStyle in [fsStayOnTop, fsSystemStayOnTop] then
     FormStyle:= Application.MainForm.FormStyle;
 
-  SetBounds(P.X, P.Y, CompletionOps.FormSizeX, CompletionOps.FormSizeY);
+  SetBounds(P.X, P.Y, CompletionOps.FormWidth, NewFormHeight);
   Show;
 end;
 
@@ -771,7 +772,7 @@ var
   P: TPoint;
   R: TRect;
 begin
-  R:= FHintWnd.CalcHintRect(CompletionOps.HintSizeX, AHint, nil);
+  R:= FHintWnd.CalcHintRect(CompletionOps.HintWidth, AHint, nil);
 
   P:= ClientToScreen(Point(Width, 0));
   OffsetRect(R, P.X, P.Y);
@@ -810,9 +811,9 @@ initialization
     ListSort:= false;
     UpDownAtEdge:= cudWrap;
     BorderSize:= 4;
-    FormSizeX:= 500;
-    FormSizeY:= 200;
-    HintSizeX:= 400;
+    FormWidth:= 500;
+    FormMaxVisibleItems:= 12;
+    HintWidth:= 400;
     TextIndentLeftCol:= 3;
     TextIndentRightCol:= 0; //we add ' ' to right col to emulate right indent
     TextIndent:= 8;
