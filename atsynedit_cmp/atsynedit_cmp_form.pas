@@ -665,7 +665,7 @@ procedure TFormATSynEditComplete.DoUpdate;
 var
   P: TPoint;
   RectMon: TRect;
-  NewY, NewFormHeight: integer;
+  NewY, NewFormWidth, NewFormHeight: integer;
 begin
   SList.Clear;
   if Assigned(FOnGetProp) then
@@ -713,6 +713,7 @@ begin
   RectMon:= Screen.MonitorFromPoint(P).WorkareaRect;
 
   List.UpdateItemHeight;
+  NewFormWidth:= CompletionOps.FormWidth;
   NewFormHeight:= Min(CompletionOps.FormMaxVisibleItems, List.ItemCount)*List.ItemHeight + 2*List.BorderSpacing.Around + 1;
 
   //check that form fits on the bottom
@@ -726,12 +727,12 @@ begin
   EditorOptionsSave;
 
   //check that form fits on the right
-  P.X:= Max(RectMon.Left, Min(P.X, RectMon.Right-CompletionOps.FormWidth));
+  P.X:= Max(RectMon.Left, Min(P.X, RectMon.Right-NewFormWidth));
 
   if Application.MainForm.FormStyle in [fsStayOnTop, fsSystemStayOnTop] then
     FormStyle:= Application.MainForm.FormStyle;
 
-  SetBounds(P.X, P.Y, CompletionOps.FormWidth, NewFormHeight);
+  SetBounds(P.X, P.Y, NewFormWidth, NewFormHeight);
   Show;
 end;
 
