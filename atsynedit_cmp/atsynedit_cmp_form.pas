@@ -271,6 +271,7 @@ begin
   SList.TextLineBreakStyle:= tlbsLF;
   FHintWnd:= THintWindow.Create(Self);
   ShowInTaskBar:= stNever;
+  BorderStyle:= bsToolWindow; //hide window from Alt+Tab
 end;
 
 procedure TFormATSynEditComplete.FormDeactivate(Sender: TObject);
