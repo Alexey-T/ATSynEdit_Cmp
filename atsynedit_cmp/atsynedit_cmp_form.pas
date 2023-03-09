@@ -151,8 +151,6 @@ type
     ShortcutForDeleteWordNext: TShortCut;
     ShortcutForSelectLeft: TShortCut;
     ShortcutForSelectRight: TShortCut;
-    ShortcutForHome: TShortCut;
-    ShortcutForEnd: TShortCut;
     ShortcutForSelectHome: TShortCut;
     ShortcutForSelectEnd: TShortCut;
     ShortcutForSwitchTab: TShortCut;
@@ -349,22 +347,22 @@ begin
     exit
   end;
 
-  {
-  //in other editors, Home/End move caret to edge of line, w/o listbox navigation
+  //in many editors, Home/End move caret to edge of the line, w/o listbox navigation
   if (Key=VK_HOME) and (Shift=[]) then
   begin
-    List.ItemIndex:= 0;
+    Close;
+    Editor.DoCommand(cCommand_KeyHome, cInvokeHotkey);
     Key:= 0;
-    exit
+    exit;
   end;
 
   if (Key=VK_END) and (Shift=[]) then
   begin
-    List.ItemIndex:= List.ItemCount-1;
+    Close;
+    Editor.DoCommand(cCommand_KeyEnd, cInvokeHotkey);
     Key:= 0;
-    exit
+    exit;
   end;
-  }
 
   if (Key=VK_ESCAPE) and (Shift=[]) then
   begin
@@ -430,23 +428,6 @@ begin
   begin
     Close;
     Editor.DoCommand(cCommand_KeyRight_Sel, cInvokeHotkey);
-    Key:= 0;
-    exit;
-  end;
-
-  //Home
-  if NShortCut=CompletionOps.ShortcutForHome then
-  begin
-    Close;
-    Editor.DoCommand(cCommand_KeyHome, cInvokeHotkey);
-    Key:= 0;
-    exit;
-  end;
-  //End
-  if NShortCut=CompletionOps.ShortcutForEnd then
-  begin
-    Close;
-    Editor.DoCommand(cCommand_KeyEnd, cInvokeHotkey);
     Key:= 0;
     exit;
   end;
