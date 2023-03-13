@@ -16,6 +16,7 @@ uses
   ATSynEdit_Carets,
   ATSynEdit_Commands,
   ATSynEdit_Cmp_RenderHTML,
+  ATStrings,
   ATStringProc,
   ATStringProc_Separator,
   ATListbox,
@@ -177,6 +178,25 @@ begin
   Result:= Assigned(FormComplete) and FormComplete.Visible;
 end;
 
+function EditorGetLefterWordChars(Ed: TATSynEdit; AX, AY: integer): integer;
+var
+  St: TATStrings;
+  i: integer;
+  SLine: UnicodeString;
+begin
+  Result:= 0;
+  St:= Ed.Strings;
+  if not St.IsIndexValid(AY) then exit;
+  if AX>St.LinesLen[AY] then exit;
+  SLine:= St.LineSub(AY, 1, AX);
+  for i:= AX-1 downto 0 do
+  begin
+    if not IsCharWord(SLine[i+1], Ed.OptNonWordChars) then
+      Break;
+    Inc(Result);
+  end;
+end;
+
 procedure EditorShowCompletionListbox(AEd: TATSynEdit;
   AOnGetProp: TATCompletionPropEvent;
   AOnResult: TATCompletionResultEvent = nil;
@@ -209,6 +229,7 @@ var
   Pos, Shift, PosAfter: TPoint;
   StrText, Str1, Str2, StrToInsert: atString;
   Sep: TATStringSeparator;
+  NCharsLeftNew: integer;
   iCaret: integer;
 begin
   if AStr='' then exit;
@@ -228,7 +249,13 @@ begin
       Pos.X:= Caret.PosX;
       Pos.Y:= Caret.PosY;
 
+      //this is updated count of word-chars lefter than caret;
+      //it occurs when in CudaText user types fast and autocompletion auto-show works
+      NCharsLeftNew:= EditorGetLefterWordChars(Editor, Pos.X, Pos.Y);
+
       FCharsLeft:= Min(Pos.X, FCharsLeft);
+      if FCharsLeft<NCharsLeftNew then
+        FCharsLeft:= NCharsLeftNew;
       Dec(Pos.X, FCharsLeft);
 
       Editor.Strings.TextDeleteRight(Pos.X, Pos.Y, FCharsLeft+FCharsRight, Shift, PosAfter, false);
