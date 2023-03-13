@@ -249,8 +249,8 @@ begin
       Pos.X:= Caret.PosX;
       Pos.Y:= Caret.PosY;
 
-      //this is updated count of word-chars lefter than caret;
-      //it occurs when in CudaText user types fast and autocompletion auto-show works
+      //updated count of word-chars lefter than caret;
+      //it is different, when in CudaText user types fast and auto-completion auto-show triggers
       NCharsLeftNew:= EditorGetLefterWordChars(Editor, Pos.X, Pos.Y);
 
       FCharsLeft:= Min(Pos.X, FCharsLeft);
