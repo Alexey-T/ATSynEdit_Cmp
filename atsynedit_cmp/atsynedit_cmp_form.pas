@@ -883,6 +883,11 @@ begin
 end;
 
 procedure TFormATSynEditComplete.TimerUpdaterTimer(Sender: TObject);
+{
+this timer is needed very much. if user types fast + CudaText autocompletion auto-show works.
+on typing 2-3 chars _fast_, form can be shown at the moment of only 1st char typed.
+form must detect that additional chars were typed.
+}
 var
   Caret: TATCaretItem;
   NewPos: TPoint;
