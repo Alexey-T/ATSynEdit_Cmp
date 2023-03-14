@@ -300,7 +300,6 @@ begin
   SList:= TStringList.Create;
   SList.TextLineBreakStyle:= tlbsLF;
   FHintWnd:= THintWindow.Create(Self);
-  ShowInTaskBar:= stNever;
 end;
 
 procedure TFormATSynEditComplete.FormDeactivate(Sender: TObject);
