@@ -875,6 +875,7 @@ end;
 procedure TFormATSynEditComplete.TimerClosingTimer(Sender: TObject);
 begin
   FTimerClosing.Enabled:= false;
+  TimerUpdater.Enabled:= false;
   Close;
 end;
 
