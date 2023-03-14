@@ -300,6 +300,7 @@ begin
   SList:= TStringList.Create;
   SList.TextLineBreakStyle:= tlbsLF;
   FHintWnd:= THintWindow.Create(Self);
+  List.ScrollStyleVert:= alssAuto;
   ShowInTaskBar:= stNever;
 end;
 
@@ -744,6 +745,8 @@ var
   NewFormWidth, NewFormHeight, TempY: integer;
   NewFormPos, Pnt: TPoint;
 begin
+  Color:= ATFlatTheme.ColorBgListbox;
+
   SList.Clear;
   if Assigned(FOnGetProp) then
     FOnGetProp(Editor, SList, FCharsLeft, FCharsRight);
@@ -780,10 +783,9 @@ begin
 
   List.VirtualItemCount:= SList.Count;
   List.ItemIndex:= 0;
-
-  Color:= ATFlatTheme.ColorBgListbox;
   List.BorderSpacing.Around:= CompletionOps.BorderSize;
   List.Invalidate;
+  List.UpdateItemHeight;
 
   Pnt.X:= Max(0, Caret.PosX-FCharsLeft);
   Pnt.Y:= Caret.PosY;
@@ -793,7 +795,6 @@ begin
 
   RectMon:= Screen.MonitorFromPoint(NewFormPos).WorkareaRect;
 
-  List.UpdateItemHeight;
   NewFormWidth:= CompletionOps.FormWidth;
   NewFormHeight:= Min(CompletionOps.FormMaxVisibleItems, List.ItemCount)*List.ItemHeight + 2*List.BorderSpacing.Around + 1;
 
