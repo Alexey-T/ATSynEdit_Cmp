@@ -11,17 +11,9 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics,
   Dialogs, ExtCtrls,
-  LclProc, LclType,
+  LCLProc, LCLType,
   ATSynEdit,
-  ATSynEdit_Carets,
-  ATSynEdit_Commands,
-  ATSynEdit_Cmp_RenderHTML,
-  ATStrings,
-  ATStringProc,
-  ATStringProc_Separator,
-  ATListbox,
-  ATFlatThemes,
-  Math;
+  ATListbox;
 
 type
   TATCompletionPropEvent = procedure (Sender: TObject;
@@ -52,8 +44,9 @@ procedure EditorShowCompletionListbox(AEd: TATSynEdit;
 
 procedure EditorGetCurrentWord(Ed: TATSynEdit;
   APosX, APosY: integer;
-  const ANonWordChars: atString;
-  out AWord: atString; out ACharsLeft, ACharsRight: integer);
+  const ANonWordChars: UnicodeString;
+  out AWord: UnicodeString;
+  out ACharsLeft, ACharsRight: integer);
 
 type
   { TFormATSynEditComplete }
@@ -170,6 +163,16 @@ var
 function IsAutocompletionFormVisible: boolean;
 
 implementation
+
+uses
+  ATStrings,
+  ATStringProc,
+  ATStringProc_Separator,
+  ATSynEdit_Carets,
+  ATSynEdit_Commands,
+  ATSynEdit_Cmp_RenderHTML,
+  ATFlatThemes,
+  Math;
 
 {$R *.lfm}
 
@@ -819,8 +822,9 @@ end;
 
 procedure EditorGetCurrentWord(Ed: TATSynEdit;
   APosX, APosY: integer;
-  const ANonWordChars: atString;
-  out AWord: atString; out ACharsLeft, ACharsRight: integer);
+  const ANonWordChars: UnicodeString;
+  out AWord: UnicodeString;
+  out ACharsLeft, ACharsRight: integer);
 var
   str: atString;
   n: integer;
