@@ -741,8 +741,8 @@ procedure TFormATSynEditComplete.DoUpdate;
 var
   Caret: TATCaretItem;
   RectMon: TRect;
-  P: TPoint;
-  NewY, NewFormWidth, NewFormHeight: integer;
+  NewFormWidth, NewFormHeight, TempY: integer;
+  NewFormPos, Pnt: TPoint;
 begin
   SList.Clear;
   if Assigned(FOnGetProp) then
@@ -785,35 +785,35 @@ begin
   List.BorderSpacing.Around:= CompletionOps.BorderSize;
   List.Invalidate;
 
-  P.X:= Max(0, Caret.PosX-FCharsLeft);
-  P.Y:= Caret.PosY;
-  P:= Editor.CaretPosToClientPos(P);
-  Inc(P.Y, Editor.TextCharSize.Y);
-  P:= Editor.ClientToScreen(P);
+  Pnt.X:= Max(0, Caret.PosX-FCharsLeft);
+  Pnt.Y:= Caret.PosY;
+  Pnt:= Editor.CaretPosToClientPos(Pnt);
+  Inc(Pnt.Y, Editor.TextCharSize.Y);
+  NewFormPos:= Editor.ClientToScreen(Pnt);
 
-  RectMon:= Screen.MonitorFromPoint(P).WorkareaRect;
+  RectMon:= Screen.MonitorFromPoint(NewFormPos).WorkareaRect;
 
   List.UpdateItemHeight;
   NewFormWidth:= CompletionOps.FormWidth;
   NewFormHeight:= Min(CompletionOps.FormMaxVisibleItems, List.ItemCount)*List.ItemHeight + 2*List.BorderSpacing.Around + 1;
 
   //check that form fits on the bottom
-  if P.Y+NewFormHeight>= RectMon.Bottom then
+  if NewFormPos.Y+NewFormHeight>= RectMon.Bottom then
   begin
-    NewY:= P.Y-Editor.TextCharSize.y-NewFormHeight;
-    if NewY>=RectMon.Top then
-      P.Y:= NewY;
+    TempY:= NewFormPos.Y-Editor.TextCharSize.Y-NewFormHeight;
+    if TempY>=RectMon.Top then
+      NewFormPos.Y:= TempY;
   end;
 
   EditorOptionsSave;
 
   //check that form fits on the right
-  P.X:= Max(RectMon.Left, Min(P.X, RectMon.Right-NewFormWidth));
+  NewFormPos.X:= Max(RectMon.Left, Min(NewFormPos.X, RectMon.Right-NewFormWidth));
 
   if Application.MainForm.FormStyle in [fsStayOnTop, fsSystemStayOnTop] then
     FormStyle:= Application.MainForm.FormStyle;
 
-  SetBounds(P.X, P.Y, NewFormWidth, NewFormHeight);
+  SetBounds(NewFormPos.X, NewFormPos.Y, NewFormWidth, NewFormHeight);
   Show;
 end;
 
