@@ -60,6 +60,7 @@ type
 
   TFormATSynEditComplete = class(TForm)
     List: TATListbox;
+    TimerUpdater: TTimer;
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormDeactivate(Sender: TObject);
@@ -70,6 +71,7 @@ type
     procedure ListClick(Sender: TObject);
     procedure ListDrawItem(Sender: TObject; C: TCanvas; AIndex: integer;
       const ARect: TRect);
+    procedure TimerUpdaterTimer(Sender: TObject);
   private
     { private declarations }
     FTimerClosing: TTimer;
@@ -86,6 +88,7 @@ type
     FOldCaretStopUnfocused: boolean;
     FOldDimUnfocusedBack: integer;
     FOldSaved: boolean;
+    FUpdateForCaret: TPoint;
     procedure DoHintHide;
     procedure DoHintShow(const AHint: string);
     procedure DoReplaceTo(const AStr: string; AWithBracket: boolean);
@@ -598,12 +601,6 @@ begin
   end;
 end;
 
-procedure TFormATSynEditComplete.TimerClosingTimer(Sender: TObject);
-begin
-  FTimerClosing.Enabled:= false;
-  Close;
-end;
-
 procedure _TextOut(C: TCanvas; X, Y: integer; const Text: string);
 begin
   if SBeginsWith(Text, CompletionSignatureHTML) then
@@ -742,13 +739,18 @@ end;
 
 procedure TFormATSynEditComplete.DoUpdate;
 var
-  P: TPoint;
+  Caret: TATCaretItem;
   RectMon: TRect;
+  P: TPoint;
   NewY, NewFormWidth, NewFormHeight: integer;
 begin
   SList.Clear;
   if Assigned(FOnGetProp) then
     FOnGetProp(Editor, SList, FCharsLeft, FCharsRight);
+
+  Caret:= Editor.Carets[0];
+  FUpdateForCaret.X:= Caret.PosX;
+  FUpdateForCaret.Y:= Caret.PosY;
 
   if SList.Count=0 then
   begin
@@ -783,8 +785,8 @@ begin
   List.BorderSpacing.Around:= CompletionOps.BorderSize;
   List.Invalidate;
 
-  P.X:= Max(0, Editor.Carets[0].PosX-FCharsLeft);
-  P.Y:= Editor.Carets[0].PosY;
+  P.X:= Max(0, Caret.PosX-FCharsLeft);
+  P.Y:= Caret.PosY;
   P:= Editor.CaretPosToClientPos(P);
   Inc(P.Y, Editor.TextCharSize.Y);
   P:= Editor.ClientToScreen(P);
@@ -869,6 +871,28 @@ begin
   if Assigned(FHintWnd) then
     FHintWnd.Hide;
 end;
+
+procedure TFormATSynEditComplete.TimerClosingTimer(Sender: TObject);
+begin
+  FTimerClosing.Enabled:= false;
+  Close;
+end;
+
+procedure TFormATSynEditComplete.TimerUpdaterTimer(Sender: TObject);
+var
+  Caret: TATCaretItem;
+  NewPos: TPoint;
+begin
+  if not Visible then exit;
+  if Editor.Carets.Count=0 then exit;
+
+  Caret:= Editor.Carets[0];
+  NewPos.X:= Caret.PosX;
+  NewPos.Y:= Caret.PosY;
+  if NewPos<>FUpdateForCaret then
+    DoUpdate;
+end;
+
 
 
 initialization

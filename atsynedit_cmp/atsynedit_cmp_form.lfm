@@ -29,4 +29,10 @@ object FormATSynEditComplete: TFormATSynEditComplete
     OnClick = ListClick
     OnDrawItem = ListDrawItem
   end
+  object TimerUpdater: TTimer
+    Interval = 200
+    OnTimer = TimerUpdaterTimer
+    Left = 118
+    Top = 50
+  end
 end
