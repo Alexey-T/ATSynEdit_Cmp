@@ -25,6 +25,7 @@ object FormATSynEditComplete: TFormATSynEditComplete
     OwnerDrawn = True
     ParentColor = False
     ParentFont = False
+    ScrollStyleVert = alssAuto
     OnClick = ListClick
     OnDrawItem = ListDrawItem
   end

@@ -300,7 +300,6 @@ begin
   SList:= TStringList.Create;
   SList.TextLineBreakStyle:= tlbsLF;
   FHintWnd:= THintWindow.Create(Self);
-  List.ScrollStyleVert:= alssAuto;
   ShowInTaskBar:= stNever;
 end;
 
