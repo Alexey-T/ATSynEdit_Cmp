@@ -16,7 +16,7 @@ object FormATSynEditComplete: TFormATSynEditComplete
   OnUTF8KeyPress = FormUTF8KeyPress
   ShowInTaskBar = stNever
   LCLVersion = '2.3.0.0'
-  object List: TATListbox
+  object Listbox: TATListbox
     Left = 4
     Height = 232
     Top = 4
@@ -27,8 +27,8 @@ object FormATSynEditComplete: TFormATSynEditComplete
     ParentColor = False
     ParentFont = False
     ScrollStyleVert = alssAuto
-    OnClick = ListClick
-    OnDrawItem = ListDrawItem
+    OnClick = ListboxClick
+    OnDrawItem = ListboxDrawItem
   end
   object TimerUpdater: TTimer
     Interval = 200

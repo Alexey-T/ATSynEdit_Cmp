@@ -59,7 +59,7 @@ type
   { TFormATSynEditComplete }
 
   TFormATSynEditComplete = class(TForm)
-    List: TATListbox;
+    Listbox: TATListbox;
     TimerUpdater: TTimer;
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
@@ -68,8 +68,8 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormShow(Sender: TObject);
     procedure FormUTF8KeyPress(Sender: TObject; var UTF8Key: TUTF8Char);
-    procedure ListClick(Sender: TObject);
-    procedure ListDrawItem(Sender: TObject; C: TCanvas; AIndex: integer;
+    procedure ListboxClick(Sender: TObject);
+    procedure ListboxDrawItem(Sender: TObject; C: TCanvas; AIndex: integer;
       const ARect: TRect);
     procedure TimerUpdaterTimer(Sender: TObject);
   private
@@ -215,8 +215,8 @@ begin
   if FormComplete=nil then
     FormComplete:= TFormATSynEditComplete.Create(nil);
 
-  FormComplete.List.ItemIndex:= 0;
-  FormComplete.List.ItemTop:= 0;
+  FormComplete.Listbox.ItemIndex:= 0;
+  FormComplete.Listbox.ItemTop:= 0;
   FormComplete.Editor:= AEd;
   FormComplete.SelectedIndex:= ASelectedIndex;
   FormComplete.SnippetId:= ASnippetId;
@@ -334,12 +334,12 @@ begin
 
   if (Key=VK_UP) and (Shift=[]) then
   begin
-    if List.ItemIndex>0 then
-      List.ItemIndex:= List.ItemIndex-1
+    if Listbox.ItemIndex>0 then
+      Listbox.ItemIndex:= Listbox.ItemIndex-1
     else
     case CompletionOps.UpDownAtEdge of
       cudWrap:
-        List.ItemIndex:= List.ItemCount-1;
+        Listbox.ItemIndex:= Listbox.ItemCount-1;
       cudCloseForm:
         Close;
     end;
@@ -349,12 +349,12 @@ begin
 
   if (Key=VK_DOWN) and (Shift=[]) then
   begin
-    if List.ItemIndex<List.ItemCount-1 then
-      List.ItemIndex:= List.ItemIndex+1
+    if Listbox.ItemIndex<Listbox.ItemCount-1 then
+      Listbox.ItemIndex:= Listbox.ItemIndex+1
     else
     case CompletionOps.UpDownAtEdge of
       cudWrap:
-        List.ItemIndex:= 0;
+        Listbox.ItemIndex:= 0;
       cudCloseForm:
         Close;
     end;
@@ -364,14 +364,14 @@ begin
 
   if (Key=VK_PRIOR) and (Shift=[]) then
   begin
-    List.ItemIndex:= Max(0, List.ItemIndex-List.VisibleItems);
+    Listbox.ItemIndex:= Max(0, Listbox.ItemIndex-Listbox.VisibleItems);
     Key:= 0;
     exit
   end;
 
   if (Key=VK_NEXT) and (Shift=[]) then
   begin
-    List.ItemIndex:= Min(List.ItemCount-1, List.ItemIndex+List.VisibleItems);
+    Listbox.ItemIndex:= Min(Listbox.ItemCount-1, Listbox.ItemIndex+Listbox.VisibleItems);
     Key:= 0;
     exit
   end;
@@ -498,8 +498,8 @@ end;
 
 procedure TFormATSynEditComplete.FormShow(Sender: TObject);
 begin
-  if (FSelectedIndex>=0) and (FSelectedIndex<List.ItemCount) then
-    List.ItemIndex:= FSelectedIndex;
+  if (FSelectedIndex>=0) and (FSelectedIndex<Listbox.ItemCount) then
+    Listbox.ItemIndex:= FSelectedIndex;
 end;
 
 procedure TFormATSynEditComplete.FormUTF8KeyPress(Sender: TObject;
@@ -537,7 +537,7 @@ begin
   UTF8Key:= '';
 end;
 
-procedure TFormATSynEditComplete.ListClick(Sender: TObject);
+procedure TFormATSynEditComplete.ListboxClick(Sender: TObject);
 begin
   DoResult;
 end;
@@ -560,7 +560,7 @@ begin
   AText:= '';
   AWithBracket:= false;
 
-  N:= List.ItemIndex;
+  N:= Listbox.ItemIndex;
   if (N>=0) and (N<SList.Count) then
   begin
     AText:= GetItemText(SList[N], CompletionOps.IndexOfText);
@@ -619,7 +619,7 @@ begin
     Result:= C.TextWidth(Text);
 end;
 
-procedure TFormATSynEditComplete.ListDrawItem(Sender: TObject; C: TCanvas;
+procedure TFormATSynEditComplete.ListboxDrawItem(Sender: TObject; C: TCanvas;
   AIndex: integer; const ARect: TRect);
 var
   Sep: TATStringSeparator;
@@ -629,7 +629,7 @@ begin
   if (AIndex<0) or (AIndex>=SList.Count) then exit;
   SLongItem:= SList[AIndex];
 
-  if AIndex=List.ItemIndex then
+  if AIndex=Listbox.ItemIndex then
     C.Brush.Color:= ATFlatTheme.ColorBgListboxSel
   else
     C.Brush.Color:= ATFlatTheme.ColorBgListbox;
@@ -659,7 +659,7 @@ begin
     C.Font.Color:= CompletionOps.ColorFontPrefix;
     SHint+= ' ';
     _TextOut(C,
-      ARect.Left+List.ClientWidth-_TextWidth(C, SHint)-CompletionOps.TextIndentRightCol,
+      ARect.Left+Listbox.ClientWidth-_TextWidth(C, SHint)-CompletionOps.TextIndentRightCol,
       ARect.Top,
       SHint
       );
@@ -674,7 +674,7 @@ begin
     if CompletionOps.HintOnlyInTooltip then
       SLongItem:= SItem;
     SHint:= StringReplace(SHint, CompletionOps.HintMultiLineSep, #10, [rfReplaceAll]);
-    if AIndex=List.ItemIndex then
+    if AIndex=Listbox.ItemIndex then
       DoHintShow(SHint);
   end;
 
@@ -714,14 +714,14 @@ begin
   bWithBracket:= false;
 
   if Assigned(FOnResult) then
-    FOnResult(Self, FSnippetId, List.ItemIndex)
+    FOnResult(Self, FSnippetId, Listbox.ItemIndex)
   else
   begin
     GetResultText(Str, bWithBracket);
     DoReplaceTo(Str, bWithBracket);
 
     if Assigned(FOnChoose) then
-      FOnChoose(Self, Str, List.ItemIndex);
+      FOnChoose(Self, Str, Listbox.ItemIndex);
   end;
 
   //for HTML: if inserted 'value=""' we must move caret lefter
@@ -779,11 +779,11 @@ begin
     end;
   if CompletionOps.ListSort then SList.Sort;
 
-  List.VirtualItemCount:= SList.Count;
-  List.ItemIndex:= 0;
-  List.BorderSpacing.Around:= CompletionOps.BorderSize;
-  List.Invalidate;
-  List.UpdateItemHeight;
+  Listbox.VirtualItemCount:= SList.Count;
+  Listbox.ItemIndex:= 0;
+  Listbox.BorderSpacing.Around:= CompletionOps.BorderSize;
+  Listbox.Invalidate;
+  Listbox.UpdateItemHeight;
 
   Pnt.X:= Max(0, Caret.PosX-FCharsLeft);
   Pnt.Y:= Caret.PosY;
@@ -794,7 +794,7 @@ begin
   RectMon:= Screen.MonitorFromPoint(NewFormPos).WorkareaRect;
 
   NewFormWidth:= CompletionOps.FormWidth;
-  NewFormHeight:= Min(CompletionOps.FormMaxVisibleItems, List.ItemCount)*List.ItemHeight + 2*List.BorderSpacing.Around + 1;
+  NewFormHeight:= Min(CompletionOps.FormMaxVisibleItems, Listbox.ItemCount)*Listbox.ItemHeight + 2*Listbox.BorderSpacing.Around + 1;
 
   //check that form fits on the bottom
   if NewFormPos.Y+NewFormHeight>= RectMon.Bottom then
