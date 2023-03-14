@@ -903,7 +903,7 @@ initialization
     CommitIfSingleItem:= false;
     ColorFontPrefix:= clPurple;
     ColorFontParams:= clGray;
-    CommitChars:= ' .,;/\''"';
+    CommitChars:= ' .,;''"';
     CloseChars:= '<>()[]{}=';
     IndexOfText:= 1;
     IndexOfDesc:= 2;
