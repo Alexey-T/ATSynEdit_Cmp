@@ -457,7 +457,8 @@ begin
     cCommand_KeyLeft_Sel, //Shift+Left
     cCommand_KeyRight_Sel, //Shift+Right
     cCommand_KeyHome_Sel, //Shift+Home
-    cCommand_KeyEnd_Sel: //Shift+End
+    cCommand_KeyEnd_Sel, //Shift+End
+    cCommand_Clipboard_Begin..cCommand_Clipboard_End:
       begin
         Close;
         Editor.DoCommand(NCommand, cInvokeHotkey);
