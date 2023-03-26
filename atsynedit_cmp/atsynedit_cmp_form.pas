@@ -426,6 +426,22 @@ begin
     exit
   end;
 
+  if (Key=VK_DELETE) and (Shift=[]) then
+  begin
+    Editor.DoCommand(cCommand_KeyDelete, cInvokeHotkey);
+    DoUpdate;
+    Key:= 0;
+    exit
+  end;
+
+  if (Key=VK_BACK) and (Shift=[]) then
+  begin
+    Editor.DoCommand(cCommand_KeyBackspace, cInvokeHotkey);
+    DoUpdate;
+    Key:= 0;
+    exit
+  end;
+
   NShortCut:= KeyToShortCut(Key, Shift);
   if NShortCut=0 then exit;
 
