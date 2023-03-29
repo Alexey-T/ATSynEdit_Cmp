@@ -446,6 +446,7 @@ begin
   case NCommand of
     0:
       exit;
+    //some commands must be supported without closing the listbox
     cCommand_TextDeleteWordPrev, //Ctrl+BackSpace
     cCommand_TextDeleteWordNext: //Ctrl+Delete
       begin
@@ -454,6 +455,9 @@ begin
         Key:= 0;
         exit;
       end;
+    //some commands must be supported which close the listbox
+    cCommand_Undo,
+    cCommand_Redo,
     cCommand_KeyLeft_Sel, //Shift+Left
     cCommand_KeyRight_Sel, //Shift+Right
     cCommand_KeyHome_Sel, //Shift+Home
