@@ -314,6 +314,9 @@ begin
   //force focus to editor, fix CudaText issue #4111
   if FEdit.Visible and FEdit.Enabled and FEdit.CanFocus then
     FEdit.SetFocus;
+
+  //veksha's fix for Win11 problem with Alt+Tab after auto-completion, CudaText issue #4964
+  Parent:= Application.MainForm;
 end;
 
 procedure TFormATSynEditComplete.FormDestroy(Sender: TObject);
@@ -804,6 +807,7 @@ begin
     FormStyle:= Application.MainForm.FormStyle;
 
   SetBounds(NewFormPos.X, NewFormPos.Y, NewFormWidth, NewFormHeight);
+  Parent:= nil; //veksha's fix (part 2) for CudaText issue #4964
   Show;
 end;
 
