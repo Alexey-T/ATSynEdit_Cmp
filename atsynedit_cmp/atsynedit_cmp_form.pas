@@ -153,7 +153,8 @@ const
 var
   CompletionOps: TATCompletionOptions;
 
-function IsAutocompletionFormVisible: boolean;
+var
+  FormComplete: TFormATSynEditComplete = nil;
 
 implementation
 
@@ -169,14 +170,6 @@ uses
   Math;
 
 {$R *.lfm}
-
-var
-  FormComplete: TFormATSynEditComplete = nil;
-
-function IsAutocompletionFormVisible: boolean;
-begin
-  Result:= Assigned(FormComplete) and FormComplete.Visible;
-end;
 
 function EditorGetLefterWordChars(Ed: TATSynEdit; AX, AY: integer): integer;
 var
