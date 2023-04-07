@@ -154,7 +154,7 @@ var
   CompletionOps: TATCompletionOptions;
 
 var
-  FormComplete: TFormATSynEditComplete = nil;
+  FormAutoCompletion: TFormATSynEditComplete = nil;
 
 implementation
 
@@ -202,18 +202,18 @@ begin
   if AEd.Carets.Count>1 then
     if not AAllowCarets then exit;
 
-  if FormComplete=nil then
-    FormComplete:= TFormATSynEditComplete.Create(nil);
+  if FormAutoCompletion=nil then
+    FormAutoCompletion:= TFormATSynEditComplete.Create(nil);
 
-  FormComplete.Listbox.ItemIndex:= 0;
-  FormComplete.Listbox.ItemTop:= 0;
-  FormComplete.Editor:= AEd;
-  FormComplete.SelectedIndex:= ASelectedIndex;
-  FormComplete.SnippetId:= ASnippetId;
-  FormComplete.OnGetProp:= AOnGetProp;
-  FormComplete.OnResult:= AOnResult;
-  FormComplete.OnChoose:= AOnChoose;
-  FormComplete.DoUpdate;
+  FormAutoCompletion.Listbox.ItemIndex:= 0;
+  FormAutoCompletion.Listbox.ItemTop:= 0;
+  FormAutoCompletion.Editor:= AEd;
+  FormAutoCompletion.SelectedIndex:= ASelectedIndex;
+  FormAutoCompletion.SnippetId:= ASnippetId;
+  FormAutoCompletion.OnGetProp:= AOnGetProp;
+  FormAutoCompletion.OnResult:= AOnResult;
+  FormAutoCompletion.OnChoose:= AOnChoose;
+  FormAutoCompletion.DoUpdate;
 end;
 
 procedure TFormATSynEditComplete.DoReplaceTo(const AStr: string; AWithBracket: boolean);
@@ -923,8 +923,8 @@ initialization
 
 finalization
 
-  if Assigned(FormComplete) then
-    FormComplete.Free;
+  if Assigned(FormAutoCompletion) then
+    FormAutoCompletion.Free;
 
 end.
 
