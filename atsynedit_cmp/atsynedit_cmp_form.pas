@@ -327,9 +327,16 @@ var
   KeyHistory: TATKeyArray;
   NCommand: integer;
 begin
-  if (Key=VK_CONTROL) or
-    (Key=VK_SHIFT) or
-    (Key=VK_MENU) then exit;
+  case Key of
+    VK_CONTROL,
+    VK_SHIFT:
+      Exit;
+    VK_MENU:
+      begin
+        Key:= 0; //fix mainform loosing focus after pressing Alt/Alt in completion form
+        Exit;
+      end;
+  end;
 
   if (Key=VK_UP) and (Shift=[]) then
   begin
