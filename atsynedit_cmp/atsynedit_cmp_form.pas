@@ -458,13 +458,31 @@ begin
         Key:= 0;
         exit;
       end;
+
     //some commands must be supported which close the listbox
     cCommand_Undo,
     cCommand_Redo,
+
     cCommand_KeyLeft_Sel, //Shift+Left
     cCommand_KeyRight_Sel, //Shift+Right
     cCommand_KeyHome_Sel, //Shift+Home
     cCommand_KeyEnd_Sel, //Shift+End
+
+    cCommand_GotoTextBegin,
+    cCommand_GotoTextEnd,
+    cCommand_GotoWordNext,
+    cCommand_GotoWordPrev,
+    cCommand_GotoWordEnd,
+    cCommand_GotoWordNext_Simple,
+    cCommand_GotoWordPrev_Simple,
+    cCommand_GotoTextBegin_Sel,
+    cCommand_GotoTextEnd_Sel,
+    cCommand_GotoWordNext_Sel,
+    cCommand_GotoWordPrev_Sel,
+    cCommand_GotoWordEnd_Sel,
+    cCommand_GotoWordNext_Simple_Sel,
+    cCommand_GotoWordPrev_Simple_Sel,
+
     cCommand_Clipboard_Begin..cCommand_Clipboard_End:
       begin
         Close;
