@@ -205,6 +205,8 @@ begin
   if FormAutoCompletion=nil then
     FormAutoCompletion:= TFormATSynEditComplete.Create(nil);
 
+  FormAutoCompletion.Parent:= GetParentForm(AEd);
+
   FormAutoCompletion.Listbox.ItemIndex:= 0;
   FormAutoCompletion.Listbox.ItemTop:= 0;
   FormAutoCompletion.Editor:= AEd;
@@ -309,7 +311,7 @@ begin
     FEdit.SetFocus;
 
   //veksha's fix for Win11 problem with Alt+Tab after auto-completion, CudaText issue #4964
-  Parent:= Application.MainForm;
+  //Parent:= Application.MainForm;
 end;
 
 procedure TFormATSynEditComplete.FormDestroy(Sender: TObject);
@@ -817,8 +819,9 @@ begin
   if Application.MainForm.FormStyle in [fsStayOnTop, fsSystemStayOnTop] then
     FormStyle:= Application.MainForm.FormStyle;
 
+  NewFormPos:= Parent.ScreenToClient(NewFormPos);
   SetBounds(NewFormPos.X, NewFormPos.Y, NewFormWidth, NewFormHeight);
-  Parent:= nil; //veksha's fix (part 2) for CudaText issue #4964
+  //Parent:= nil; //veksha's fix (part 2) for CudaText issue #4964
   Show;
 end;
 
