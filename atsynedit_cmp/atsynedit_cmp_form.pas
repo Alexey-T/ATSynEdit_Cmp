@@ -746,7 +746,6 @@ end;
 procedure TFormATSynEditComplete.DoUpdate;
 var
   Caret: TATCaretItem;
-  RectMon: TRect;
   NewFormWidth, NewFormHeight, TempY: integer;
   NewFormPos, Pnt: TPoint;
 begin
@@ -797,31 +796,27 @@ begin
   Pnt:= Editor.CaretPosToClientPos(Pnt);
   Inc(Pnt.Y, Editor.TextCharSize.Y);
   NewFormPos:= Editor.ClientToScreen(Pnt);
-
-  RectMon:= Screen.MonitorFromPoint(NewFormPos).WorkareaRect;
+  NewFormPos:= Parent.ScreenToClient(NewFormPos);
 
   NewFormWidth:= CompletionOps.FormWidth;
   NewFormHeight:= Min(CompletionOps.FormMaxVisibleItems, Listbox.ItemCount)*Listbox.ItemHeight + 2*Listbox.BorderSpacing.Around + 1;
 
   //check that form fits on the bottom
-  if NewFormPos.Y+NewFormHeight>= RectMon.Bottom then
+  if NewFormPos.Y+NewFormHeight>= Parent.ClientHeight then
   begin
     TempY:= NewFormPos.Y-Editor.TextCharSize.Y-NewFormHeight;
-    if TempY>=RectMon.Top then
-      NewFormPos.Y:= TempY;
+    NewFormPos.Y:= Max(0, TempY);
   end;
 
   EditorOptionsSave;
 
   //check that form fits on the right
-  NewFormPos.X:= Max(RectMon.Left, Min(NewFormPos.X, RectMon.Right-NewFormWidth));
+  NewFormPos.X:= Max(0, Min(NewFormPos.X, Parent.Width-NewFormWidth));
 
   if Application.MainForm.FormStyle in [fsStayOnTop, fsSystemStayOnTop] then
     FormStyle:= Application.MainForm.FormStyle;
 
-  NewFormPos:= Parent.ScreenToClient(NewFormPos);
   SetBounds(NewFormPos.X, NewFormPos.Y, NewFormWidth, NewFormHeight);
-  //Parent:= nil; //veksha's fix (part 2) for CudaText issue #4964
   Show;
 end;
 
