@@ -812,7 +812,7 @@ begin
   EditorOptionsSave;
 
   //check that form fits on the right
-  NewFormPos.X:= Max(0, Min(NewFormPos.X, Parent.Width-NewFormWidth));
+  NewFormPos.X:= Max(0, Min(NewFormPos.X, Parent.ClientWidth-NewFormWidth));
 
   if Application.MainForm.FormStyle in [fsStayOnTop, fsSystemStayOnTop] then
     FormStyle:= Application.MainForm.FormStyle;
