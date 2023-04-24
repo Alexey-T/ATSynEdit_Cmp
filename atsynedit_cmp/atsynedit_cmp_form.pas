@@ -313,9 +313,6 @@ begin
   //fixing stopped caret blinking
   FEdit.DoCommand(cCommand_ToggleOverwrite, cInvokeInternal);
   FEdit.DoCommand(cCommand_ToggleOverwrite, cInvokeInternal);
-
-  //veksha's fix for Win11 problem with Alt+Tab after auto-completion, CudaText issue #4964
-  //Parent:= Application.MainForm;
 end;
 
 procedure TFormATSynEditComplete.FormDestroy(Sender: TObject);
