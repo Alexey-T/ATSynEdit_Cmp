@@ -676,6 +676,7 @@ begin
   end;
 
   //usual case, n columns, tab-char separates hint (in hint window)
+  SHint:= '';
   bShowHint:= false;
   if Pos(CompletionOps.HintSep, SLongItem)>0 then
   begin
@@ -684,15 +685,14 @@ begin
       SLongItem:= SItem;
     SHint:= StringReplace(SHint, CompletionOps.HintMultiLineSep, #10, [rfReplaceAll]);
     if AIndex=Listbox.ItemIndex then
-    begin
-      DoHintShow(SHint);
       bShowHint:= true;
-    end;
   end;
 
-  if not bShowHint and (AIndex=Listbox.ItemIndex) then
-    if Assigned(FHintWnd) then
-      FHintWnd.Hide;
+  if AIndex=Listbox.ItemIndex then
+    if bShowHint then
+      DoHintShow(SHint)
+    else
+      DoHintHide;
 
   NSize:= CompletionOps.TextIndentLeftCol;
 
