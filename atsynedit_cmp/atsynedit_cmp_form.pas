@@ -632,7 +632,6 @@ var
   Sep: TATStringSeparator;
   SLongItem, SItem, SHint: string;
   NSize, i: integer;
-  bShowHint: boolean;
 begin
   if (AIndex<0) or (AIndex>=SList.Count) then exit;
   SLongItem:= SList[AIndex];
@@ -677,19 +676,16 @@ begin
 
   //usual case, n columns, tab-char separates hint (in hint window)
   SHint:= '';
-  bShowHint:= false;
   if Pos(CompletionOps.HintSep, SLongItem)>0 then
   begin
     SSplitByChar(SLongItem, CompletionOps.HintSep, SItem, SHint);
     if CompletionOps.HintOnlyInTooltip then
       SLongItem:= SItem;
     SHint:= StringReplace(SHint, CompletionOps.HintMultiLineSep, #10, [rfReplaceAll]);
-    if AIndex=Listbox.ItemIndex then
-      bShowHint:= true;
   end;
 
   if AIndex=Listbox.ItemIndex then
-    if bShowHint then
+    if SHint<>'' then
       DoHintShow(SHint)
     else
       DoHintHide;
