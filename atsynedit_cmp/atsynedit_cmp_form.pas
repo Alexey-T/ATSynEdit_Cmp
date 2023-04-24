@@ -684,11 +684,13 @@ begin
       SLongItem:= SItem;
     SHint:= StringReplace(SHint, CompletionOps.HintMultiLineSep, #10, [rfReplaceAll]);
     if AIndex=Listbox.ItemIndex then
+    begin
       DoHintShow(SHint);
-    bShowHint:= true;
+      bShowHint:= true;
+    end;
   end;
 
-  if not bShowHint then
+  if not bShowHint and (AIndex=Listbox.ItemIndex) then
     if Assigned(FHintWnd) then
       FHintWnd.Hide;
 
