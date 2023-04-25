@@ -90,10 +90,11 @@ type
     procedure GetResultText(out AText: string; out AWithBracket: boolean);
     procedure EditorOptionsSave;
     procedure EditorOptionsRestore;
+    procedure SetEditor(AValue: TATSynEdit);
     procedure TimerClosingTimer(Sender: TObject);
   public
     { public declarations }
-    property Editor: TATSynEdit read FEdit write FEdit;
+    property Editor: TATSynEdit read FEdit write SetEditor;
     property OnGetProp: TATCompletionPropEvent read FOnGetProp write FOnGetProp;
 
     //OnResult must handle: insertion of final result (and anything after insertion)
@@ -211,8 +212,6 @@ begin
 
   if FormAutoCompletion=nil then
     FormAutoCompletion:= TFormATSynEditComplete.Create(nil);
-
-  FormAutoCompletion.Parent:= GetParentForm(AEd);
 
   FormAutoCompletion.Listbox.ItemIndex:= 0;
   FormAutoCompletion.Listbox.ItemTop:= 0;
@@ -615,6 +614,16 @@ begin
     //make caret visible!
     FEdit.DoGotoCaret(cEdgeTop);
   end;
+end;
+
+procedure TFormATSynEditComplete.SetEditor(AValue: TATSynEdit);
+begin
+  if FEdit=AValue then Exit;
+  FEdit:= AValue;
+  if Assigned(FEdit) then
+    Parent:= GetParentForm(FEdit)
+  else
+    Parent:= nil;
 end;
 
 procedure _TextOut(C: TCanvas; X, Y: integer; const Text: string);
