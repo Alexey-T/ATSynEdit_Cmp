@@ -694,7 +694,7 @@ begin
     _TextOut(C,
       ARect.Left+Listbox.ClientWidth-_TextWidth(C, SHint)-CompletionOps.TextIndentRightCol,
       ARect.Top,
-      SHint
+      SHint+' ' //add space to overlap too long left columns
       );
 
     exit;
