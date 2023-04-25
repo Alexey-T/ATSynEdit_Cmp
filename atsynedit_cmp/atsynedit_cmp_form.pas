@@ -785,10 +785,6 @@ begin
 
   if SList.Count=0 then
   begin
-    //clear the listbox to make the behaviour equal in gtk2/qt5
-    Listbox.Items.Clear;
-    Listbox.Invalidate;
-
     if CompletionOps.ClosingTimerInverval>0 then
     begin
       //instead of 'Close' run the timer, to avoid hiding/showing when user presses Left/Right arrow in editor
