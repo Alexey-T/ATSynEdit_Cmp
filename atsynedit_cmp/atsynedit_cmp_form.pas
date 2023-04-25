@@ -691,7 +691,6 @@ begin
 
     //prefix
     C.Font.Color:= CompletionOps.ColorFontPrefix;
-    SHint+= ' ';
     _TextOut(C,
       ARect.Left+Listbox.ClientWidth-_TextWidth(C, SHint)-CompletionOps.TextIndentRightCol,
       ARect.Top,
@@ -969,7 +968,7 @@ initialization
     FormMaxVisibleItems:= 12;
     HintWidth:= 400;
     TextIndentLeftCol:= 3;
-    TextIndentRightCol:= 0; //we add ' ' to right col to emulate right indent
+    TextIndentRightCol:= 3;
     TextIndent:= 8;
     ClosingTimerInverval:= 300;
     ShortcutForAutocomplete:= 0;
