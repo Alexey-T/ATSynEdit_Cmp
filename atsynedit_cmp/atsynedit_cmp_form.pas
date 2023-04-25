@@ -767,16 +767,20 @@ begin
 
   if SList.Count=0 then
   begin
-    //instead of 'Close' run the timer, to avoid hiding/showing when user presses Left/Right arrow in editor
-    if FTimerClosing=nil then
+    if CompletionOps.ClosingTimerInverval>0 then
     begin
-      FTimerClosing:= TTimer.Create(Self);
-      FTimerClosing.Interval:= CompletionOps.ClosingTimerInverval;
-      FTimerClosing.OnTimer:= @TimerClosingTimer;
-    end;
-    FTimerClosing.Enabled:= false;
-    FTimerClosing.Enabled:= true;
-
+      //instead of 'Close' run the timer, to avoid hiding/showing when user presses Left/Right arrow in editor
+      if FTimerClosing=nil then
+      begin
+        FTimerClosing:= TTimer.Create(Self);
+        FTimerClosing.Interval:= CompletionOps.ClosingTimerInverval;
+        FTimerClosing.OnTimer:= @TimerClosingTimer;
+      end;
+      FTimerClosing.Enabled:= false;
+      FTimerClosing.Enabled:= true;
+    end
+    else
+      Close;
     exit
   end;
 
