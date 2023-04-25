@@ -156,6 +156,8 @@ var
 var
   FormAutoCompletion: TFormATSynEditComplete = nil;
 
+procedure CloseFormAutoCompletion;
+
 implementation
 
 uses
@@ -170,6 +172,12 @@ uses
   Math;
 
 {$R *.lfm}
+
+procedure CloseFormAutoCompletion;
+begin
+  if Assigned(FormAutoCompletion) and FormAutoCompletion.Visible then
+    FormAutoCompletion.Close;
+end;
 
 function EditorGetLefterWordChars(Ed: TATSynEdit; AX, AY: integer): integer;
 var
