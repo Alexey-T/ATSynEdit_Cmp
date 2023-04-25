@@ -662,7 +662,7 @@ begin
 
   C.Font.Name:= ATFlatTheme.FontName;
   C.Font.Size:= ATFlatTheme.DoScaleFont(ATFlatTheme.FontSize);
-  C.Font.Quality:= ATFlatTheme.FontQuality;
+  //C.Font.Quality:= ATFlatTheme.FontQuality; //not helpful
 
   //alternate listbox: OnResult is set, then 3 columns, tab-separated:
   //paint column1 at left,
