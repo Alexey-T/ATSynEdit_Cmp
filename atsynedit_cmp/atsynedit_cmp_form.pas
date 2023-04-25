@@ -119,6 +119,7 @@ type
     );
 
   TATCompletionOptions = record
+    MonoFont: boolean;
     CommitIfSingleItem: boolean;
     ColorFontPrefix: TColor;
     ColorFontParams: TColor;
@@ -660,9 +661,16 @@ begin
     C.Brush.Color:= ATFlatTheme.ColorBgListbox;
   C.FillRect(ARect);
 
-  C.Font.Name:= ATFlatTheme.FontName;
-  C.Font.Size:= ATFlatTheme.DoScaleFont(ATFlatTheme.FontSize);
-  //C.Font.Quality:= ATFlatTheme.FontQuality; //not helpful
+  if CompletionOps.MonoFont then
+  begin
+    C.Font.Name:= ATFlatTheme.MonoFontName;
+    C.Font.Size:= ATFlatTheme.DoScaleFont(ATFlatTheme.MonoFontSize);
+  end
+  else
+  begin
+    C.Font.Name:= ATFlatTheme.FontName;
+    C.Font.Size:= ATFlatTheme.DoScaleFont(ATFlatTheme.FontSize);
+  end;
 
   //alternate listbox: OnResult is set, then 3 columns, tab-separated:
   //paint column1 at left,
@@ -939,6 +947,7 @@ initialization
   FillChar(CompletionOps, SizeOf(CompletionOps), 0);
   with CompletionOps do
   begin
+    MonoFont:= true;
     CommitIfSingleItem:= false;
     ColorFontPrefix:= clPurple;
     ColorFontParams:= clGray;
