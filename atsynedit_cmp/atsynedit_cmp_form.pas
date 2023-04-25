@@ -318,7 +318,7 @@ begin
   if FEdit.Visible and FEdit.Enabled and FEdit.CanFocus then
     FEdit.SetFocus;
 
-  //fix stopped caret blinking
+  //fix stopped caret blinking (could not find the real reason why blinking stops)
   FEdit.DoCommand(1{some not existing command}, cInvokeInternal);
 end;
 
