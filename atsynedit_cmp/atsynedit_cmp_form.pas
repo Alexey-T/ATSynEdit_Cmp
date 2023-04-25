@@ -62,8 +62,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure FormUTF8KeyPress(Sender: TObject; var UTF8Key: TUTF8Char);
     procedure ListboxClick(Sender: TObject);
-    procedure ListboxDrawItem(Sender: TObject; C: TCanvas; AIndex: integer;
-      const ARect: TRect);
+    procedure ListboxDrawItem(Sender: TObject; C: TCanvas; AIndex: integer; const ARect: TRect);
     procedure TimerUpdaterTimer(Sender: TObject);
   private
     { private declarations }
@@ -312,6 +311,8 @@ procedure TFormATSynEditComplete.FormClose(Sender: TObject;
   var CloseAction: TCloseAction);
 begin
   DoHintHide;
+  TimerUpdater.Enabled:= false;
+
   CloseAction:= caHide;
 
   //force focus to editor, fix CudaText issue #4111
