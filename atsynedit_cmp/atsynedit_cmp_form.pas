@@ -318,9 +318,8 @@ begin
   if FEdit.Visible and FEdit.Enabled and FEdit.CanFocus then
     FEdit.SetFocus;
 
-  //fixing stopped caret blinking
-  FEdit.DoCommand(cCommand_ToggleOverwrite, cInvokeInternal);
-  FEdit.DoCommand(cCommand_ToggleOverwrite, cInvokeInternal);
+  //fix stopped caret blinking
+  FEdit.DoCommand(1{some not existing command}, cInvokeInternal);
 end;
 
 procedure TFormATSynEditComplete.FormDestroy(Sender: TObject);
@@ -663,6 +662,7 @@ begin
 
   C.Font.Name:= ATFlatTheme.FontName;
   C.Font.Size:= ATFlatTheme.DoScaleFont(ATFlatTheme.FontSize);
+  C.Font.Quality:= ATFlatTheme.FontQuality;
 
   //alternate listbox: OnResult is set, then 3 columns, tab-separated:
   //paint column1 at left,
