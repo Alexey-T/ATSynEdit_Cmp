@@ -833,7 +833,7 @@ begin
   NewFormPos:= Editor.ClientToScreen(Pnt);
   NewFormPos:= Parent.ScreenToClient(NewFormPos);
 
-  NewFormWidth:= CompletionOps.FormWidth;
+  NewFormWidth:= Min(CompletionOps.FormWidth, Parent.ClientWidth);
   NewFormHeight:= Min(CompletionOps.FormMaxVisibleItems, Listbox.ItemCount)*Listbox.ItemHeight + 2*Listbox.BorderSpacing.Around + 1;
 
   //check that form fits on the bottom
