@@ -841,7 +841,9 @@ begin
   begin
     TempY:= NewFormPos.Y-Editor.TextCharSize.Y-NewFormHeight;
     if TempY>=0 then
-      NewFormPos.Y:= TempY;
+      NewFormPos.Y:= TempY
+    else
+      NewFormHeight:= Parent.ClientHeight-NewFormPos.Y;
   end;
 
   EditorOptionsSave;
