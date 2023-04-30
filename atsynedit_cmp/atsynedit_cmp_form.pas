@@ -778,7 +778,10 @@ procedure TFormATSynEditComplete.DoUpdate;
 var
   Caret: TATCaretItem;
   NewFormWidth, NewFormHeight, TempY: integer;
-  NewFormPos, Pnt: TPoint;
+  NewFormPos: TPoint;
+  PntText: TPoint;
+  PntCoord: TATPoint;
+  P0: TPoint;
 begin
   Color:= ATFlatTheme.ColorBgListbox;
 
@@ -826,11 +829,14 @@ begin
   Listbox.Invalidate;
   Listbox.UpdateItemHeight;
 
-  Pnt.X:= Max(0, Caret.PosX-FCharsLeft);
-  Pnt.Y:= Caret.PosY;
-  Pnt:= Editor.CaretPosToClientPos(Pnt);
-  Inc(Pnt.Y, Editor.TextCharSize.Y);
-  NewFormPos:= Editor.ClientToScreen(Pnt);
+  PntText.X:= Max(0, Caret.PosX-FCharsLeft);
+  PntText.Y:= Caret.PosY;
+  PntCoord:= Editor.CaretPosToClientPos(PntText);
+  Inc(PntCoord.Y, Editor.TextCharSize.Y);
+
+  P0.X:= PntCoord.X;
+  P0.Y:= PntCoord.Y;
+  NewFormPos:= Editor.ClientToScreen(P0);
   NewFormPos:= Parent.ScreenToClient(NewFormPos);
 
   NewFormWidth:= Min(CompletionOps.FormWidth, Parent.ClientWidth);
