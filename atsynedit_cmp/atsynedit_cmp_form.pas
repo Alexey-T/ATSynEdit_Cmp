@@ -319,8 +319,13 @@ begin
   if FEdit.Visible and FEdit.Enabled and FEdit.CanFocus then
     FEdit.SetFocus;
 
-  //fix stopped caret blinking (could not find the real reason why blinking stops)
+  {
+  //fix stopped caret blinking (could not find the real reason why blinking stops),
+  //if pressing Esc with auto-completion opened
   FEdit.DoCommand(1{some not existing command}, cInvokeInternal);
+  }
+  //above commented block is not needed after the fix in CudaText #5054, FEdit.Update is enough
+  FEdit.Update;
 end;
 
 procedure TFormATSynEditComplete.FormDestroy(Sender: TObject);
