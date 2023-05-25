@@ -322,7 +322,7 @@ begin
   {
   //fix stopped caret blinking (could not find the real reason why blinking stops),
   //if pressing Esc with auto-completion opened
-  FEdit.DoCommand(1{some not existing command}, cInvokeInternal);
+  FEdit.DoCommand(1{some not existing command}, TATEditorCommandInvoke.Internal);
   }
   //above commented block is not needed after the fix in CudaText #5054, FEdit.Update is enough
   FEdit.Update;
@@ -398,7 +398,7 @@ begin
   if (Key=VK_HOME) and (Shift=[]) then
   begin
     Close;
-    Editor.DoCommand(cCommand_KeyHome, cInvokeHotkey);
+    Editor.DoCommand(cCommand_KeyHome, TATEditorCommandInvoke.Hotkey);
     Key:= 0;
     exit;
   end;
@@ -406,7 +406,7 @@ begin
   if (Key=VK_END) and (Shift=[]) then
   begin
     Close;
-    Editor.DoCommand(cCommand_KeyEnd, cInvokeHotkey);
+    Editor.DoCommand(cCommand_KeyEnd, TATEditorCommandInvoke.Hotkey);
     Key:= 0;
     exit;
   end;
@@ -427,7 +427,7 @@ begin
 
   if (Key=VK_LEFT) and (Shift=[]) then
   begin
-    Editor.DoCommand(cCommand_KeyLeft, cInvokeHotkey);
+    Editor.DoCommand(cCommand_KeyLeft, TATEditorCommandInvoke.Hotkey);
     DoUpdate;
     Key:= 0;
     exit
@@ -435,7 +435,7 @@ begin
 
   if (Key=VK_RIGHT) and (Shift=[]) then
   begin
-    Editor.DoCommand(cCommand_KeyRight, cInvokeHotkey);
+    Editor.DoCommand(cCommand_KeyRight, TATEditorCommandInvoke.Hotkey);
     DoUpdate;
     Key:= 0;
     exit
@@ -443,7 +443,7 @@ begin
 
   if (Key=VK_DELETE) and (Shift=[]) then
   begin
-    Editor.DoCommand(cCommand_KeyDelete, cInvokeHotkey);
+    Editor.DoCommand(cCommand_KeyDelete, TATEditorCommandInvoke.Hotkey);
     DoUpdate;
     Key:= 0;
     exit
@@ -451,7 +451,7 @@ begin
 
   if (Key=VK_BACK) and (Shift=[]) then
   begin
-    Editor.DoCommand(cCommand_KeyBackspace, cInvokeHotkey);
+    Editor.DoCommand(cCommand_KeyBackspace, TATEditorCommandInvoke.Hotkey);
     DoUpdate;
     Key:= 0;
     exit
@@ -469,7 +469,7 @@ begin
     cCommand_TextDeleteWordPrev, //Ctrl+BackSpace
     cCommand_TextDeleteWordNext: //Ctrl+Delete
       begin
-        Editor.DoCommand(NCommand, cInvokeHotkey);
+        Editor.DoCommand(NCommand, TATEditorCommandInvoke.Hotkey);
         DoUpdate;
         Key:= 0;
         exit;
@@ -502,7 +502,7 @@ begin
     cCommand_Clipboard_Begin..cCommand_Clipboard_End:
       begin
         Close;
-        Editor.DoCommand(NCommand, cInvokeHotkey);
+        Editor.DoCommand(NCommand, TATEditorCommandInvoke.Hotkey);
         Key:= 0;
         exit;
       end;
@@ -511,7 +511,7 @@ begin
   if (NCommand=CompletionOps.CommandForShitchTab) then
   begin
     Close;
-    Editor.DoCommand(NCommand, cInvokeHotkey);
+    Editor.DoCommand(NCommand, TATEditorCommandInvoke.Hotkey);
     Key:= 0;
     exit;
   end;
@@ -533,7 +533,7 @@ begin
   //backsp
   if (UTF8Key=#8) then
   begin
-    FEdit.DoCommand(cCommand_KeyBackspace, cInvokeHotkey);
+    FEdit.DoCommand(cCommand_KeyBackspace, TATEditorCommandInvoke.Hotkey);
     DoUpdate;
     UTF8Key:= '';
     exit;
@@ -548,7 +548,7 @@ begin
   if bCommitChar then
     DoResult;
 
-  FEdit.DoCommand(cCommand_TextInsert, cInvokeHotkey, UTF8Decode(UTF8Key));
+  FEdit.DoCommand(cCommand_TextInsert, TATEditorCommandInvoke.Hotkey, UTF8Decode(UTF8Key));
 
   if bCommitChar or bCloseChar then
     Close
@@ -769,7 +769,7 @@ begin
 
   //for HTML: if inserted 'value=""' we must move caret lefter
   if SEndsWith(Str, '=""') then
-    Editor.DoCommand(cCommand_KeyLeft, cInvokeInternal);
+    Editor.DoCommand(cCommand_KeyLeft, TATEditorCommandInvoke.Internal);
 
   if SEndsWith(Str, CompletionOps.TrailingCharToShowAgain) then
   begin
