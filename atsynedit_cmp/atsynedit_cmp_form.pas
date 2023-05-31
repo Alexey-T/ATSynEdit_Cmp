@@ -92,6 +92,7 @@ type
     procedure EditorOptionsRestore;
     procedure SetEditor(AValue: TATSynEdit);
     procedure TimerClosingTimer(Sender: TObject);
+    procedure UpdateListboxItemHeight;
   public
     { public declarations }
     property Editor: TATSynEdit read FEdit write SetEditor;
@@ -779,6 +780,20 @@ begin
     Close;
 end;
 
+procedure TFormATSynEditComplete.UpdateListboxItemHeight;
+var
+  N: integer;
+begin
+  if CompletionOps.MonoFont then
+  begin
+    N:= ATFlatTheme.DoScaleFont(ATFlatTheme.MonoFontSize) * 18 div 10 + 2;
+    N:= N * Max(96, Screen.PixelsPerInch) div 96;
+    Listbox.ItemHeight:= N;
+  end
+  else
+    Listbox.UpdateItemHeight;
+end;
+
 procedure TFormATSynEditComplete.DoUpdate;
 var
   Caret: TATCaretItem;
@@ -832,11 +847,7 @@ begin
   Listbox.ItemIndex:= 0;
   Listbox.BorderSpacing.Around:= CompletionOps.BorderSize;
   Listbox.Invalidate;
-
-  if CompletionOps.MonoFont then
-    Listbox.ItemHeight:= ATFlatTheme.DoScaleFont(ATFlatTheme.MonoFontSize) * 18 div 10 + 2
-  else
-    Listbox.UpdateItemHeight;
+  UpdateListboxItemHeight;
 
   PntText.X:= Max(0, Caret.PosX-FCharsLeft);
   PntText.Y:= Caret.PosY;
