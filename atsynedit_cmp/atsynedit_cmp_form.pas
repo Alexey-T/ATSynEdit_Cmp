@@ -832,7 +832,11 @@ begin
   Listbox.ItemIndex:= 0;
   Listbox.BorderSpacing.Around:= CompletionOps.BorderSize;
   Listbox.Invalidate;
-  Listbox.UpdateItemHeight;
+
+  if CompletionOps.MonoFont then
+    Listbox.ItemHeight:= ATFlatTheme.DoScaleFont(ATFlatTheme.MonoFontSize) * 18 div 10 + 2
+  else
+    Listbox.UpdateItemHeight;
 
   PntText.X:= Max(0, Caret.PosX-FCharsLeft);
   PntText.Y:= Caret.PosY;
