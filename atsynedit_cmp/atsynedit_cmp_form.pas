@@ -163,6 +163,7 @@ procedure CloseFormAutoCompletion;
 implementation
 
 uses
+  ATCanvasPrimitives,
   ATStrings,
   ATStringProc,
   ATStringProc_Separator,
@@ -786,7 +787,7 @@ var
 begin
   if CompletionOps.MonoFont then
   begin
-    N:= ATFlatTheme.DoScaleFont(ATFlatTheme.MonoFontSize) * 18 div 10 + 2;
+    N:= CanvasFontSizeToPixels(ATFlatTheme.DoScaleFont(ATFlatTheme.MonoFontSize));
     N:= N * Max(96, Screen.PixelsPerInch) div 96;
     Listbox.ItemHeight:= N;
   end
