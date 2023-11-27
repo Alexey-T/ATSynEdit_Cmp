@@ -619,7 +619,7 @@ begin
     end;
 
     //make caret visible!
-    FEdit.DoGotoCaret(cEdgeTop);
+    FEdit.DoGotoCaret(TATCaretEdge.Top);
   end;
 end;
 
