@@ -425,7 +425,12 @@ begin
   if (Key=VK_RETURN) and (Shift=[]) then
   begin
     if CompletionOps.CommitOnEnter then
-      DoResult;
+      DoResult
+    else
+    begin
+      Close;
+      Editor.DoCommand(cCommand_KeyEnter, TATCommandInvoke.Hotkey);
+    end;
     Key:= 0;
     exit
   end;
@@ -433,7 +438,12 @@ begin
   if (Key=VK_TAB) and (Shift=[]) then
   begin
     if CompletionOps.CommitOnTab then
-      DoResult;
+      DoResult
+    else
+    begin
+      Close;
+      Editor.DoCommand(cCommand_KeyTab, TATCommandInvoke.Hotkey);
+    end;
     Key:= 0;
     exit
   end;
