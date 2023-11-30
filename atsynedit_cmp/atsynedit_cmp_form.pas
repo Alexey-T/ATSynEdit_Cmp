@@ -125,8 +125,8 @@ type
     ColorFontPrefix: TColor;
     ColorFontParams: TColor;
     CommitChars: string;
-    CommitByEnter: boolean;
-    CommitByTab: boolean;
+    CommitOnEnter: boolean;
+    CommitOnTab: boolean;
     CloseChars: string;
     IndexOfText: integer;
     IndexOfDesc: integer;
@@ -424,7 +424,7 @@ begin
 
   if (Key=VK_RETURN) and (Shift=[]) then
   begin
-    if CompletionOps.CommitByEnter then
+    if CompletionOps.CommitOnEnter then
       DoResult;
     Key:= 0;
     exit
@@ -432,7 +432,7 @@ begin
 
   if (Key=VK_TAB) and (Shift=[]) then
   begin
-    if CompletionOps.CommitByTab then
+    if CompletionOps.CommitOnTab then
       DoResult;
     Key:= 0;
     exit
@@ -991,8 +991,8 @@ initialization
     ColorFontPrefix:= clPurple;
     ColorFontParams:= clGray;
     CommitChars:= ' .,;''"';
-    CommitByEnter:= true;
-    CommitByTab:= true;
+    CommitOnEnter:= true;
+    CommitOnTab:= true;
     CloseChars:= '<>()[]{}=';
     IndexOfText:= 1;
     IndexOfDesc:= 2;
