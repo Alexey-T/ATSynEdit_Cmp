@@ -5,6 +5,7 @@ License: MPL 2.0 or LGPL
 unit ATSynEdit_Cmp_Form;
 
 {$mode objfpc}{$H+}
+{$ScopedEnums on}
 
 interface
 
@@ -114,9 +115,9 @@ const
 
 type
   TATCompletionUpDownAtEdge = (
-    cudIgnore,
-    cudWrap,
-    cudCloseForm
+    Ignore,
+    Wrap,
+    CloseForm
     );
 
   TATCompletionOptions = record
@@ -360,9 +361,9 @@ begin
       Listbox.ItemIndex:= Listbox.ItemIndex-1
     else
     case CompletionOps.UpDownAtEdge of
-      cudWrap:
+      TATCompletionUpDownAtEdge.Wrap:
         Listbox.ItemIndex:= Listbox.ItemCount-1;
-      cudCloseForm:
+      TATCompletionUpDownAtEdge.CloseForm:
         Close;
     end;
     Key:= 0;
@@ -375,9 +376,9 @@ begin
       Listbox.ItemIndex:= Listbox.ItemIndex+1
     else
     case CompletionOps.UpDownAtEdge of
-      cudWrap:
+      TATCompletionUpDownAtEdge.Wrap:
         Listbox.ItemIndex:= 0;
-      cudCloseForm:
+      TATCompletionUpDownAtEdge.CloseForm:
         Close;
     end;
     Key:= 0;
@@ -1014,7 +1015,7 @@ initialization
     AppendOpeningBracket:= true;
     TrailingCharToShowAgain:= '/';
     ListSort:= false;
-    UpDownAtEdge:= cudWrap;
+    UpDownAtEdge:= TATCompletionUpDownAtEdge.Wrap;
     BorderSize:= 4;
     FormWidth:= 500;
     FormMaxVisibleItems:= 12;
