@@ -6,9 +6,11 @@ object Form1: TForm1
   Caption = 'Simple completion demo'
   ClientHeight = 327
   ClientWidth = 671
-  OnShow = FormShow
+  KeyPreview = True
   Position = poScreenCenter
-  LCLVersion = '2.3.0.0'
+  LCLVersion = '3.99.0.0'
+  OnKeyDown = FormKeyDown
+  OnShow = FormShow
   object Panel1: TPanel
     Left = 0
     Height = 50

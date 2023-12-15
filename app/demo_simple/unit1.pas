@@ -23,6 +23,7 @@ type
       var AHandled: boolean);
     procedure EdKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormShow(Sender: TObject);
   private
     procedure DoCompletionProp(Sender: TObject;
@@ -92,6 +93,15 @@ procedure TForm1.EdKeyDown(Sender: TObject; var Key: Word;
 begin
   if (Key=Ord(' ')) and (Shift=[ssCtrl]) then
     Ed.DoCommand(cmd_AutoComplete, TATCommandInvoke.AppInternal);
+end;
+
+procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Assigned(FormAutoCompletion) and FormAutoCompletion.Visible then
+  begin
+    FormAutoCompletion.FormKeyDown(Sender, Key, Shift);
+    exit;
+  end;
 end;
 
 end.
