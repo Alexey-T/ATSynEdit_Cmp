@@ -19,7 +19,7 @@ type
     Ed: TATSynEdit;
     Panel1: TPanel;
     procedure EdCommand(Sender: TObject; ACommand: integer;
-      AInvoke: TATEditorCommandInvoke; const AText: string;
+      AInvoke: TATCommandInvoke; const AText: string;
       var AHandled: boolean);
     procedure EdKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -78,7 +78,7 @@ begin
 end;
 
 procedure TForm1.EdCommand(Sender: TObject; ACommand: integer;
-  AInvoke: TATEditorCommandInvoke; const AText: string; var AHandled: boolean);
+  AInvoke: TATCommandInvoke; const AText: string; var AHandled: boolean);
 begin
   if ACommand=cmd_AutoComplete then
   begin
@@ -91,7 +91,7 @@ procedure TForm1.EdKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   if (Key=Ord(' ')) and (Shift=[ssCtrl]) then
-    Ed.DoCommand(cmd_AutoComplete, cInvokeAppInternal);
+    Ed.DoCommand(cmd_AutoComplete, TATCommandInvoke.AppInternal);
 end;
 
 end.
