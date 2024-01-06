@@ -104,6 +104,7 @@ var
   S, SKey, SVal: string;
 begin
   L.Clear;
+  L.UseLocale:= false;
   L.Sorted:= true;
 
   for S in ListAll do
@@ -119,6 +120,7 @@ var
   Sep: TATStringSeparator;
 begin
   L.Clear;
+  L.UseLocale:= false;
   L.Sorted:= true;
 
   for S in ListGlobals do
@@ -166,6 +168,7 @@ var
   Sep: TATStringSeparator;
 begin
   L.Clear;
+  L.UseLocale:= false;
   L.Sorted:= true;
 
   if (AProp='type') and IsTagWithMimeType(ATag) then

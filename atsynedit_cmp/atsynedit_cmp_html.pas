@@ -487,6 +487,7 @@ begin
   if ListOfTags=nil then
   begin
     ListOfTags:= TStringList.Create;
+    ListOfTags.UseLocale:= false;
     ListOfTags.Sorted:= true;
     ListOfTags.CaseSensitive:= false;
     Provider.GetTags(ListOfTags);
