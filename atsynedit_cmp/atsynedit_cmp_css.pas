@@ -509,18 +509,22 @@ const
   cRegexVar = '^\s*(\-\-[a-z][\w\-]*)\s*:.+$';
   cRegexVarGroup = 1;
 var
+  St: TATStrings;
   S: UnicodeString;
   SId: string;
   N, iLine: integer;
 begin
   L.Clear;
+  L.UseLocale:= false;
   L.Sorted:= true;
   L.CaseSensitive:= true;
 
+  St:= Ed.Strings;
+
   //TODO: consider CSS comments
-  for iLine:= 0 to Min(Ed.Strings.Count-1, AMaxLine) do
+  for iLine:= 0 to Min(St.Count-1, AMaxLine) do
   begin
-    S:= Ed.Strings.Lines[iLine];
+    S:= St.Lines[iLine];
     N:= Pos('--', S);
     if N=0 then Continue;
     SId:= SFindRegex(S, cRegexVar, cRegexVarGroup);
