@@ -508,10 +508,9 @@ end;
 procedure TAcp.DoOnChoose(Sender: TObject; const ASnippetId: string;
   ASnippetIndex: integer);
 begin
-  //don't add ';' if we completed the property name
-  if Context in [CtxNone, CtxPropertyName] then exit;
-
-  if CompletionOpsCss.AppendSemicolon then
+  if CompletionOpsCss.AppendSemicolon and
+    //don't add ';' if we completed the property name
+    not (Context in [CtxNone, CtxPropertyName]) then
     EditorCssAppendSemicolon(Ed);
 end;
 
