@@ -22,16 +22,16 @@ type
     FilenameCssList: string; //from CudaText: data/autocompletespec/css_list.ini
     FilenameCssColors: string; //from CudaText: data/autocompletespec/css_colors.ini
     FilenameCssSelectors: string; //from CudaText: data/autocompletespec/css_sel.ini
-    PrefixProp: string;
+    PrefixProp: string; //string consts, to show as prefixes for some CSS entities; can be translated
     PrefixVar: string;
     PrefixAtRule: string;
     PrefixPseudo: string;
     PrefixDir: string;
     PrefixFile: string;
-    LinesToLookup: integer;
-    NonWordChars: UnicodeString;
-    AppendSemicolon: boolean;
-    FileMaskURL: string;
+    LinesToLookup: integer; //how many lines to read from the caret-pos, backward (used in search of '{' bracket)
+    NonWordChars: UnicodeString; //string containing non-word chars
+    AppendSemicolon: boolean; //append ';' when we close autocompletion by confirming it
+    FileMaskURL: string; //';'-separated masks of files, to suggest files in URL autocompletion
   end;
 
 var
