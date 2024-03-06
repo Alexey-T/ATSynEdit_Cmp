@@ -466,7 +466,7 @@ begin
   end;
 end;
 
-procedure EditorAppendSemicolon(Ed: TATSynEdit);
+procedure EditorCssAppendSemicolon(Ed: TATSynEdit);
 var
   St: TATStrings;
   Caret: TATCaretItem;
@@ -509,7 +509,7 @@ procedure TAcp.DoOnChoose(Sender: TObject; const ASnippetId: string;
   ASnippetIndex: integer);
 begin
   if CompletionOpsCss.AppendSemicolon then
-    EditorAppendSemicolon(Ed);
+    EditorCssAppendSemicolon(Ed);
 end;
 
 constructor TAcp.Create;
