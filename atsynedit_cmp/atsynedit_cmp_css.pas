@@ -466,29 +466,50 @@ begin
   end;
 end;
 
-procedure TAcp.DoOnChoose(Sender: TObject; const ASnippetId: string;
-  ASnippetIndex: integer);
+procedure EditorAppendSemicolon(Ed: TATSynEdit);
 var
   St: TATStrings;
   Caret: TATCaretItem;
   S: UnicodeString;
+  NPosClosingBracket: integer;
+  bChange: boolean = false;
 begin
   St:= Ed.Strings;
-  if CompletionOpsCss.AppendSemicolon then
+  if Ed.Carets.Count=0 then exit;
+  Caret:= Ed.Carets[0];
+  if not St.IsIndexValid(Caret.PosY) then exit;
+  S:= St.Lines[Caret.PosY];
+  if S='' then exit;
+
+  NPosClosingBracket:= PosEx('}', S, Caret.PosX+1);
+  if NPosClosingBracket>0 then
   begin
-    if Ed.Carets.Count=0 then exit;
-    Caret:= Ed.Carets[0];
-    if not St.IsIndexValid(Caret.PosY) then exit;
-    S:= St.Lines[Caret.PosY];
+    bChange:= (NPosClosingBracket=1) or (S[NPosClosingBracket-1]<>';');
+    if bChange then
+      Insert(';', S, NPosClosingBracket);
+  end
+  else
+  begin
+    S:= TrimRight(S); //trim trailing spaces
     if S='' then exit;
-    if S[Length(S)]<>';' then
-    begin
+    bChange:= S[Length(S)]<>';';
+    if bChange then
       S+= ';';
-      St.Lines[Caret.PosY]:= S;
-      Ed.DoEventChange(Caret.PosY);
-      Ed.Update;
-    end;
   end;
+
+  if bChange then
+  begin
+    St.Lines[Caret.PosY]:= S;
+    Ed.DoEventChange(Caret.PosY);
+    Ed.Update;
+  end;
+end;
+
+procedure TAcp.DoOnChoose(Sender: TObject; const ASnippetId: string;
+  ASnippetIndex: integer);
+begin
+  if CompletionOpsCss.AppendSemicolon then
+    EditorAppendSemicolon(Ed);
 end;
 
 constructor TAcp.Create;
