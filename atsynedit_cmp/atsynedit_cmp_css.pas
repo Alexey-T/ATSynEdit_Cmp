@@ -50,10 +50,21 @@ type
   TQuoteKind = (qkNone, qkSingle, qkDouble);
 
 type
+  TCompletionCssContext = (
+    CtxNone,
+    CtxPropertyName,
+    CtxPropertyValue,
+    CtxSelectors,
+    CtxUrl,
+    CtxVar
+    );
+
+type
   { TAcp }
 
   TAcp = class
   private
+    Context: TCompletionCssContext;
     ListSel: TStringList; //CSS at-rules (@) and pseudo elements (:)
     procedure DoOnGetCompleteProp(Sender: TObject; AContent: TStringList;
       out ACharsLeft, ACharsRight: integer);
@@ -67,16 +78,6 @@ type
 
 var
   Acp: TAcp = nil;
-
-type
-  TCompletionCssContext = (
-    CtxNone,
-    CtxPropertyName,
-    CtxPropertyValue,
-    CtxSelectors,
-    CtxUrl,
-    CtxVar
-    );
 
 function SFindRegex(const SText, SRegex: UnicodeString; NGroup: integer): string;
 var
@@ -327,7 +328,6 @@ var
   L: TStringList;
   s_word, s_NonWordChars: UnicodeString;
   s_tag, s_item, s_val, s_valsuffix: string;
-  context: TCompletionCssContext;
   quote: TQuoteKind;
   ok: boolean;
 begin
@@ -336,10 +336,10 @@ begin
   ACharsRight:= 0;
   Caret:= Ed.Carets[0];
 
-  EditorGetCssContext(Ed, Caret.PosX, Caret.PosY, context, s_tag, quote);
+  EditorGetCssContext(Ed, Caret.PosX, Caret.PosY, Context, s_tag, quote);
 
   s_NonWordChars:= CompletionOpsCss.NonWordChars;
-  if context=CtxVar then
+  if Context=CtxVar then
     s_NonWordChars+= '()';
 
   EditorGetCurrentWord(Ed,
@@ -349,7 +349,7 @@ begin
     ACharsLeft,
     ACharsRight);
 
-  case context of
+  case Context of
     CtxPropertyValue:
       begin
         L:= TStringList.Create;
@@ -508,6 +508,9 @@ end;
 procedure TAcp.DoOnChoose(Sender: TObject; const ASnippetId: string;
   ASnippetIndex: integer);
 begin
+  //don't add ';' if we completed the property name
+  if Context in [CtxPropertyName] then exit;
+
   if CompletionOpsCss.AppendSemicolon then
     EditorCssAppendSemicolon(Ed);
 end;
