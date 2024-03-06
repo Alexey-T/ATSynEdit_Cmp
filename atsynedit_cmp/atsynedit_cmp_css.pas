@@ -5,6 +5,7 @@ License: MPL 2.0 or LGPL
 unit ATSynEdit_Cmp_CSS;
 
 {$mode objfpc}{$H+}
+{$ScopedEnums on}
 
 interface
 
@@ -47,16 +48,20 @@ uses
   ATSynEdit_Cmp_Form;
 
 type
-  TQuoteKind = (qkNone, qkSingle, qkDouble);
+  TCssQuoteKind = (
+    None,
+    Single,
+    Double
+    );
 
 type
-  TCompletionCssContext = (
-    CtxNone,
-    CtxPropertyName,
-    CtxPropertyValue,
-    CtxSelectors,
-    CtxUrl,
-    CtxVar
+  TCssCompletionContext = (
+    None,
+    PropertyName,
+    PropertyValue,
+    Selectors,
+    Url,
+    Variable
     );
 
 type
@@ -64,7 +69,7 @@ type
 
   TAcp = class
   private
-    Context: TCompletionCssContext;
+    Context: TCssCompletionContext;
     ListSel: TStringList; //CSS at-rules (@) and pseudo elements (:)
     procedure DoOnGetCompleteProp(Sender: TObject; AContent: TStringList;
       out ACharsLeft, ACharsRight: integer);
@@ -124,20 +129,20 @@ begin
   end;
 end;
 
-function GetQuoteKind(const S: string): TQuoteKind;
+function GetQuoteKind(const S: string): TCssQuoteKind;
 begin
   case S of
     '''':
-      Result:= qkSingle;
+      Result:= TCssQuoteKind.Single;
     '"':
-      Result:= qkDouble;
+      Result:= TCssQuoteKind.Double;
     else
-      Result:= qkNone;
+      Result:= TCssQuoteKind.None;
   end;
 end;
 
 procedure EditorGetCssContext(Ed: TATSynEdit; APosX, APosY: integer;
-  out AContext: TCompletionCssContext; out ATag: string; out AQuoteKind: TQuoteKind);
+  out AContext: TCssCompletionContext; out ATag: string; out AQuoteKind: TCssQuoteKind);
 const
   //char class for all chars in css values
   cRegexChars = '[''"\w\s\.,:/~&%@!=\#\$\^\-\+\(\)\?]';
@@ -157,9 +162,9 @@ var
   SQuote: string;
   NPos: integer;
 begin
-  AContext:= CtxNone;
+  AContext:= TCssCompletionContext.None;
   ATag:= '';
-  AQuoteKind:= qkDouble;
+  AQuoteKind:= TCssQuoteKind.Double;
 
   S:= Ed.Strings.LineSub(APosY, 1, APosX);
 
@@ -173,7 +178,7 @@ begin
     if SFindRegex(S2, cRegexVar, 0)<>'' then
     begin
       ATag:= SFindRegex(S2, cRegexVar, 1);
-      AContext:= CtxVar;
+      AContext:= TCssCompletionContext.Variable;
       exit;
     end;
   end;
@@ -189,7 +194,7 @@ begin
     //empty URL before caret?
     if SFindRegex(S2, cRegexUrlEmpty, 0)<>'' then
     begin
-      AContext:= CtxUrl;
+      AContext:= TCssCompletionContext.Url;
       SQuote:= SFindRegex(S2, cRegexUrlEmpty, 1);
       AQuoteKind:= GetQuoteKind(SQuote);
       exit;
@@ -199,7 +204,7 @@ begin
     ATag:= SFindRegex(S2, cRegexUrl, 2);
     if ATag<>'' then
     begin
-      AContext:= CtxUrl;
+      AContext:= TCssCompletionContext.Url;
       SQuote:= SFindRegex(S2, cRegexUrl, 1);
       AQuoteKind:= GetQuoteKind(SQuote);
       exit;
@@ -209,43 +214,43 @@ begin
   ATag:= SFindRegex(S, cRegexAtRule, cRegexGroup);
   if ATag<>'' then
   begin
-    AContext:= CtxSelectors;
+    AContext:= TCssCompletionContext.Selectors;
     exit;
   end;
 
   if EditorGetCaretInCurlyBrackets(Ed, APosX, APosY) then
   begin
-    AContext:= CtxPropertyName;
+    AContext:= TCssCompletionContext.PropertyName;
     if S='' then
       exit;
     ATag:= SFindRegex(S, cRegexProp, cRegexGroup);
     if ATag<>'' then
-      AContext:= CtxPropertyValue;
+      AContext:= TCssCompletionContext.PropertyValue;
   end
   else
   begin
     ATag:= SFindRegex(S, cRegexSelectors, cRegexGroup);
     if ATag<>'' then
-      AContext:= CtxSelectors;
+      AContext:= TCssCompletionContext.Selectors;
   end;
 end;
 
-function IsQuoteRight(QuoteKind: TQuoteKind; ch: WideChar): boolean; inline;
+function IsQuoteRight(QuoteKind: TCssQuoteKind; ch: WideChar): boolean; inline;
 begin
   case ch of
     '"':
       begin
-        if QuoteKind=qkDouble then
+        if QuoteKind=TCssQuoteKind.Double then
           Result:= true;
       end;
     '''':
       begin
-        if QuoteKind=qkSingle then
+        if QuoteKind=TCssQuoteKind.Single then
           Result:= true;
       end;
     ')':
       begin
-        if QuoteKind=qkNone then
+        if QuoteKind=TCssQuoteKind.None then
           Result:= true;
       end;
     else
@@ -253,22 +258,22 @@ begin
   end;
 end;
 
-function IsQuoteLeftOrSlash(QuoteKind: TQuoteKind; ch: WideChar): boolean; inline;
+function IsQuoteLeftOrSlash(QuoteKind: TCssQuoteKind; ch: WideChar): boolean; inline;
 begin
   case ch of
     '"':
       begin
-        if QuoteKind=qkDouble then
+        if QuoteKind=TCssQuoteKind.Double then
           Result:= true;
       end;
     '''':
       begin
-        if QuoteKind=qkSingle then
+        if QuoteKind=TCssQuoteKind.Single then
           Result:= true;
       end;
     '(':
       begin
-        if QuoteKind=qkNone then
+        if QuoteKind=TCssQuoteKind.None then
           Result:= true;
       end;
     '/':
@@ -279,7 +284,7 @@ begin
 end;
 
 procedure EditorGetDistanceToQuotes(Ed: TATSynEdit;
-  AQuoteKind: TQuoteKind;
+  AQuoteKind: TCssQuoteKind;
   out ALeft, ARight: integer);
 var
   Caret: TATCaretItem;
@@ -309,7 +314,7 @@ end;
 procedure TAcp.DoOnGetCompleteProp(Sender: TObject;
   AContent: TStringList; out ACharsLeft, ACharsRight: integer);
   //
-  procedure GetFileNames(AResult: TStringList; AQuoteKind: TQuoteKind; const AText, AFileMask: string);
+  procedure GetFileNames(AResult: TStringList; AQuoteKind: TCssQuoteKind; const AText, AFileMask: string);
   begin
     EditorGetDistanceToQuotes(Ed, AQuoteKind, ACharsLeft, ACharsRight);
     CalculateCompletionFilenames(AResult,
@@ -328,7 +333,7 @@ var
   L: TStringList;
   s_word, s_NonWordChars: UnicodeString;
   s_tag, s_item, s_val, s_valsuffix: string;
-  quote: TQuoteKind;
+  quote: TCssQuoteKind;
   ok: boolean;
 begin
   AContent.Clear;
@@ -339,7 +344,7 @@ begin
   EditorGetCssContext(Ed, Caret.PosX, Caret.PosY, Context, s_tag, quote);
 
   s_NonWordChars:= CompletionOpsCss.NonWordChars;
-  if Context=CtxVar then
+  if Context=TCssCompletionContext.Variable then
     s_NonWordChars+= '()';
 
   EditorGetCurrentWord(Ed,
@@ -350,7 +355,7 @@ begin
     ACharsRight);
 
   case Context of
-    CtxPropertyValue:
+    TCssCompletionContext.PropertyValue:
       begin
         L:= TStringList.Create;
         try
@@ -382,7 +387,7 @@ begin
         end;
       end;
 
-    CtxPropertyName:
+    TCssCompletionContext.PropertyName:
       begin
         //if caret is inside property
         //  back|ground: left;
@@ -410,7 +415,7 @@ begin
         end;
       end;
 
-    CtxSelectors:
+    TCssCompletionContext.Selectors:
       begin
         ACharsLeft:= Length(s_tag);
 
@@ -429,12 +434,12 @@ begin
         end;
       end;
 
-    CtxUrl:
+    TCssCompletionContext.Url:
       begin
         GetFileNames(AContent, quote, s_tag, CompletionOpsCss.FileMaskURL);
       end;
 
-    CtxVar:
+    TCssCompletionContext.Variable:
       begin
         case Length(s_tag) of
           1:
@@ -510,7 +515,7 @@ procedure TAcp.DoOnChoose(Sender: TObject; const ASnippetId: string;
 begin
   if CompletionOpsCss.AppendSemicolon and
     //don't add ';' if we completed the property name
-    not (Context in [CtxNone, CtxPropertyName]) then
+    not (Context in [TCssCompletionContext.None, TCssCompletionContext.PropertyName]) then
     EditorCssAppendSemicolon(Ed);
 end;
 
