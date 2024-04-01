@@ -492,11 +492,7 @@ begin
   if (Key=VK_BACK) and (Shift=[]) then
   begin
     Editor.DoCommand(cCommand_KeyBackspace, TATCommandInvoke.Hotkey);
-    //BackSpace deleted the whole word? close.
-    if EditorGetLefterWord(Editor)='' then
-      Close
-    else
-      DoUpdate;
+    DoUpdate;
     Key:= 0;
     exit
   end;
@@ -514,11 +510,7 @@ begin
     cCommand_TextDeleteWordNext: //Ctrl+Delete
       begin
         Editor.DoCommand(NCommand, TATCommandInvoke.Hotkey);
-        //deleted the whole word? close.
-        if EditorGetLefterWord(Editor)='' then
-          Close
-        else
-          DoUpdate;
+        DoUpdate;
         Key:= 0;
         exit;
       end;
@@ -860,6 +852,13 @@ var
   P0: TPoint;
   SListItem, SEdWord: string;
 begin
+  //moved out of the word? close.
+  if EditorGetLefterWord(Editor)='' then
+  begin
+    Close;
+    exit;
+  end;
+
   Color:= ATFlatTheme.ColorBgListbox;
 
   SList.Clear;
