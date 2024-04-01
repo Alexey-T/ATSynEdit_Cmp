@@ -606,19 +606,13 @@ end;
 function TFormATSynEditComplete.GetItemText(const AText: string; AIndex: integer): string;
 var
   Sep: TATStringSeparator;
-  n1, n2, i: integer;
+  i: integer;
 begin
   if SBeginsWith(AText, CompletionSignatureHTML) then
   begin
     Sep.Init(AText, #9);
     Sep.GetItemStr(Result);
-    repeat
-      n1:= Pos('<', Result);
-      if n1=0 then Break;
-      n2:= Pos('>', Result, n1+1);
-      if n2=0 then Break;
-      Delete(Result, n1, n2-n1+1);
-    until false;
+    SDeleteHtmlTags(Result);
   end
   else
   begin
