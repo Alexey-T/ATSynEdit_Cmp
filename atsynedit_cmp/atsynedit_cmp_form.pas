@@ -492,7 +492,11 @@ begin
   if (Key=VK_BACK) and (Shift=[]) then
   begin
     Editor.DoCommand(cCommand_KeyBackspace, TATCommandInvoke.Hotkey);
-    DoUpdate;
+    //BackSpace deleted the whole word? close.
+    if EditorGetLefterWord(Editor)='' then
+      Close
+    else
+      DoUpdate;
     Key:= 0;
     exit
   end;
