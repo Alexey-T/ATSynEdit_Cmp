@@ -514,7 +514,11 @@ begin
     cCommand_TextDeleteWordNext: //Ctrl+Delete
       begin
         Editor.DoCommand(NCommand, TATCommandInvoke.Hotkey);
-        DoUpdate;
+        //deleted the whole word? close.
+        if EditorGetLefterWord(Editor)='' then
+          Close
+        else
+          DoUpdate;
         Key:= 0;
         exit;
       end;
