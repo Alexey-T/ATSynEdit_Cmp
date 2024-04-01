@@ -204,6 +204,26 @@ begin
   end;
 end;
 
+function EditorGetLefterWord(Ed: TATSynEdit): UnicodeString;
+var
+  Caret: TATCaretItem;
+  NChars: integer;
+begin
+  Result:= '';
+  if Ed.Carets.Count<>1 then exit;
+  Caret:= Ed.Carets[0];
+  if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
+
+  NChars:= EditorGetLefterWordChars(Ed, Caret.PosX, Caret.PosY);
+  Result:= Ed.Strings.TextSubstring(
+    Max(0, Caret.PosX-NChars),
+    Caret.PosY,
+    Caret.PosX,
+    Caret.PosY
+    );
+end;
+
+
 procedure EditorShowCompletionListbox(AEd: TATSynEdit;
   AOnGetProp: TATCompletionPropEvent;
   AOnResult: TATCompletionResultEvent = nil;
@@ -825,6 +845,7 @@ var
   PntText: TPoint;
   PntCoord: TATPoint;
   P0: TPoint;
+  SListItem, SEdWord: string;
 begin
   Color:= ATFlatTheme.ColorBgListbox;
 
@@ -859,12 +880,24 @@ begin
     FTimerClosing.Enabled:= false;
 
   if SList.Count=1 then
+  begin
     if CompletionOps.CommitIfSingleItem then
     begin
       DoResult;
       exit
     end;
-  if CompletionOps.ListSort then SList.Sort;
+
+    SListItem:= GetItemText(SList[0], CompletionOps.IndexOfText);
+    SEdWord:= UTF8Encode(EditorGetLefterWord(Editor));
+    if SListItem=SEdWord then
+    begin
+      Close;
+      exit;
+    end;
+  end;
+
+  if CompletionOps.ListSort then
+    SList.Sort;
 
   Listbox.VirtualItemCount:= SList.Count;
   Listbox.ItemIndex:= 0;
