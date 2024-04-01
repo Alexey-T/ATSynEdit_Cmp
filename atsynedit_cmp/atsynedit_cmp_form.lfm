@@ -7,6 +7,8 @@ object FormATSynEditComplete: TFormATSynEditComplete
   ClientHeight = 240
   ClientWidth = 320
   KeyPreview = True
+  ShowInTaskBar = stNever
+  LCLVersion = '3.99.0.0'
   OnClose = FormClose
   OnCreate = FormCreate
   OnDeactivate = FormDeactivate
@@ -14,8 +16,6 @@ object FormATSynEditComplete: TFormATSynEditComplete
   OnKeyDown = FormKeyDown
   OnShow = FormShow
   OnUTF8KeyPress = FormUTF8KeyPress
-  ShowInTaskBar = stNever
-  LCLVersion = '2.3.0.0'
   object Listbox: TATListbox
     Left = 4
     Height = 232

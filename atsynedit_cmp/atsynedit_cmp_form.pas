@@ -217,7 +217,7 @@ begin
   NChars:= EditorGetLefterWordChars(Ed, Caret.PosX, Caret.PosY);
   if NChars=0 then exit;
   Result:= Ed.Strings.LineSub(Caret.PosY, Max(1, Caret.PosX+1-NChars), NChars);
-  end;
+end;
 
 
 procedure EditorShowCompletionListbox(AEd: TATSynEdit;
