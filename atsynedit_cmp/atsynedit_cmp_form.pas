@@ -215,13 +215,9 @@ begin
   if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
 
   NChars:= EditorGetLefterWordChars(Ed, Caret.PosX, Caret.PosY);
-  Result:= Ed.Strings.TextSubstring(
-    Max(0, Caret.PosX-NChars),
-    Caret.PosY,
-    Caret.PosX,
-    Caret.PosY
-    );
-end;
+  if NChars=0 then exit;
+  Result:= Ed.Strings.LineSub(Caret.PosY, Max(1, Caret.PosX+1-NChars), NChars);
+  end;
 
 
 procedure EditorShowCompletionListbox(AEd: TATSynEdit;
