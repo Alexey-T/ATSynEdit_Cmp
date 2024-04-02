@@ -221,8 +221,8 @@ end;
 
 function EditorSupportsCompletionAtCaret(Ed: TATSynEdit): boolean;
 const
-  cGoodCompletionChars = '.:';
-  //dot is must have, ':' is for C++ '::' symbol
+  cGoodCompletionChars = '.:>';
+  //dot is must have, '::' is for C++, '->' is for C++
 var
   Caret: TATCaretItem;
   NChars: integer;
