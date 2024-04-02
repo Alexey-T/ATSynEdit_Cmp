@@ -220,6 +220,9 @@ begin
 end;
 
 function EditorSupportsCompletionAtCaret(Ed: TATSynEdit): boolean;
+const
+  cGoodCompletionChars = '.:';
+  //dot is must have, ':' is for C++ '::' symbol
 var
   Caret: TATCaretItem;
   NChars: integer;
@@ -236,7 +239,7 @@ begin
   else
   begin
     ch:= Ed.Strings.LineCharAt(Caret.PosY, Caret.PosX);
-    Result:= ch='.';
+    Result:= Pos(ch, cGoodCompletionChars)>0;
   end;
 end;
 
