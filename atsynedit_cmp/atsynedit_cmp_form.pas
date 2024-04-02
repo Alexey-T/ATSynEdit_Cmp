@@ -219,6 +219,26 @@ begin
   Result:= Ed.Strings.LineSub(Caret.PosY, Max(1, Caret.PosX+1-NChars), NChars);
 end;
 
+function EditorSupportsCompletionAtCaret(Ed: TATSynEdit): boolean;
+var
+  Caret: TATCaretItem;
+  NChars: integer;
+  ch: WideChar;
+begin
+  Result:= false;
+  if Ed.Carets.Count<>1 then exit;
+  Caret:= Ed.Carets[0];
+  if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
+
+  NChars:= EditorGetLefterWordChars(Ed, Caret.PosX, Caret.PosY);
+  if NChars>0 then
+    Result:= true
+  else
+  begin
+    ch:= Ed.Strings.LineCharAt(Caret.PosY, Caret.PosX);
+    Result:= ch='.';
+  end;
+end;
 
 procedure EditorShowCompletionListbox(AEd: TATSynEdit;
   AOnGetProp: TATCompletionPropEvent;
@@ -853,7 +873,7 @@ var
   SListItem, SEdWord: string;
 begin
   //moved out of the word? close.
-  if EditorGetLefterWord(Editor)='' then
+  if not EditorSupportsCompletionAtCaret(Editor) then
   begin
     Close;
     exit;
