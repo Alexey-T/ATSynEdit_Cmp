@@ -695,7 +695,7 @@ end;
 
 procedure TFormATSynEditComplete.SetEditor(AValue: TATSynEdit);
 begin
-  if FEdit=AValue then Exit;
+  //if FEdit=AValue then Exit; //don't Exit, we need to change the parent even if FEdit is the old one
   FEdit:= AValue;
   if Assigned(FEdit) then
     Parent:= GetParentForm(FEdit)
