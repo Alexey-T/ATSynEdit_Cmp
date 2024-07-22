@@ -148,6 +148,7 @@ type
     TextIndentRightCol: integer;
     TextIndent: integer;
     ClosingTimerInverval: integer;
+    ReplaceOnRight: boolean;
     ShortcutForAutocomplete: TShortCut;
     CommandForShitchTab: integer;
   end;
@@ -886,7 +887,11 @@ begin
 
   SList.Clear;
   if Assigned(FOnGetProp) then
+  begin
     FOnGetProp(Editor, SList, FCharsLeft, FCharsRight);
+    if not CompletionOps.ReplaceOnRight then
+      FCharsRight:= 0;
+  end;
 
   Caret:= Editor.Carets[0];
   FUpdateForCaret.X:= Caret.PosX;
@@ -1092,6 +1097,7 @@ initialization
     TextIndentRightCol:= 3;
     TextIndent:= 8;
     ClosingTimerInverval:= 300;
+    ReplaceOnRight:= true;
     ShortcutForAutocomplete:= 0;
   end;
 
