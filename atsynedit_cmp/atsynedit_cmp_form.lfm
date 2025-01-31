@@ -8,7 +8,7 @@ object FormATSynEditComplete: TFormATSynEditComplete
   ClientWidth = 320
   KeyPreview = True
   ShowInTaskBar = stNever
-  LCLVersion = '3.99.0.0'
+  LCLVersion = '4.99.0.0'
   OnClose = FormClose
   OnCreate = FormCreate
   OnDeactivate = FormDeactivate

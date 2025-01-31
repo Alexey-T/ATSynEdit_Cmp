@@ -10,9 +10,9 @@ unit ATSynEdit_Cmp_Form;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics,
+  Classes, SysUtils, Types, Forms, Controls, Graphics,
   Dialogs, ExtCtrls,
-  LCLProc, LCLType,
+  LCLType,
   ATSynEdit,
   ATListbox;
 
