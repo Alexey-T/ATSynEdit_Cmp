@@ -222,8 +222,11 @@ end;
 
 function EditorSupportsCompletionAtCaret(Ed: TATSynEdit): boolean;
 const
-  cGoodCompletionChars = '.:>';
-  //dot is must have, '::' is for C++, '->' is for C++
+  cGoodCompletionChars = '.:>''"';
+  //dot is must have
+  //'::' is for C++
+  //'->' is for C++
+  //quotes are for Codeium plugin which can suggest string constants
 var
   Caret: TATCaretItem;
   NChars: integer;

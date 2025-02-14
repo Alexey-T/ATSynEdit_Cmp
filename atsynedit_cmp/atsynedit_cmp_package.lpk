@@ -9,6 +9,11 @@
       <SearchPaths>
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
+      <Linking>
+        <Debugging>
+          <DebugInfoType Value="dsDwarf2Set"/>
+        </Debugging>
+      </Linking>
     </CompilerOptions>
     <Description Value="Auto-completion for ATSynEdit. General form with listbox, and helpers for: HTML completion, CSS completion, file:/// paths completion, CudaText .acp files completion."/>
     <License Value="MPL 2.0, LGPL"/>
