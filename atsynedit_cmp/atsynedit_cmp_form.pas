@@ -163,7 +163,7 @@ type
     ReplaceOnRight: boolean;
     ShortcutForAutocomplete: TShortCut;
     CommandForShitchTab: integer;
-    SymbolCharsAllowedBeforeCaret: string;
+    SymbolsAllowedBeforeCaret: string;
   end;
 
 const
@@ -253,7 +253,7 @@ begin
   else
   begin
     ch:= Ed.Strings.LineCharAt(Caret.PosY, Caret.PosX);
-    Result:= Pos(ch, CompletionOps.SymbolCharsAllowedBeforeCaret)>0;
+    Result:= Pos(ch, CompletionOps.SymbolsAllowedBeforeCaret)>0;
   end;
 end;
 
@@ -1113,7 +1113,7 @@ initialization
     ClosingTimerInverval:= 300;
     ReplaceOnRight:= true;
     ShortcutForAutocomplete:= 0;
-    SymbolCharsAllowedBeforeCaret:= '.:>''"';
+    SymbolsAllowedBeforeCaret:= '.:>';
       //dot is must have
       //'::' is for C++
       //'->' is for C++
