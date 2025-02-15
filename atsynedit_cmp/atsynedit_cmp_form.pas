@@ -51,13 +51,14 @@ procedure EditorGetCurrentWord(Ed: TATSynEdit;
 
 type
   TATCompletionUpdateReason = (
-    ShowInitial,
-    ShowAgain,
     CharTyped,
     CaretMoved,
     CharDeletedLeft,
     CharDeletedRight,
-    WordDeleted
+    WordDeleted,
+    ShowInitial,
+    ShowAgainByTrailingChar,
+    ShowAgainByCaretMoved
   );
 
 type
@@ -858,7 +859,7 @@ begin
 
   if SEndsWith(Str, CompletionOps.TrailingCharToShowAgain) then
   begin
-    DoUpdate(TATCompletionUpdateReason.ShowAgain);
+    DoUpdate(TATCompletionUpdateReason.ShowAgainByTrailingChar);
   end
   else
     Close;
@@ -1073,7 +1074,7 @@ begin
   NewPos.X:= Caret.PosX;
   NewPos.Y:= Caret.PosY;
   if NewPos<>FUpdateForCaret then
-    DoUpdate(TATCompletionUpdateReason.ShowAgain);
+    DoUpdate(TATCompletionUpdateReason.ShowAgainByCaretMoved);
 end;
 
 
