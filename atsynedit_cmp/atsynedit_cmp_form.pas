@@ -50,6 +50,17 @@ procedure EditorGetCurrentWord(Ed: TATSynEdit;
   out ACharsLeft, ACharsRight: integer);
 
 type
+  TATCompletionUpdateReason = (
+    ShowInitial,
+    ShowAgain,
+    CharTyped,
+    CaretMoved,
+    CharDeletedLeft,
+    CharDeletedRight,
+    WordDeleted
+  );
+
+type
   { TFormATSynEditComplete }
 
   TFormATSynEditComplete = class(TForm)
@@ -86,7 +97,7 @@ type
     procedure DoHintShow(const AHint: string);
     procedure DoReplaceTo(const AStr: string; AWithBracket: boolean);
     procedure DoResult;
-    procedure DoUpdate;
+    procedure DoUpdate(AReason: TATCompletionUpdateReason);
     function GetItemText(const AText: string; AIndex: integer): string;
     procedure GetResultText(out AText: string; out AWithBracket: boolean);
     procedure EditorOptionsSave;
@@ -268,7 +279,7 @@ begin
   FormAutoCompletion.OnGetProp:= AOnGetProp;
   FormAutoCompletion.OnResult:= AOnResult;
   FormAutoCompletion.OnChoose:= AOnChoose;
-  FormAutoCompletion.DoUpdate;
+  FormAutoCompletion.DoUpdate(TATCompletionUpdateReason.ShowInitial);
 end;
 
 procedure TFormATSynEditComplete.DoReplaceTo(const AStr: string; AWithBracket: boolean);
@@ -493,7 +504,7 @@ begin
   if (Key=VK_LEFT) and (Shift=[]) then
   begin
     Editor.DoCommand(cCommand_KeyLeft, TATCommandInvoke.Hotkey);
-    DoUpdate;
+    DoUpdate(TATCompletionUpdateReason.CaretMoved);
     Key:= 0;
     exit
   end;
@@ -501,7 +512,7 @@ begin
   if (Key=VK_RIGHT) and (Shift=[]) then
   begin
     Editor.DoCommand(cCommand_KeyRight, TATCommandInvoke.Hotkey);
-    DoUpdate;
+    DoUpdate(TATCompletionUpdateReason.CaretMoved);
     Key:= 0;
     exit
   end;
@@ -509,7 +520,7 @@ begin
   if (Key=VK_DELETE) and (Shift=[]) then
   begin
     Editor.DoCommand(cCommand_KeyDelete, TATCommandInvoke.Hotkey);
-    DoUpdate;
+    DoUpdate(TATCompletionUpdateReason.CharDeletedRight);
     Key:= 0;
     exit
   end;
@@ -517,7 +528,7 @@ begin
   if (Key=VK_BACK) and (Shift=[]) then
   begin
     Editor.DoCommand(cCommand_KeyBackspace, TATCommandInvoke.Hotkey);
-    DoUpdate;
+    DoUpdate(TATCompletionUpdateReason.CharDeletedLeft);
     Key:= 0;
     exit
   end;
@@ -535,7 +546,7 @@ begin
     cCommand_TextDeleteWordNext: //Ctrl+Delete
       begin
         Editor.DoCommand(NCommand, TATCommandInvoke.Hotkey);
-        DoUpdate;
+        DoUpdate(TATCompletionUpdateReason.WordDeleted);
         Key:= 0;
         exit;
       end;
@@ -599,7 +610,7 @@ begin
   if (UTF8Key=#8) then
   begin
     FEdit.DoCommand(cCommand_KeyBackspace, TATCommandInvoke.Hotkey);
-    DoUpdate;
+    DoUpdate(TATCompletionUpdateReason.CharDeletedLeft);
     UTF8Key:= '';
     exit;
   end;
@@ -618,7 +629,7 @@ begin
   if bCommitChar or bCloseChar then
     Close
   else
-    DoUpdate;
+    DoUpdate(TATCompletionUpdateReason.CharTyped);
 
   UTF8Key:= '';
 end;
@@ -847,7 +858,7 @@ begin
 
   if SEndsWith(Str, CompletionOps.TrailingCharToShowAgain) then
   begin
-    DoUpdate;
+    DoUpdate(TATCompletionUpdateReason.ShowAgain);
   end
   else
     Close;
@@ -867,7 +878,7 @@ begin
     Listbox.UpdateItemHeight;
 end;
 
-procedure TFormATSynEditComplete.DoUpdate;
+procedure TFormATSynEditComplete.DoUpdate(AReason: TATCompletionUpdateReason);
 var
   Caret: TATCaretItem;
   NewFormWidth, NewFormHeight, TempY: integer;
@@ -877,11 +888,15 @@ var
   SListItem, SEdWord: string;
 begin
   //caret left/right (or even up/down) moved out of the word? close.
-  if not EditorSupportsCompletionAtCaret(Editor) then
-  begin
-    Close;
-    exit;
-  end;
+  if AReason in [TATCompletionUpdateReason.CaretMoved,
+                 TATCompletionUpdateReason.CharDeletedLeft,
+                 TATCompletionUpdateReason.WordDeleted
+                 ] then
+    if not EditorSupportsCompletionAtCaret(Editor) then
+    begin
+      Close;
+      exit;
+    end;
 
   Color:= ATFlatTheme.ColorBgListbox;
 
@@ -1058,7 +1073,7 @@ begin
   NewPos.X:= Caret.PosX;
   NewPos.Y:= Caret.PosY;
   if NewPos<>FUpdateForCaret then
-    DoUpdate;
+    DoUpdate(TATCompletionUpdateReason.ShowAgain);
 end;
 
 
