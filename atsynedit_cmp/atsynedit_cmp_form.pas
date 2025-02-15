@@ -1114,9 +1114,9 @@ initialization
     ReplaceOnRight:= true;
     ShortcutForAutocomplete:= 0;
     SymbolsAllowedBeforeCaret:= '.:>';
-      //dot is must have
-      //'::' is for C++
-      //'->' is for C++
+      //dot is must have: id.id
+      //support :: from C++
+      //support -> from C++
       //quotes are for Codeium plugin which can suggest string constants
   end;
 
