@@ -232,19 +232,15 @@ begin
   Caret:= Ed.Carets[0];
   if not Ed.Strings.IsIndexValid(Caret.PosY) then exit;
 
+  //allow completion at line start: needed for Codeium plugin
+  if Caret.PosX=0 then exit(true);
+
   NChars:= EditorGetLefterWordChars(Ed, Caret.PosX, Caret.PosY);
   if NChars>0 then
     Result:= true
   else
   begin
     ch:= Ed.Strings.LineCharAt(Caret.PosY, Caret.PosX);
-
-    //if Caret.PosX=0 then we will get ch=#0.
-    //it is OK and it is a feature.
-    //but let's require '_' instead of chr(0) for compatability with Python parsers of default.json.
-    if ch=#0 then
-      ch:= '_';
-
     Result:= Pos(ch, CompletionOps.SymbolCharsAllowedBeforeCaret)>0;
   end;
 end;
