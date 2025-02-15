@@ -238,8 +238,12 @@ begin
   else
   begin
     ch:= Ed.Strings.LineCharAt(Caret.PosY, Caret.PosX);
-    //if Caret.PosX=0 then we will get ch=chr(0).
-    //it is OK and it is a feature described in CudaText's default.json.
+
+    //if Caret.PosX=0 then we will get ch=#0.
+    //it is OK and it is a feature.
+    //but let's require '_' instead of chr(0) for compatability with Python parsers of default.json.
+    if ch=#0 then
+      ch:= '_';
 
     Result:= Pos(ch, CompletionOps.SymbolCharsAllowedBeforeCaret)>0;
   end;
