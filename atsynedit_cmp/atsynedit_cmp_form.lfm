@@ -33,7 +33,7 @@ object FormATSynEditComplete: TFormATSynEditComplete
   object TimerUpdater: TTimer
     Interval = 200
     OnTimer = TimerUpdaterTimer
-    Left = 118
+    Left = 120
     Top = 50
   end
 end

@@ -58,7 +58,7 @@ type
     WordDeleted,
     ShowInitial,
     ShowAgainByTrailingChar,
-    ShowAgainByCaretMoved
+    ShowAgainByTimer
   );
 
 type
@@ -1074,7 +1074,7 @@ begin
   NewPos.X:= Caret.PosX;
   NewPos.Y:= Caret.PosY;
   if NewPos<>FUpdateForCaret then
-    UpdateData(TATCompletionUpdateReason.ShowAgainByCaretMoved);
+    UpdateData(TATCompletionUpdateReason.ShowAgainByTimer);
 end;
 
 
