@@ -874,10 +874,9 @@ var
   NewFormPos: TPoint;
   PntText: TPoint;
   PntCoord: TATPoint;
-  P0: TPoint;
   SListItem, SEdWord: string;
 begin
-  //moved out of the word? close.
+  //caret left/right (or even up/down) moved out of the word? close.
   if not EditorSupportsCompletionAtCaret(Editor) then
   begin
     Close;
@@ -951,9 +950,7 @@ begin
   PntCoord:= Editor.CaretPosToClientPos(PntText);
   Inc(PntCoord.Y, Editor.TextCharSize.Y);
 
-  P0.X:= PntCoord.X;
-  P0.Y:= PntCoord.Y;
-  NewFormPos:= Editor.ClientToScreen(P0);
+  NewFormPos:= Editor.ClientToScreen(Point(integer(PntCoord.X), integer(PntCoord.Y)));
   NewFormPos:= Parent.ScreenToClient(NewFormPos);
 
   NewFormWidth:= Min(CompletionOps.FormWidth, Parent.ClientWidth);
