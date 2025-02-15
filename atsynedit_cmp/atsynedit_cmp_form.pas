@@ -238,6 +238,9 @@ begin
   else
   begin
     ch:= Ed.Strings.LineCharAt(Caret.PosY, Caret.PosX);
+    //if Caret.PosX=0 then we will get ch=chr(0).
+    //it is OK and it is a feature described in CudaText's default.json.
+
     Result:= Pos(ch, CompletionOps.SymbolCharsAllowedBeforeCaret)>0;
   end;
 end;
