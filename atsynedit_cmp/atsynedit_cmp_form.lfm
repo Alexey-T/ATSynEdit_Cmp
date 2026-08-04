@@ -1,7 +1,7 @@
 object FormATSynEditComplete: TFormATSynEditComplete
-  Left = 528
+  Left = 0
   Height = 240
-  Top = 447
+  Top = 0
   Width = 320
   BorderStyle = bsNone
   ClientHeight = 240
@@ -26,7 +26,6 @@ object FormATSynEditComplete: TFormATSynEditComplete
     OwnerDrawn = True
     ParentColor = False
     ParentFont = False
-    ScrollStyleVert = alssAuto
     OnClick = ListboxClick
     OnDrawItem = ListboxDrawItem
   end

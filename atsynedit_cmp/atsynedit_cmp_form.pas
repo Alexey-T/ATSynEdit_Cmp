@@ -991,7 +991,8 @@ begin
     FormStyle:= Application.MainForm.FormStyle;
 
   SetBounds(NewFormPos.X, NewFormPos.Y, NewFormWidth, NewFormHeight);
-  Show;
+
+  Visible:= true; //method Show is more heavyweight
 end;
 
 
