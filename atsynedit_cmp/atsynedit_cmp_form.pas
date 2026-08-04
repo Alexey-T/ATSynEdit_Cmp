@@ -974,6 +974,17 @@ begin
   NewFormWidth:= Min(CompletionOps.FormWidth, Parent.ClientWidth);
   NewFormHeight:= Min(CompletionOps.FormMaxVisibleItems, Listbox.ItemCount)*Listbox.ItemHeight + 2*Listbox.BorderSpacing.Around + 1;
 
+  // Idea #3: no-shrink rule.  When the form is already visible and the
+  // filtered list count decreases (the common case as the user types more
+  // letters and the list narrows), don't shrink the form height.  This is
+  // the single most effective flicker fix on native Windows: if the form
+  // never shrinks, there is never an "uncovered area" on the parent that
+  // would need repainting.  The listbox already paints its own background
+  // for the leftover (empty) area below the last item, so visually nothing
+  // breaks.  Growing is still allowed (rare case when the list grows).
+  if Visible and (NewFormHeight < Height) then
+    NewFormHeight:= Height;
+
   //check that form fits on the bottom
   if NewFormPos.Y+NewFormHeight>= Parent.ClientHeight then
   begin
@@ -994,10 +1005,39 @@ begin
 
   {$ifdef windows}
   //on Windows, SetBounds makes flicker of CudaText form's toolbar/sidebar and editor's scrollbar
+  //
+  // SWP_ flags analysis (Alexey's current set works on Wine, not on native Windows):
+  //   SWP_DEFERERASE     - defers erasing the parent's uncovered background.
+  //   SWP_NOOWNERZORDER  - don't change Z order.
+  //   SWP_NOREDRAW       - don't repaint uncovered areas of the parent.
+  //   SWP_NOZORDER       - don't change Z order (redundant with NOOWNERZORDER).
+  //   SWP_NOACTIVATE     - don't activate the window.
+  //
+  // On native Windows, SWP_NOREDRAW alone is NOT enough to prevent the
+  // parent's child controls (toolbar, sidebar, statusbar) from repainting.
+  // The reason: those child controls have their own window handles and
+  // independent update regions.  When the completion form moves/resizes,
+  // Windows invalidates the parent AND sends WM_PAINT to child windows
+  // whose update regions intersect the uncovered area.
+  //
+  // The fix combines two approaches:
+  // 1. The no-shrink rule above (idea #3) eliminates the "uncovered area"
+  //    in the common case.  When the form doesn't shrink, there is no
+  //    uncovered area, so SWP_NOREDRAW has nothing to suppress.
+  // 2. Add SWP_NOCOPYBITS: tells Windows NOT to copy bits of the parent
+  //    that were uncovered by the move.  Without this flag, Windows
+  //    copies bits from the parent (which can cause flicker if the parent's
+  //    child controls are in the copied region).  With SWP_NOCOPYBITS,
+  //    Windows doesn't copy -- it just leaves the existing pixels.
+  //
+  // SWP_NOCOPYBITS + SWP_NOREDRAW together: don't copy bits, don't repaint.
+  // The parent's existing pixels stay as-is.  Combined with the no-shrink
+  // rule, this eliminates the parent repaint cascade entirely.
   SetWindowPos(Self.Handle, 0,
     NewFormPos.X, NewFormPos.Y, NewFormWidth, NewFormHeight,
     SWP_DEFERERASE {important on Alexey's test on Wine}
       or SWP_NOOWNERZORDER or SWP_NOREDRAW or SWP_NOZORDER or SWP_NOACTIVATE
+      or SWP_NOCOPYBITS {prevents bit-copy flicker on native Windows}
     );
   {$else}
   SetBounds(NewFormPos.X, NewFormPos.Y, NewFormWidth, NewFormHeight);
