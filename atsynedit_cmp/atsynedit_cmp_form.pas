@@ -88,6 +88,7 @@ type
     FCharsLeft,
     FCharsRight: integer;
     FHintWnd: THintWindow;
+    FLastHint: string;
     FSnippetId: string;
     FSelectedIndex: integer;
     FOldCaretStopUnfocused: boolean;
@@ -1046,18 +1047,29 @@ var
   P: TPoint;
   R: TRect;
 begin
-  R:= FHintWnd.CalcHintRect(CompletionOps.HintWidth, AHint, nil);
+  if FLastHint=AHint then exit;
+  FLastHint:= AHint;
 
-  P:= ClientToScreen(Point(Width, 0));
-  OffsetRect(R, P.X, P.Y);
+  if FHintWnd.Visible then
+  begin
+    FHintWnd.Caption:= AHint;
+    FHintWnd.Repaint;
+  end
+  else
+  begin
+    R:= FHintWnd.CalcHintRect(CompletionOps.HintWidth, AHint, nil);
+    P:= ClientToScreen(Point(Width, 0));
+    OffsetRect(R, P.X, P.Y);
 
-  FHintWnd.ActivateHint(R, AHint);
-  FHintWnd.Invalidate; //for Win
-  Editor.Invalidate; //for Win
+    FHintWnd.ActivateHint(R, AHint);
+    FHintWnd.Invalidate; //for Win
+    //Editor.Invalidate; //for Win //line commented 2026.08 because it works for user anyway
+  end;
 end;
 
 procedure TFormATSynEditComplete.DoHintHide;
 begin
+  FLastHint:= '';
   if Assigned(FHintWnd) then
     FHintWnd.Hide;
 end;
