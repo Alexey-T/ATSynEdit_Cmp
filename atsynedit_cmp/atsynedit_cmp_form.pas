@@ -1033,10 +1033,16 @@ begin
   // SWP_NOCOPYBITS + SWP_NOREDRAW together: don't copy bits, don't repaint.
   // The parent's existing pixels stay as-is.  Combined with the no-shrink
   // rule, this eliminates the parent repaint cascade entirely.
-  SetWindowPos(Self.Handle, 0,
-    NewFormPos.X, NewFormPos.Y, NewFormWidth, NewFormHeight,
+  LCLIntf.SetWindowPos(Self.Handle, 0,
+    NewFormPos.X,
+    NewFormPos.Y,
+    NewFormWidth,
+    NewFormHeight,
     SWP_DEFERERASE {important on Alexey's test on Wine}
-      or SWP_NOOWNERZORDER or SWP_NOREDRAW or SWP_NOZORDER or SWP_NOACTIVATE
+      or SWP_NOOWNERZORDER
+      or SWP_NOREDRAW
+      or SWP_NOZORDER
+      or SWP_NOACTIVATE
       or SWP_NOCOPYBITS {prevents bit-copy flicker on native Windows}
     );
   {$else}
