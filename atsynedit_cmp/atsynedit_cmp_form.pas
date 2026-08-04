@@ -180,6 +180,7 @@ procedure CloseFormAutoCompletion;
 implementation
 
 uses
+  LCLIntf, //SetWindowPos()
   ATCanvasPrimitives,
   ATStrings,
   ATStringProc,
@@ -990,7 +991,16 @@ begin
   if Application.MainForm.FormStyle in [fsStayOnTop, fsSystemStayOnTop] then
     FormStyle:= Application.MainForm.FormStyle;
 
+  {$ifdef windows}
+  //on Windows, SetBounds makes flicker of CudaText form's toolbar/sidebar and editor's scrollbar
+  SetWindowPos(Self.Handle, 0,
+    NewFormPos.X, NewFormPos.Y, NewFormWidth, NewFormHeight,
+    SWP_DEFERERASE {important on Alexey's test on Wine}
+      or SWP_NOOWNERZORDER or SWP_NOREDRAW or SWP_NOZORDER or SWP_NOACTIVATE
+    );
+  {$else}
   SetBounds(NewFormPos.X, NewFormPos.Y, NewFormWidth, NewFormHeight);
+  {$endif}
 
   Visible:= true; //method Show is more heavyweight
 end;
