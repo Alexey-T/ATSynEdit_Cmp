@@ -1002,7 +1002,8 @@ begin
   SetBounds(NewFormPos.X, NewFormPos.Y, NewFormWidth, NewFormHeight);
   {$endif}
 
-  Visible:= true; //method Show is more heavyweight
+  if not Visible then
+    Visible:= true; //method Show is more heavyweight
 end;
 
 
