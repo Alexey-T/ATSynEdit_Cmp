@@ -974,14 +974,14 @@ begin
   NewFormWidth:= Min(CompletionOps.FormWidth, Parent.ClientWidth);
   NewFormHeight:= Min(CompletionOps.FormMaxVisibleItems, Listbox.ItemCount)*Listbox.ItemHeight + 2*Listbox.BorderSpacing.Around + 1;
 
-  // Idea #3: no-shrink rule.  When the form is already visible and the
-  // filtered list count decreases (the common case as the user types more
-  // letters and the list narrows), don't shrink the form height.  This is
-  // the single most effective flicker fix on native Windows: if the form
-  // never shrinks, there is never an "uncovered area" on the parent that
-  // would need repainting.  The listbox already paints its own background
-  // for the leftover (empty) area below the last item, so visually nothing
-  // breaks.  Growing is still allowed (rare case when the list grows).
+  {
+  No-shrink rule. When the form is already visible and the
+  filtered list count decreases (the common case as the user types more
+  letters and the list narrows), don't shrink the form height.  This is
+  the single most effective flicker fix on native Windows: if the form
+  never shrinks, there is never an "uncovered area" on the parent that
+  would need repainting.
+  }
   if Visible and (NewFormHeight < Height) then
     NewFormHeight:= Height;
 
