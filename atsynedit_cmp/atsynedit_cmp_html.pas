@@ -853,8 +853,8 @@ begin
       St.Lines[Caret.PosY]:= SLine;
       Caret.PosX:= Caret.PosX+1;
       Ed.UpdateCaretsAndMarkersOnEditing(iCaret+1,
-        Point(Caret.PosX, Caret.PosY),
-        Point(Caret.PosX, Caret.PosY),
+        Caret.AsPoint,
+        Caret.AsPoint,
         Point(1, 0),
         Point(0, 0));
     end;
