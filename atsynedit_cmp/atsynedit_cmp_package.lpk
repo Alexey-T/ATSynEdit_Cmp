@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
-  <Package Version="5">
+  <Package Version="6">
     <Name Value="atsynedit_cmp_package"/>
     <Type Value="RunTimeOnly"/>
     <Author Value="Alexey Torgashin"/>
     <CompilerOptions>
       <Version Value="11"/>
       <SearchPaths>
-        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)/$(LCLWidgetType)"/>
+        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)-$(LCLWidgetType)-$(FPCVer)"/>
       </SearchPaths>
       <Parsing>
         <SyntaxOptions>
@@ -29,52 +29,51 @@
     <Description Value="Auto-completion for ATSynEdit. General form with listbox, and helpers for: HTML completion, CSS completion, file:/// paths completion, CudaText .acp files completion."/>
     <License Value="MPL 2.0, LGPL"/>
     <Version Major="2" Minor="3" Release="1"/>
-    <Files Count="9">
-      <Item1>
+    <Files>
+      <Item>
         <Filename Value="atsynedit_cmp_filenames.pas"/>
         <UnitName Value="ATSynEdit_Cmp_Filenames"/>
-      </Item1>
-      <Item2>
+      </Item>
+      <Item>
         <Filename Value="atsynedit_cmp_acpfiles.pas"/>
         <UnitName Value="ATSynEdit_Cmp_AcpFiles"/>
-      </Item2>
-      <Item3>
+      </Item>
+      <Item>
         <Filename Value="atsynedit_cmp_css.pas"/>
         <UnitName Value="ATSynEdit_Cmp_CSS"/>
-      </Item3>
-      <Item4>
+      </Item>
+      <Item>
         <Filename Value="atsynedit_cmp_html.pas"/>
         <UnitName Value="ATSynEdit_Cmp_HTML"/>
-      </Item4>
-      <Item5>
+      </Item>
+      <Item>
         <Filename Value="atsynedit_cmp_form.pas"/>
         <UnitName Value="ATSynEdit_Cmp_Form"/>
-      </Item5>
-      <Item6>
+      </Item>
+      <Item>
         <Filename Value="atsynedit_cmp_fileuri.pas"/>
         <UnitName Value="ATSynEdit_Cmp_FileURI"/>
-      </Item6>
-      <Item7>
+      </Item>
+      <Item>
         <Filename Value="atsynedit_cmp_css_provider.pas"/>
         <UnitName Value="ATSynEdit_Cmp_CSS_Provider"/>
-      </Item7>
-      <Item8>
+      </Item>
+      <Item>
         <Filename Value="atsynedit_cmp_html_provider.pas"/>
         <UnitName Value="ATSynEdit_Cmp_HTML_Provider"/>
-      </Item8>
-      <Item9>
+      </Item>
+      <Item>
         <Filename Value="atsynedit_cmp_renderhtml.pas"/>
         <UnitName Value="ATSynEdit_Cmp_RenderHTML"/>
-      </Item9>
+      </Item>
     </Files>
-    <CompatibilityMode Value="True"/>
-    <RequiredPkgs Count="2">
-      <Item1>
+    <RequiredPkgs>
+      <Item>
         <PackageName Value="atsynedit_package"/>
-      </Item1>
-      <Item2>
+      </Item>
+      <Item>
         <PackageName Value="FCL"/>
-      </Item2>
+      </Item>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>
