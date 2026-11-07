@@ -28,7 +28,7 @@ var
   i: byte;
 begin
   for i in [$20..$2F, ord('|')] do
-    SReplaceAll(S, '%'+IntToHex(i, 2), Chr(i));
+    S:= StringReplace(S, '%'+IntToHex(i, 2), Chr(i), [rfReplaceAll]);
 end;
 
 
@@ -117,8 +117,8 @@ begin
   SReplaceAllPercentChars(SId);
   SReplaceAllPercentChars(SPar);
 
-  SReplaceAll(SPar, ';', ','); //Pascal lexer has ";" param separator
-  SReplaceAll(SPar, '[,', ',['); //for optional params
+  SPar:= StringReplace(SPar, ';', ',', [rfReplaceAll]); //Pascal lexer has ";" param separator
+  SPar:= StringReplace(SPar, '[,', ',[', [rfReplaceAll]); //for optional params
 end;
 
 
