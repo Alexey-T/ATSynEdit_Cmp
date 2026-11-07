@@ -23,76 +23,6 @@ uses
   ATSynEdit_Carets,
   ATSynEdit_Cmp_Form;
 
-procedure SReplaceAllPercentChars(var S: string);
-const
-  cHexDigits: set of byte = [Ord('0')..Ord('9'), Ord('A')..Ord('F')];
-  cEncodableChars: set of byte = [$20..$2F, Ord('|')];
-var
-  i, j, N, Code: integer;
-
-  //decodes 2 uppercase hex digits at APos, true if decoded char is encodable
-  function TryDecodeHexPair(const AStr: string; APos: integer; out ACode: integer): boolean;
-  var
-    N1, N2: integer;
-  begin
-    Result:= false;
-    N1:= Ord(AStr[APos]);
-    N2:= Ord(AStr[APos+1]);
-    if (N1 in cHexDigits) and (N2 in cHexDigits) then
-    begin
-      if N1 <= Ord('9') then
-        Dec(N1, Ord('0'))
-      else
-        Dec(N1, Ord('A') - 10);
-      if N2 <= Ord('9') then
-        Dec(N2, Ord('0'))
-      else
-        Dec(N2, Ord('A') - 10);
-      ACode:= N1 * 16 + N2;
-      Result:= ACode in cEncodableChars;
-    end;
-  end;
-
-begin
-  N:= Length(S);
-  if N < 3 then Exit;
-
-  //find 1st encodable '%XX', to skip entire job for common case
-  i:= 1;
-  while i <= N - 2 do
-  begin
-    if (S[i] = '%') and TryDecodeHexPair(S, i + 1, Code) then
-      Break;
-    Inc(i);
-  end;
-  if i > N - 2 then Exit;
-
-  //replace all encodable pairs, compacting string in place:
-  //result is always shorter, so write pos never overtakes read pos
-  j:= i;
-  while i <= N - 2 do
-  begin
-    if (S[i] = '%') and TryDecodeHexPair(S, i + 1, Code) then
-    begin
-      S[j]:= Chr(Code);
-      Inc(j);
-      Inc(i, 3);
-      Continue;
-    end;
-    S[j]:= S[i];
-    Inc(i);
-    Inc(j);
-  end;
-  while i <= N do
-  begin
-    S[j]:= S[i];
-    Inc(i);
-    Inc(j);
-  end;
-  SetLength(S, j - 1);
-end;
-
-
 type
   { TAcp }
 
@@ -145,6 +75,7 @@ procedure SParseString_AcpStd(
   out SType, SId, SPar, SHint: string);
 const
   cMaxHintLen = 300;
+  cPercentEncodableChars: TATSetOfByte = [$20..$2F, Ord('|')];
 var
   a, b, c: Integer;
 begin
@@ -175,8 +106,8 @@ begin
   SPar:= Copy(s, b, c-b);
   SHint:= Copy(s, c+1, cMaxHintLen);
 
-  SReplaceAllPercentChars(SId);
-  SReplaceAllPercentChars(SPar);
+  SUnescapePercentEncodedString(SId, cPercentEncodableChars);
+  SUnescapePercentEncodedString(SPar, cPercentEncodableChars);
 
   SPar:= StringReplace(SPar, ';', ',', [rfReplaceAll]); //Pascal lexer has ";" param separator
   SPar:= StringReplace(SPar, '[,', ',[', [rfReplaceAll]); //for optional params
