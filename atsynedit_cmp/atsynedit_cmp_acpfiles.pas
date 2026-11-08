@@ -106,8 +106,8 @@ begin
   SPar:= Copy(s, b, c-b);
   SHint:= Copy(s, c+1, cMaxHintLen);
 
-  SUnescapePercentEncodedString(SId, cPercentEncodableChars);
-  SUnescapePercentEncodedString(SPar, cPercentEncodableChars);
+  SId:= SUnescapePercentEncodedString(SId, cPercentEncodableChars);
+  SPar:= SUnescapePercentEncodedString(SPar, cPercentEncodableChars);
 
   SPar:= StringReplace(SPar, ';', ',', [rfReplaceAll]); //Pascal lexer has ";" param separator
   SPar:= StringReplace(SPar, '[,', ',[', [rfReplaceAll]); //for optional params
