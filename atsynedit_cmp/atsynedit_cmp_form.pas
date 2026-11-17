@@ -106,6 +106,9 @@ type
     procedure EditorOptionsRestore;
     procedure SetEditor(AValue: TATSynEdit);
     procedure TimerClosingTimer(Sender: TObject);
+    {$ifdef windows}
+    procedure CreateParams(var Params: TCreateParams); override;
+    {$endif}
     procedure UpdateListboxItemHeight;
   public
     { public declarations }
@@ -361,6 +364,18 @@ begin
   FHintWnd:= THintWindow.Create(Self);
 end;
 
+{$ifdef windows}
+procedure TFormATSynEditComplete.CreateParams(var Params: TCreateParams);
+begin
+  inherited CreateParams(Params);
+  //fix CudaText issue #6267: completion listbox must not participate in any
+  //focus/activation switch on show/hide; every focus churn generates
+  //WM_KILLFOCUS/WM_SETFOCUS cascades and repaints of custom-drawn sibling
+  //controls (themed scrollbar, sidebar). $08000000 = WS_EX_NOACTIVATE.
+  Params.ExStyle:= Params.ExStyle or $08000000;
+end;
+{$endif}
+
 procedure TFormATSynEditComplete.FormDeactivate(Sender: TObject);
 begin
   Close;
@@ -384,8 +399,12 @@ begin
   //if pressing Esc with auto-completion opened
   FEdit.DoCommand(1{some not existing command}, TATCommandInvoke.Internal);
   }
-  //above commented block is not needed after the fix in CudaText #5054, FEdit.Update is enough
-  FEdit.Update;
+  //above commented block is not needed after the fix in CudaText #5054
+  //CudaText #6267: don't force the _synchronous_ full repaint of the editor here
+  //(Update = repaint right now, inside the hide sequence; it repaints the editor
+  //and cascades into scrollbar updates in one visible flash). Asynchronous
+  //Invalidate is enough to restore the caret state which #5054 was about.
+  FEdit.Invalidate;
 end;
 
 procedure TFormATSynEditComplete.FormDestroy(Sender: TObject);
@@ -901,7 +920,10 @@ begin
       exit;
     end;
 
-  Color:= ATFlatTheme.ColorBgListbox;
+  //CudaText #6267: set the form color only when it is not shown yet: setting
+  //Color on every UpdateData call invalidates the whole form window each time
+  if not Visible then
+    Color:= ATFlatTheme.ColorBgListbox;
 
   SList.Clear;
   if Assigned(FOnGetProp) then
@@ -1003,6 +1025,14 @@ begin
   if Application.MainForm.FormStyle in [fsStayOnTop, fsSystemStayOnTop] then
     FormStyle:= Application.MainForm.FormStyle;
 
+  //CudaText #6267: skip the window move/resize entirely when the form is already
+  //visible and its geometry is not changing: every SetWindowPos call on Windows
+  //can trigger repaint of the parent window's regions and sibling custom-drawn
+  //controls (themed scrollbar, sidebar), even with SWP_NOREDRAW/SWP_NOCOPYBITS
+  if (not Visible) or
+    (NewFormPos.X<>Left) or (NewFormPos.Y<>Top) or
+    (NewFormWidth<>Width) or (NewFormHeight<>Height) then
+  begin
   {$ifdef windows}
   //on Windows, SetBounds makes flicker of CudaText form's toolbar/sidebar and editor's scrollbar
   //
@@ -1048,6 +1078,7 @@ begin
   {$else}
   SetBounds(NewFormPos.X, NewFormPos.Y, NewFormWidth, NewFormHeight);
   {$endif}
+  end;
 
   if not Visible then
     Visible:= true; //method Show is more heavyweight
